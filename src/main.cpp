@@ -1,6 +1,6 @@
 
 /*
- * Test main for nRFCounter library.
+ * Test main for nRF5x library.
  *
  * Minimal: only tests the LongClock.
  * This project is configured to build a library, and not an executable: this main is an example, non-functional.
@@ -13,7 +13,7 @@
 
 
 
-#include <modules/nRFCounter.h>
+#include "modules/nRFCounter.h"
 #include "SEGGER_RTT.h"
 
 

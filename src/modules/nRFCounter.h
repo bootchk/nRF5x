@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include <inttypes.h>
 
 
@@ -7,6 +9,7 @@
  */
 typedef uint64_t LongTime;
 
+typedef uint32_t OSTime;
 
 
 
@@ -46,7 +49,7 @@ public:
 
 	static void startTimer(
 			unsigned int index,	// [0:2]
-			unsigned int timeout, // [0:xffffff]
+			OSTime timeout, // [0:xffffff]
 			void (*onTimeoutCallback)());
 
 	static bool isTimerStarted(unsigned int index);

@@ -1,7 +1,7 @@
 
 #include <cassert>
 #include <inttypes.h>
-#include <modules/nRFCounter.h>
+#include "nRFCounter.h"
 #include "../drivers/lowFrequencyClock.h"
 #include "../drivers/counter.h"
 #include "../drivers/compareRegister.h"
@@ -145,7 +145,7 @@ LongTime LongClockTimer::getNowTime() {
 
 void LongClockTimer::startTimer(
 		unsigned int index,
-		unsigned int timeout,
+		OSTime timeout,
 		void (*aTimeoutCallback)()){
 	assert(timeout < MaxTimeout);
 	assert(timeout >= 2);
