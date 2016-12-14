@@ -177,13 +177,11 @@ void Radio::dispatchPacketCallback() {
 
 
 
-void Radio::init(void (
-		*onRcvMsgCallback)(),
+void Radio::init(
 		Nvic* aNvic,
 		PowerSupply* aPowerSupply,
 		HfClock* aHfClock)
 {
-	aRcvMsgCallback = onRcvMsgCallback;
 	nvic = aNvic;
 	powerSupply = aPowerSupply;
 	hfClock = aHfClock;
@@ -204,6 +202,11 @@ void Radio::init(void (
 	// not ensure Radio or its underlying RadioDevice is functional.
 	// not ensure isPowerOn()
 }
+
+void Radio::setMsgReceivedCallback(void (*onRcvMsgCallback)()) {
+	aRcvMsgCallback = onRcvMsgCallback;
+}
+
 
 
 // Configuration

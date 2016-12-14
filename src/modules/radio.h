@@ -118,12 +118,15 @@ public:
 
 	static void receivedEventHandler();
 
+	/*
+	 * Tells radio of needed other devices. More configuration required.
+	 */
 	static void init(
-			void (*onRcvMsgCallback)(),
 			Nvic*,
 			PowerSupply*,
 			HfClock*
 			);
+	static void setMsgReceivedCallback(void (*onRcvMsgCallback)());
 	static void configureStatic();
 	// platform independent 1: +4, 8: -40, else 0.   Units dBm.
 	// FUTURE enum

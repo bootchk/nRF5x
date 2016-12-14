@@ -46,11 +46,11 @@ int main() {
 	longClockTimer.init(&nvic);
 
 	radio.init(
-			msgReceivedCallback,
 			&nvic,
 			&powerSupply,
 			&hfClock
 	);
+	radio.setMsgReceivedCallback(msgReceivedCallback);
 	log("Initialized clock and radio\n");
 
 	while (true) {
