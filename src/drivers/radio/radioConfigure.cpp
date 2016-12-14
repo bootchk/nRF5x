@@ -2,7 +2,7 @@
 #include <cassert>
 #include "nrf.h"
 
-#include "radioDevice.h"
+#include "radio.h"
 
 /*
  * Device level configuration

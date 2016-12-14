@@ -112,7 +112,7 @@ void RTC0_IRQHandler(void)
 
 void LongClockTimer::init(Nvic* nvic) {
 
-	mostSignificantBits = 1;
+	reset();
 
 	// RTC requires LFC started
 	startXtalOscillator();
@@ -134,7 +134,13 @@ void LongClockTimer::init(Nvic* nvic) {
 	// assert compareRegisters are configured by default to disabled interrupt w/ nullptr callbacks
 }
 
-LongTime LongClockTimer::getNowTime() {
+
+void LongClockTimer::reset(){
+	mostSignificantBits = 0;
+}
+
+
+LongTime LongClockTimer::nowTime() {
 	OSTime currentOSClockTicks = counter.ticks();
 	// Concatenate MSB and LSB.  Portable?
 	LongTime result = mostSignificantBits;

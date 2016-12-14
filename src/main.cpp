@@ -14,7 +14,13 @@
 
 
 #include "modules/nRFCounter.h"
+#include "modules/radio.h"
+
+
 #include "drivers/nvic.h"
+#include "drivers/powerSupply.h"
+#include "drivers/hfClock.h"
+
 #include "services/logger.h"
 
 
@@ -22,14 +28,34 @@
 LongClockTimer longClockTimer;
 Nvic nvic;
 
+
+HfClock hfClock;
+PowerSupply powerSupply;
+Radio radio;
+
+
+void msgReceivedCallback() {
+
+}
+
+
+
 int main() {
 	// assert embedded system startup is done and calls main.
 
 	longClockTimer.init(&nvic);
 
+	radio.init(
+			msgReceivedCallback,
+			&nvic,
+			&powerSupply,
+			&hfClock
+	);
+	log("Initialized clock and radio\n");
+
 	while (true) {
 		// delay
-		logLongLong( longClockTimer.getNowTime() );
+		logLongLong( longClockTimer.nowTime() );
 		// longClockTimer.timer1.start(100);
 	}
 

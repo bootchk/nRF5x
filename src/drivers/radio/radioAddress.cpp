@@ -4,7 +4,7 @@
 
 #include "nrf.h"
 
-#include "radioDevice.h"
+#include "radio.h"
 
 // Low-level concerning configuration of address
 

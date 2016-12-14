@@ -9,27 +9,26 @@ Provides
      Other simple services such as a mailbox
      Thin wrapper around certain board-level devices such as LED's.
 
-     
-
-
 
 Motivation
 -
-Nordic's libraries suspect and overweight for my use case.
+    Nordic's libraries suspect and overweight for my use case.
+    I wanted a lightweight radio protocol
+    I didn't think I needed an RTOS, but needed some basics e.g. timers and mailbox
 
+I had the most trouble with Nordic's app_timer library.
     
 Implementation Notes
 -
-Some use of HAL, not nrf_drv: probably less robust, but easier to understand.  
+Some use of HAL but also some bare metal, direct access to device registers.  (Probably HAL should be used exclusively so it could be ported to another chip?)
 
-Some bare metal, direct access to device registers.
+Not using Nordics C-language drivers in NRF\_SDK/components/nrf_drv.  Those drivers may be more robust, but are hard to read and understand.
 
 
 Building
 -
 
 Several build configurations:
-
 
     artifacts are libraries cross-compiled for targets nRF51 and nRF52 (ARM M0 and M4.)
     artifacts are executables that test the library
@@ -38,7 +37,14 @@ The project in this repository is an Eclipse project, using Eclipse's build syst
 The project's Eclipse build configuration contains many include paths and other build settings.
 Such settings are not defined in a Makefile.
 
-One important linker setting is --specs=nosys.specs otherwise get undefined reference to _exit.
+The most important setting is *Properties>C/C++ Build>Build Variables* variable named NRF_SDK should have a value pointing to your installation of the Nordic SDK.
+
+Other important settings:
+
+    linker setting --specs=nosys.specs otherwise get undefined reference to _exit.
+    Tool Settings>Target Processor  float abi hard (nRF52 has FPU)
+    *Properties>C/C++ General>Paths and Symbols>Symbols* define NRF52 or NRF51
+    
 
 Boards
 -
@@ -65,7 +71,7 @@ See Also
 -
  Derived from (and superseding) nRFCounter and nRFrawProtocol
  
- See testnRFCounter project, a template project with similar build and debug configurations.
+ See testnRFCounter project, a template project with similar build and debug configurations.  More explanation there about exactly how to configure a Build Configuration in Eclipse.
 
 A using project will be fireFly.
 

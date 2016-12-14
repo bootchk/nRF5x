@@ -45,8 +45,9 @@ public:
 	static const unsigned int CountTimerInstances = 3;
 
 	static void init(Nvic*);
+	static void reset();
 
-	static LongTime getNowTime();
+	static LongTime nowTime();
 
 	static void startTimer(
 			unsigned int index,	// [0:2]

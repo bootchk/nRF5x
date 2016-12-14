@@ -1,6 +1,6 @@
 #include "nrf.h"
 
-#include "radioDevice.h"
+#include "radio.h"
 
 
 /*

@@ -2,7 +2,7 @@
 
 #include "nrf.h"
 
-#include "radioDevice.h"
+#include "radio.h"
 
 /*
  * More implementation of RadioDevice is in radioConfigure.c and radioAddress.c
