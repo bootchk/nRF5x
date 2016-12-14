@@ -14,22 +14,18 @@
 
 
 #include "modules/nRFCounter.h"
-#include "SEGGER_RTT.h"
+#include "drivers/nvic.h"
+#include "services/logger.h"
 
 
-void logLongLong(uint64_t value ){
-	// Print on one line
-	(void) SEGGER_RTT_printf(0, "x%04x", *(((uint32_t*) &value) + 1)  );	// MS word
-	(void) SEGGER_RTT_printf(0, "%04x\n", value);	// LS word and newline
-
-}
 
 LongClockTimer longClockTimer;
+Nvic nvic;
 
 int main() {
 	// assert embedded system startup is done and calls main.
 
-	longClockTimer.init();
+	longClockTimer.init(&nvic);
 
 	while (true) {
 		// delay

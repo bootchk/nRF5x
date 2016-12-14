@@ -6,18 +6,15 @@
 
 namespace {
 
-/*
- * Interrupt must be enabled in NVIC as well as in device.
- */
-void enableNvicIRQ_RTC0() {
-	NVIC_ClearPendingIRQ(RTC0_IRQn);
-	NVIC_EnableIRQ(RTC0_IRQn);
+// Counter knows nvic
+Nvic* nvic;
+
 }
 
-}  // namespace
 
-
-
+void Counter::init(Nvic* aNvic) {
+	nvic = aNvic;
+}
 
 void Counter::start(){
 	// Start (power on)
@@ -53,7 +50,7 @@ void Counter::configureOverflowInterrupt(){
 	// Writes 1 to bit of INTENSET reg.  Does not affect other enabled interrupts.
 	nrf_rtc_int_enable(NRF_RTC0, NRF_RTC_INT_OVERFLOW_MASK);
 
-	enableNvicIRQ_RTC0();
+	nvic->enableRTC0IRQ();
 
 	// Interrupt can come at any time.
 	// Usually, this is called shortly after starting Counter, so interrupt will come after period of Counter

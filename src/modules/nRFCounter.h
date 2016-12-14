@@ -2,6 +2,7 @@
 #pragma once
 
 #include <inttypes.h>
+#include "../drivers/nvic.h"
 
 
 /*
@@ -43,7 +44,7 @@ public:
 	 */
 	static const unsigned int CountTimerInstances = 3;
 
-	static void init();
+	static void init(Nvic*);
 
 	static LongTime getNowTime();
 

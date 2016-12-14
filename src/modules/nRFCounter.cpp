@@ -110,7 +110,7 @@ void RTC0_IRQHandler(void)
 }	// extern "C"
 
 
-void LongClockTimer::init() {
+void LongClockTimer::init(Nvic* nvic) {
 
 	mostSignificantBits = 1;
 
@@ -123,6 +123,8 @@ void LongClockTimer::init() {
 
 	// assert prescaler is default of 0, i.e. 30uSec tick
 
+	// Counter knows nvic
+	counter.init(nvic);
 	counter.start();
 
 	initCompareRegs();

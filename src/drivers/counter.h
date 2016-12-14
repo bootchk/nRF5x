@@ -1,5 +1,6 @@
 
 #include <inttypes.h>
+#include "nvic.h"
 
 
 /*
@@ -9,6 +10,7 @@ typedef uint32_t OSTime;
 
 class Counter {
 public:
+	static void init(Nvic*);
 	static void start();
 
 	static void configureOverflowInterrupt();
