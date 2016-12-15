@@ -43,12 +43,13 @@ Other important settings:
 
     linker setting --specs=nosys.specs otherwise get undefined reference to _exit.
     Tool Settings>Target Processor  float abi hard (nRF52 has FPU)
-    *Properties>C/C++ General>Paths and Symbols>Symbols* define NRF52 or NRF51
+    *Properties>C/C++ General>Paths and Symbols>Symbols* define NRF52 or NRF51, and a board e.g. PC10040?
     
 Other settings:
 
     *Properties>C/C++ General>Paths and Symbols>Symbols* define LOGGING to make Logger potent
 
+AFAIK, many of the other defines for PAN's (Product Anomalies) found in Nordic Makefiles are not needed for this library.  They seem to affect code conditionally compiled into certain Nordic libraries.
 
 Boards
 -
@@ -73,9 +74,9 @@ TODO add other mains that test other modules.
 
 See Also
 -
- Derived from (and superseding) nRFCounter and nRFrawProtocol
+Derived from (and superseding) nRFCounter and nRFrawProtocol
  
- See testnRFCounter project, a template project with similar build and debug configurations.  More explanation there about exactly how to configure a Build Configuration in Eclipse.
+See testnRFCounter project, a template project with similar build and debug configurations.  More explanation there about exactly how to configure a Build Configuration in Eclipse.
 
 A using project will be fireFly.
 
