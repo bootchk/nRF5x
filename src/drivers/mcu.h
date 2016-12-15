@@ -1,3 +1,4 @@
+#pragma once
 
 /*
  * "driver" for microcontroller device.
