@@ -19,7 +19,7 @@ LongClockTimer* timerService;
 
 OSTime maxSaneTimeout;
 
-static ReasonForWake reasonForWake;
+static ReasonForWake reasonForWake = None;
 
 
 

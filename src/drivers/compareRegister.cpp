@@ -33,8 +33,8 @@ void CompareRegister::enableInterrupt(){
 
 void CompareRegister::disableInterrupt(){
 	nrf_rtc_event_disable(NRF_RTC0, eventMask);
-		nrf_rtc_int_disable(NRF_RTC0, interruptMask);
-		// not ensure nvic enabled
+	nrf_rtc_int_disable(NRF_RTC0, interruptMask);
+	// not ensure nvic disabled
 }
 
 

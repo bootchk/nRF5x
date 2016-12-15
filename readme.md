@@ -45,6 +45,10 @@ Other important settings:
     Tool Settings>Target Processor  float abi hard (nRF52 has FPU)
     *Properties>C/C++ General>Paths and Symbols>Symbols* define NRF52 or NRF51
     
+Other settings:
+
+    *Properties>C/C++ General>Paths and Symbols>Symbols* define LOGGING to make Logger potent
+
 
 Boards
 -

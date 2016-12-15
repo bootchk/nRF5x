@@ -86,34 +86,25 @@ typedef enum {
  */
 class Radio {
 
-private:
-
-	// OBSOLETE static bool wasTransmitting;  // false: wasReceiving
-	static void (*aRcvMsgCallback)();
-
-
 public:
 	// Define protocol lengths
 
-	// FUTURE Variable payload up to 258 bytes?
-
 	/*
 	 * Fixed: all payloads same size.
+	 *
 	 * Device configured to not transmit S0, LENGTH, S1
 	 * Buffer not include S0, LENGTH, S1 fields.
+	 *
+	 * Must match length of Message class (struct).
+	 * Which for SleepSync is 6 MasterID + 3 offset + 1 WorkPayload
 	 */
 	static const uint8_t FixedPayloadCount = 10;
 
+	// Length of transmitted physical layer address (not part of payload.)
+	// All units have same physical address so
 	static const uint8_t LongNetworkAddressLength = 4;	// 1 byte preamble, 3 bytes base
 	static const uint8_t MediumNetworkAddressLength = 3;	// 1 byte preamble, 2 bytes base
 	static const uint8_t ShortNetworkAddressLength = 2;	// 1 byte preamble, 1 bytes base
-
-	//static volatile int guard[10];
-	static volatile uint8_t radioBuffer[FixedPayloadCount+60];
-	//static volatile int guard2[10];
-
-	static RadioState state;
-
 
 
 	static void receivedEventHandler();
@@ -122,12 +113,24 @@ public:
 	 * Tells radio of needed other devices. More configuration required.
 	 */
 	static void init(
+			// Used devices
 			Nvic*,
 			PowerSupply*,
 			HfClock*
 			);
+
+	/*
+	 * Set callback for all physical messages received.
+	 * Callback is usually to another protocol layer, not necessarily to app layer.
+	 */
 	static void setMsgReceivedCallback(void (*onRcvMsgCallback)());
-	static void configureStatic();
+
+
+	/*
+	 * Configure parameters of physical protocol: freq, addr, CRC, bitrate, etc
+	 */
+	static void configurePhysicalProtocol();
+
 	// platform independent 1: +4, 8: -40, else 0.   Units dBm.
 	// FUTURE enum
 	static void configureXmitPower(unsigned int dBm);

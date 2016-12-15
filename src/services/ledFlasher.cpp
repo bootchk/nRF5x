@@ -17,6 +17,7 @@ LEDLogger ledLogger;
  */
 void ledOffCallback() {
 	ledLogger.switchLED(1, false);
+	// Timer cancels itself
 }
 
 

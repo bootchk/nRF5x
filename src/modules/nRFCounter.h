@@ -35,9 +35,10 @@ typedef uint32_t OSTime;
  */
 class LongClockTimer {
 	static const int OSClockCountBits = 24;
-	static const unsigned int MaxTimeout = 0xFFFFFF;
 
 public:
+	static const unsigned int MaxTimeout = 0xFFFFFF;
+
 	/*
 	 * How many Timers this device supports (with compare registers).
 	 * Depends on device, here 3 is compatible with nRF51 and nRF52, certain revisions?

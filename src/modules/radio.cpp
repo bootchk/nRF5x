@@ -41,6 +41,14 @@ Nvic* nvic;
 PowerSupply* powerSupply;
 HfClock* hfClock;
 
+void (*aRcvMsgCallback)() = nullptr;
+
+// State currently just used for assertions
+RadioState state;
+
+// 60 is extra,
+volatile uint8_t radioBuffer[Radio::FixedPayloadCount+60];
+
 
 extern "C" {
 void RADIO_IRQHandler() {
@@ -52,22 +60,6 @@ void RADIO_IRQHandler() {
 
 
 } // namespace
-
-
-
-// TODO init pass used devices
-
-
-void (*Radio::aRcvMsgCallback)();
-
-// State currently just used for assertions
-RadioState Radio::state;
-
-//volatile int Radio::guard[10];
-volatile uint8_t Radio::radioBuffer[FixedPayloadCount+60];
-//volatile int Radio::guard2[10];
-
-
 
 
 
@@ -87,7 +79,11 @@ void Radio::receivedEventHandler(void)
 
     	ledLogger2.toggleLED(2);	// debug: LED 2 show every receive
 
-    	// Call Sleeper::msgReceivedCallback() which sets reasonForWake
+    	/*
+    	 * Call next layer.
+    	 * For SleepSyncAgent calls Sleeper::msgReceivedCallback() which sets reasonForWake
+    	 */
+    	assert(aRcvMsgCallback!=nullptr);
     	aRcvMsgCallback();
     }
     else
@@ -180,7 +176,8 @@ void Radio::dispatchPacketCallback() {
 void Radio::init(
 		Nvic* aNvic,
 		PowerSupply* aPowerSupply,
-		HfClock* aHfClock)
+		HfClock* aHfClock
+		)
 {
 	nvic = aNvic;
 	powerSupply = aPowerSupply;
@@ -199,22 +196,25 @@ void Radio::init(
 	 * Caller must do additional configuration.
 	 */
 
-	// not ensure Radio or its underlying RadioDevice is functional.
-	// not ensure isPowerOn()
+
+	/*
+	 * not ensure Radio or its underlying RadioDevice is functional: must configure
+	 *
+	 * not ensure isPowerOn(): must power it on
+	 *
+	 * not ensure callback not nullptr: must set else radio might receive but not relay packet on
+	 */
 }
 
-void Radio::setMsgReceivedCallback(void (*onRcvMsgCallback)()) {
+
+void Radio::setMsgReceivedCallback(void (*onRcvMsgCallback)()){
 	aRcvMsgCallback = onRcvMsgCallback;
 }
 
-
-
-// Configuration
-
-// TODO rename Fixed and Variable
-
 /*
- * A. Radio POR power-on-reset resets configuration to default values.
+ * Configuration
+ *
+ * A. Radio POR power-on-reset resets device configuration to default values.
  * B. Reset defaults seem to be non-functional
  *
  * Thus configure() must be called after every radio device transitions from power off=>on?
@@ -222,10 +222,13 @@ void Radio::setMsgReceivedCallback(void (*onRcvMsgCallback)()) {
  * C. Configuration can only be done when radio is DISABLED.
  * (except for certain registers, EVENT regs, PACKETPTR register, see elsewhere.)
  */
+
+
+
 //#define LONG_MESSAGE 1
 #define MEDIUM_MESSAGE
 
-void Radio::configureStatic() {
+void Radio::configurePhysicalProtocol() {
 
 	assert(isDisabledState());
 	// Specific to the protocol, here rawish
@@ -270,7 +273,7 @@ void Radio::configureXmitPower(unsigned int dBm) {
 
 void Radio::powerOnAndConfigure() {
 	powerOn();
-	configureStatic();
+	configurePhysicalProtocol();
 }
 
 

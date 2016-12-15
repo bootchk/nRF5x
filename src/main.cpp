@@ -35,7 +35,7 @@ Radio radio;
 
 
 void msgReceivedCallback() {
-
+	log("Msg received\n");
 }
 
 
@@ -50,6 +50,7 @@ int main() {
 			&powerSupply,
 			&hfClock
 	);
+
 	radio.setMsgReceivedCallback(msgReceivedCallback);
 	log("Initialized clock and radio\n");
 

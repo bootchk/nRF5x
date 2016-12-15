@@ -97,8 +97,14 @@ void RTC0_IRQHandler(void)
 			timerCallback[i] = nullptr;	// show not running
 			compareRegisters[i].clearEvent();
 
-			// One-shot: interrupt is disabled
-			// Event is clear but can be set again on rollover
+			/*
+			 * One-shot: assert:
+			 * - interrupt is disabled.
+			 * - event is cleared
+			 * - event is disabled
+			 * Counter continues and compare reg still set, but it can't fire.
+			 * Same effect as cancel.
+			 */
 		}
 	}
 
