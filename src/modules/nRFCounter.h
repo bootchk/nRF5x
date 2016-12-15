@@ -12,7 +12,11 @@ typedef uint64_t LongTime;
 
 typedef uint32_t OSTime;
 
-
+enum TimerIndex {
+	First =0,
+	Second,
+	Third
+};
 
 /*
  * Thin wrapper around RTC device of Nordic nRF52/51.
@@ -37,7 +41,12 @@ class LongClockTimer {
 	static const int OSClockCountBits = 24;
 
 public:
+	// Not support timeouts longer than compare register
 	static const unsigned int MaxTimeout = 0xFFFFFF;
+	// Device won't reliably cause event for timeouts < 2
+	// Some authors use 3 for safety
+	// app_timer used 5, because it had other delays?
+	static const unsigned int MinTimeout = 2;
 
 	/*
 	 * How many Timers this device supports (with compare registers).
@@ -51,11 +60,11 @@ public:
 	static LongTime nowTime();
 
 	static void startTimer(
-			unsigned int index,	// [0:2]
+			TimerIndex index,	// [0:2]
 			OSTime timeout, // [0:xffffff]
 			void (*onTimeoutCallback)());
 
-	static bool isTimerStarted(unsigned int index);
+	static bool isTimerStarted(TimerIndex index);
 
-	static void cancelTimer(unsigned int index);
+	static void cancelTimer(TimerIndex index);
 };

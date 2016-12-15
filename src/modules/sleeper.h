@@ -24,9 +24,9 @@
 
 
 typedef enum {
+	None = 2,
 	MsgReceived,
-	TimerExpired,
-	None
+	TimerExpired
 } ReasonForWake;
 
 
@@ -34,6 +34,10 @@ typedef enum {
 
 
 class Sleeper {
+private:
+	static const TimerIndex SleepTimerIndex = First;	// Must not be used elsewhere
+
+
 public:
 	// Public because passed to radio so it can hook IRQ into it
 	static void msgReceivedCallback();

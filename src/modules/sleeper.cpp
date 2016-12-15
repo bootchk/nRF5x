@@ -14,12 +14,12 @@ namespace {
 MCU mcu;
 
 // !!! not own TimerService
-// Exclusive use of timer[0]
+// Exclusive use of timer[SleepTimerIndex]
 LongClockTimer* timerService;
 
 OSTime maxSaneTimeout;
 
-static ReasonForWake reasonForWake = None;
+ReasonForWake reasonForWake = None;
 
 
 
@@ -68,7 +68,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 
 	// TODO should we be clearing, or asserting (rely on caller to clear, because of races?)
 	clearReasonForWake();
-	if (timeout < 5) {
+	if (timeout < LongClockTimer::MinTimeout) {
 		/*
 		 * Less than minimum required by restartInTicks() of app_timer library.
 		 * Don't sleep, but set reason for waking.
@@ -76,7 +76,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		 */
 		reasonForWake = TimerExpired;
 	}
-	else { // timeout >= 5
+	else { // timeout >= the min that clock supports
 
 		/*
 		 * Sanity of SleepSync: never sleeps longer than two SyncPeriodDuration
@@ -86,7 +86,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 
 		// oneshot timer must not trigger before we sleep, else sleep forever
 		timerService->startTimer(
-				0,
+				SleepTimerIndex,
 				timeout,
 				rcvTimeoutTimerCallback);
 		sleepSystemOn();	// wake by received msg or timeout
@@ -100,8 +100,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 
 
 void Sleeper::cancelTimeout(){
-	timerService->cancelTimer(0);
-	//receiveTimer.cancel();
+	timerService->cancelTimer(SleepTimerIndex);
 }
 
 
@@ -118,7 +117,12 @@ void Sleeper::msgReceivedCallback() {
 }
 
 
-ReasonForWake Sleeper::getReasonForWake() { return reasonForWake; }
+ReasonForWake Sleeper::getReasonForWake() {
+	ReasonForWake result = reasonForWake;
+	assert( result == None || result == TimerExpired || result == MsgReceived);
+	return result;
+}
+
 void Sleeper::clearReasonForWake() { reasonForWake = None; }
 
 

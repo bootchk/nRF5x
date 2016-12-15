@@ -33,6 +33,9 @@ void Counter::start(){
 	 */
 }
 
+void Counter::stop(){
+	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_STOP);
+}
 
 
 void Counter::configureOverflowInterrupt(){

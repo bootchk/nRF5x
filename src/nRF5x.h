@@ -16,5 +16,7 @@
 #include "modules/ledLogger.h"
 #include "modules/radio.h"
 
+// Expose certain  drivers not wrapped in modules yet
 // TODO module instead of function
 #include "drivers/uniqueID.h"
+#include "drivers/mcu.h"

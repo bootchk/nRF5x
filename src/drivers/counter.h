@@ -12,6 +12,7 @@ class Counter {
 public:
 	static void init(Nvic*);
 	static void start();
+	static void stop();
 
 	static void configureOverflowInterrupt();
 	static void clearOverflowEvent();

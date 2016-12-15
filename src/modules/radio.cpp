@@ -129,7 +129,7 @@ void Radio::clearEventForMsgReceivedInterrupt() { device.clearDisabledEvent(); }
 
 /*
  * In interrupt chain, disable in two places: nvic and device
- * Assume PRIMASK is always set to allow interrupts.
+ * Assume PRIMASK is always clear to allow interrupts.
  */
 void Radio::enableInterruptForMsgReceived() {
 	assert(!device.isDisabledEventSet());	// else interrupt immediately???

@@ -48,7 +48,7 @@ void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 
 	// start timer to turn LED off
 	timerService->startTimer(
-			1,
+			Second,
 			amount * MinTicksPerFlash,
 			ledOffCallback
 			);

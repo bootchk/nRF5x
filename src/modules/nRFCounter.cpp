@@ -123,6 +123,9 @@ void LongClockTimer::init(Nvic* nvic) {
 	// RTC requires LFC started
 	startXtalOscillator();
 
+	// Product anomaly 20 on nRF52 says do this
+	counter.stop();
+
 	// Docs don't say this can't be done while counter is running
 	counter.configureOverflowInterrupt();
 	// assert interrupt is enabled and mostSignificantBits will increment on overflow
@@ -158,11 +161,11 @@ LongTime LongClockTimer::nowTime() {
 
 
 void LongClockTimer::startTimer(
-		unsigned int index,
+		TimerIndex index,
 		OSTime timeout,
 		void (*aTimeoutCallback)()){
 	assert(timeout < MaxTimeout);
-	assert(timeout >= 2);
+	assert(timeout >= MinTimeout);
 	assert(index < CountTimerInstances);
 
 	// Not legal to start Timer already started and not timed out or canceled.
@@ -177,13 +180,16 @@ void LongClockTimer::startTimer(
 	compareRegisters[index].set(timeout);
 	// event not enabled yet
 	compareRegisters[index].enableInterrupt();
+	// event and interrupt enabled for compare reg
+
+	// assert RTC0 IRQ enabled (earlier for Counter.)
 }
 
-bool LongClockTimer::isTimerStarted(unsigned int index) {
+bool LongClockTimer::isTimerStarted(TimerIndex index) {
 	return ! (timerCallback[index] == nullptr);
 }
 
-void LongClockTimer::cancelTimer(unsigned int index){
+void LongClockTimer::cancelTimer(TimerIndex index){
 	/*
 	 * Legal to cancel Timer that has not been started.
 	 */
