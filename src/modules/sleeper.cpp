@@ -10,12 +10,13 @@
 
 namespace {
 
-// owns the mcu
-MCU mcu;
 
-// !!! not own TimerService
+MCU mcu;	// sleep()
+
+// !!! not own
 // Exclusive use of timer[SleepTimerIndex]
 LongClockTimer* timerService;
+TimerIndex SleepTimerIndex = First;	// Must not be used elsewhere
 
 OSTime maxSaneTimeout;
 
@@ -89,13 +90,28 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 				SleepTimerIndex,
 				timeout,
 				rcvTimeoutTimerCallback);
-		sleepSystemOn();	// wake by received msg or timeout
-		// assert IRQ
+		mcu.sleep();
+		// awakened by event: received msg or timeout or other
+
+		/*
+		 * If timer expired, timer is already stopped.
+		 * Else, stop it to ensure consistent state.
+		 * Note that for our timer semantics, it is safe to stop a timer that it not started,
+		 * but not safe to start a timer that is already started.
+		 */
+		timerService->cancelTimer(SleepTimerIndex);
 	}
-	// We either never slept and simulated reasonForWake == Timeout,
-	// or slept then woke and the handler (at SWI0 priority of APP_LOW) set reasonForWake in [Timeout, MsgReceived)
-	// or an unexpected event woke us.
-	// Because of the latter possiblity we can't assert(reasonForWake != Cleared);
+	/*
+	 * Cases:
+	 * - never slept and simulated reasonForWake == Timeout
+	 * - OR slept then woke and:
+	 * -- IRQ handler set reasonForWake in [Timeout, MsgReceived)
+	 * -- unexpected event woke us and reasonForWake is still None
+	 *
+	 * In all cases, assert timer is stopped (so using our timer semantics, it can be started again.
+	 *
+	 * !!! Cannot assert that timeout amount of time has elapsed: unexpected events may wake early.
+	 */
 }
 
 
@@ -125,8 +141,3 @@ ReasonForWake Sleeper::getReasonForWake() {
 
 void Sleeper::clearReasonForWake() { reasonForWake = None; }
 
-
-
-void Sleeper::sleepSystemOn() {
-	mcu.sleep();
-}

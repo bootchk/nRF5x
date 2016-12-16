@@ -34,10 +34,6 @@ typedef enum {
 
 
 class Sleeper {
-private:
-	static const TimerIndex SleepTimerIndex = First;	// Must not be used elsewhere
-
-
 public:
 	// Public because passed to radio so it can hook IRQ into it
 	static void msgReceivedCallback();
@@ -56,10 +52,6 @@ public:
 	// Not in-lined, used by external libraries
 	static ReasonForWake getReasonForWake();
 	static void clearReasonForWake();
-
-
-private:
-	static void sleepSystemOn();
 };
 
 
