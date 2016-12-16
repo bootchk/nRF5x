@@ -128,7 +128,7 @@ void RadioDevice::configurePacketAddress(BufferPointer data){
 
 void RadioDevice::configureXmitPower(unsigned int dBm) {
 	// Convert to platform constant
-	int8_t value;
+	uint8_t value;	// platform constants defined as unsigned
 	switch(dBm) {
 	case 1:
 		value = RADIO_TXPOWER_TXPOWER_Pos4dBm;
@@ -139,6 +139,7 @@ void RadioDevice::configureXmitPower(unsigned int dBm) {
 	default:
 		value = RADIO_TXPOWER_TXPOWER_0dBm;
 	}
+	// write byte to word register
 	NRF_RADIO->TXPOWER = value;
 }
 

@@ -192,6 +192,7 @@ bool RadioDevice::isCRCValid() {
 }
 
 uint8_t RadioDevice::receivedLogicalAddress() {
-	return NRF_RADIO->RXMATCH;
+	// cast lower byte of word register
+	return (uint8_t) NRF_RADIO->RXMATCH;
 }
 

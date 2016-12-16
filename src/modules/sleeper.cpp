@@ -108,7 +108,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	 * -- IRQ handler set reasonForWake in [Timeout, MsgReceived)
 	 * -- unexpected event woke us and reasonForWake is still None
 	 *
-	 * In all cases, assert timer is stopped (so using our timer semantics, it can be started again.
+	 * In all cases, assert timer is stopped (so using our timer semantics, it can be started again.)
 	 *
 	 * !!! Cannot assert that timeout amount of time has elapsed: unexpected events may wake early.
 	 */

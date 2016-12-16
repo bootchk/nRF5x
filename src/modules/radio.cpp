@@ -374,7 +374,7 @@ void Radio::transmitStatic(){
 	setupFixedDMA();
 	startXmit();
 	// not assert xmit is complete, i.e. asynchronous and non-blocking
-};
+}
 
 void Radio::receiveStatic() {
 	state = Receiving;

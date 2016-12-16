@@ -90,7 +90,7 @@ void RTC0_IRQHandler(void)
 	}
 
 	// Loop over compare regs
-	for (int i=0; i<LongClockTimer::CountTimerInstances; i++ ) {
+	for (unsigned int i=0; i<LongClockTimer::CountTimerInstances; i++ ) {
 		if ( compareRegisters[i].isEvent() ) {
 			compareRegisters[i].disableInterrupt();
 			timerCallback[i]();	// call callback
