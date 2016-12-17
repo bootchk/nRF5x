@@ -39,6 +39,18 @@ void logLongLong(uint64_t value ){
 
 }
 
+/*
+ * Wrap SEGGER_RTT_printf
+ */
+void logPrintf(const char * sFormat, ...) {
+	va_list ParamList;
+	va_start(ParamList, sFormat);
+	// SEGGER additional param BufferIndex
+	(void) SEGGER_RTT_printf(0, sFormat, &ParamList);
+}
+
+
+
 #else
 
 void initLogging() {}
