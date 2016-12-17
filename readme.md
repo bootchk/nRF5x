@@ -5,9 +5,10 @@ Sparse, object oriented (C++) library for nRF5x family embedded radios.
 Provides
 -
       
-     Thin wrappers around certain RTC peripherals of the Nordic nRF5x family of embedded radio SoC chips.
+     Wrappers around certain RTC peripherals of the Nordic nRF5x family of embedded radio SoC chips.
      Other simple services such as a mailbox
-     Thin wrapper around certain board-level devices such as LED's.
+     Wrappers around certain board-level devices such as LED's.
+     Exception handlers.
 
 
 Motivation
@@ -51,13 +52,6 @@ Other settings:
 
 AFAIK, many of the other defines for PAN's (Product Anomalies) found in Nordic Makefiles are not needed for this library.  They seem to affect code conditionally compiled into certain Nordic libraries.
 
-Boards
--
-Some services (e.g. ledLogger) depend on the board configuration (what pins are configured as digital out to LEDs, and what revision of the chip is on the board.)
-
-One build configuration for the nRF51 family defines BOARDS\_CUSTOM which means included Nordic file boards.h will include custom_board.h for RedBear Nano (one LED) from this directory.  
-
-Another build configuration for nRF52 family builds for the nRF52DK board (four LED's.)  Defines BOARD_pca10040.
 
 Debugging
 -
@@ -71,6 +65,35 @@ To see the log, open a terminal and run JLinkRTTClient, which you can download f
 Testing nRFCounter, you should see a sequence of times scroll by.
 
 TODO add other mains that test other modules.
+
+Boards
+-
+Some services (e.g. ledLogger) depend on the board configuration (what pins are configured as digital out to LEDs, and what revision of the chip is on the board.)
+
+One build configuration for the nRF51 family defines BOARDS\_CUSTOM which means included Nordic file boards.h will include custom_board.h for RedBear Nano (one LED) from this directory.  
+
+Another build configuration for nRF52 family builds for the nRF52DK board (four LED's.)  Defines BOARD_PCA10040.
+
+Exception Handlers
+-
+Also called faults (not to be confused with C++ exceptions.)
+
+Two kinds of faults handled:
+
+    hw faults e.g. HardFault_Handler
+    sw faults e.g. the handler called by the assert() macro
+
+The library overrides certain default handlers.  Default handlers enter an infinite loop, without entering low power mode.  The override default handlers:
+
+    for production, reset instead of infinite loop
+    for debug using a low-reserve power supply, reduce power before sleeping
+    
+For production, soft reset is preferable to infinite loop so the system might recover, without human intervention to hard reset.
+ 
+For debug, reducing power and sleeping keeps the system in a debuggable state (otherwise an infinite loop quickly causes brown out.)
+ 
+(Future: for debug, the handlers should save system registers from the program context in variables i.e. save the top level of the stack trace.)
+
 
 See Also
 -
