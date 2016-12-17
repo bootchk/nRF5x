@@ -36,10 +36,12 @@ void startXtalOscillator() {
 	// assert source is LFXO
 
 	lowFrequencyClock.start();
-	// assert LFC is running
+
+	while( !lowFrequencyClock.isRunning()) {}	// spin
+	assert(lowFrequencyClock.isRunning());
 }
 
-
+// TODO this could be done as initializers, not at runtime and would then be in ROM?
 void initCompareRegs() {
 	// This is expanded because the hw constants are defined by unparameterized macros
 	// Parameters of compareRegisters are fixed by hw design
