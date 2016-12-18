@@ -4,6 +4,8 @@
 
 // from NRF_SDK/external/segger_rtt
 #include <SEGGER_RTT.h>
+// Not exposed in SEGGER_RTT.h
+int SEGGER_RTT_vprintf(unsigned BufferIndex, const char * sFormat, va_list * pParamList);
 
 #include "logger.h"
 
@@ -41,16 +43,6 @@ void logLongLong(uint64_t value ){
 
 }
 
-/*
- * Wrap SEGGER_RTT_printf
- */
-void logPrintf(const char * sFormat, ...) {
-	va_list ParamList;
-	va_start(ParamList, sFormat);
-	// SEGGER additional param BufferIndex
-	(void) SEGGER_RTT_printf(0, sFormat, &ParamList);
-}
-
 
 
 #else
@@ -69,7 +61,9 @@ void logLongLong(uint64_t value ){ (void) value; }
 		// Not exposed by SEGGER_RTT.h
 		int SEGGER_RTT_vprintf(unsigned BufferIndex, const char * sFormat, va_list * pParamList);
 
+void logPrintf(const char * sFormat, ...) {
 
+}
 // Adapt variadic to SEGGER vprintf
 void logf(const char* formatString, ...) {
 	va_list argp;

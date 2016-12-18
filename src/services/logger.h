@@ -32,5 +32,7 @@ void log(const char* aString);
 void logByte(uint8_t);
 void logInt(uint32_t);
 void logLongLong(uint64_t);
-void logPrintf(const char * sFormat, ...);
+
+
+//void logPrintf(const char * sFormat, ...);
 
