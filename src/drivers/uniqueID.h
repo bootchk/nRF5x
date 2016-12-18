@@ -1,4 +1,7 @@
 
 #pragma once
 
-uint64_t myID();
+// Requires long long to hold it
+typedef uint64_t DeviceID ;
+
+DeviceID myID();

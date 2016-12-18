@@ -1,6 +1,9 @@
 #include <cassert>
 #include <inttypes.h>
-#include "nrf.h"
+
+#include <nrf.h>
+
+#include "uniqueID.h"
 
 
 /*
@@ -8,8 +11,7 @@
  * 6 bytes
  */
 
-// Requires long long to hold it
-typedef uint64_t DeviceID ;
+
 
 // But only use LSB six bytes
 #define MAX_DEVICE_ID   0xfFfFfFfFfFfF

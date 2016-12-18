@@ -1,7 +1,7 @@
 
 
 #include <inttypes.h>
-#include "nrf.h"	// SEV, WEV
+#include <nrf.h>	// SEV, WEV
 
 
 /*
@@ -15,7 +15,8 @@
  * but in DEBUG it spins the mcu at 6ma and soon brownout resets.
  */
 
-extern "C" {
+namespace {
+
 
 /*
  * Power off any used devices (specific to app) and sleep in a loop.
@@ -57,13 +58,18 @@ void sleepForeverInLowPower() {
  */
 void resetOrHalt() {
     // On fault, the system can only recover with a reset.
-#ifndef DEBUG
+#ifdef NDEBUG
+	// If C standard symbol NDEBUG is defined, assertions off, and this resets system instead of sleeping
     NVIC_SystemReset();
 #else
     sleepForeverInLowPower();
 #endif // DEBUG
 }
 
+} // namespace
+
+
+extern "C" {
 
 /*
  * Handlers for exceptions/faults.
@@ -94,17 +100,17 @@ void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
  * !!! We don't use an OS:
  * only HardFault might occur.
  *
- * unused means: not used in C++ but overrides an ASM definition
+ * unused means: not used in C++ but overrides a weak ASM definition
  */
 
 // Certain peripherals or SW. Non-maskable, only preempted by reset
 __attribute__ ((unused))
-static void NMI_Handler(void)  { resetOrHalt(); }
+void NMI_Handler(void)  { resetOrHalt(); }
 
 // M0 bus faults and other hw faults
 // M4 further splits this out.
 __attribute__ ((unused))
-static void HardFault_Handler(void) { resetOrHalt(); }
+void HardFault_Handler(void) { resetOrHalt(); }
 
 // call to OS: SVC instruction executed
 __attribute__ ((unused))
