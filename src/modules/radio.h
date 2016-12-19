@@ -96,9 +96,9 @@ public:
 	 * Buffer not include S0, LENGTH, S1 fields.
 	 *
 	 * Must match length of Message class (struct).
-	 * Which for SleepSync is 6 MasterID + 3 offset + 1 WorkPayload
+	 * Which for SleepSync is 1 MessageType + 6 MasterID + 3 offset + 1 WorkPayload
 	 */
-	static const uint8_t FixedPayloadCount = 10;
+	static const uint8_t FixedPayloadCount = 11;
 
 	// Length of transmitted physical layer address (not part of payload.)
 	// All units have same physical address so
