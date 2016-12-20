@@ -1,8 +1,24 @@
 #include <cassert>
 
-#include "nrf.h"	// import NRF_CLOCK
+#include <nrf.h>	// direct access to NRF_CLOCK
+#include <nrf_clock.h>	// HAL
 
 #include "hfClock.h"
+
+
+namespace {
+
+void waitForHFXtalOscillatorRunning() {
+	while ( ! nrf_clock_hf_is_running(CLOCK_HFCLKSTAT_SRC_Xtal) ) {}
+	/*
+	 * This doesn't use Hal and is wrong: just indicates event.
+	 * while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) { }
+	 */
+}
+
+}  // namespace
+
+
 
 /*
  * Read carefully Nordic docs.
@@ -24,12 +40,13 @@
  * The radio requires HXFO (to precisely delimit bits on the carrier?)
  */
 void HfClock::startXtalSource(){
+
 	// Enable the High Frequency clock to the system as a whole
 	NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
 	// No need to flush ARM write cache, the read below will do it
 	NRF_CLOCK->TASKS_HFCLKSTART = 1;
-	/* Wait for the external oscillator to start up */
-	while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) { }
+
+	waitForHFXtalOscillatorRunning();
 
 	// FUTURE use nrf_driver/hal functions
 	assert(NRF_CLOCK->HFCLKSTAT & CLOCK_HFCLKSTAT_SRC_Msk);	// 1 == Xtal

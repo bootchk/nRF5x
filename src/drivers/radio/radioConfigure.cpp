@@ -100,7 +100,8 @@ void RadioDevice::configureStaticPayloadFormat(const uint8_t payloadCount, const
 	 * Implementation: one shot by OR'ing bit fields
 	 * This is also configuring:
 	 * - address field i.e. BALEN
-	 * - endianess and whitening
+	 * - endianess == little
+	 * - whitening == disabled
 	 * So this code destroys any previous setting of those bit-fields.
 	 * FUTURE use BIC and BIS to separate these concerns
 	 */

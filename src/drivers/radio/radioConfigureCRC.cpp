@@ -53,7 +53,11 @@ void RadioDevice::configureShortCRCGeneratorInit(){
 }
 
 void RadioDevice::configureShortCRCPolynomialForShortData() {
-	// Usually called C2, defined as 0x97 853210, but here 0x12F == 1 << 0x97
-	// A good CRC for 8-bit CRC and data length about 120 bits
+	/*
+	 * Usually called C2, defined as 0x97 853210, but here 0x12F == 0x97 << 1
+	 * since on Nordic device, don't define bit 0.
+	 *
+	 * Sources say C2 is a good CRC for 8-bit CRC and data length about 120 bits
+	 */
 	NRF_RADIO->CRCPOLY = 0x12FUL;
 }
