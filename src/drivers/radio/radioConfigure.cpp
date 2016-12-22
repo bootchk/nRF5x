@@ -14,17 +14,20 @@
 
 
 // TODO rename channel
-void RadioDevice::configureFixedFrequency(){
+void RadioDevice::configureFixedFrequency(uint8_t frequencyIndex){
 	// FUTURE: parameter
-	// Set Freq fixed to one of 3 BT advertising channels
-	NRF_RADIO->FREQUENCY = 2;	// or 26, 80
+	NRF_RADIO->FREQUENCY = frequencyIndex;
 }
 
 uint32_t RadioDevice::frequency(){ return NRF_RADIO->FREQUENCY; }
 
 
 void RadioDevice::configureWhiteningSeed(int value){
-	// assert(value < )
+	/*
+	 * Only 5 bits (2^6-1 == 31).
+	 * Bit 6 cannot be written to 0 (always reads 1).
+	 */
+	assert(value < 31);
 	NRF_RADIO->DATAWHITEIV = value & RADIO_DATAWHITEIV_DATAWHITEIV_Msk;
 	// Whitening enabled elsewhere
 }

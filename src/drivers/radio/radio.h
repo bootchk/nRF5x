@@ -23,13 +23,14 @@ class RadioDevice {
 public:
 	// Configuration: see notes in radioConfigure.c
 
-	static void configureFixedFrequency();
+	static void configureFixedFrequency(uint8_t frequencyIndex);
 	static void configureFixedLogicalAddress();
 	static void configureNetworkAddressPool();
 	static void configureShortCRC();
 	static void configureMediumCRC();
 	static void configureStaticPacketFormat(const uint8_t, const uint8_t );
 	static void configureWhiteningOn();	// Must follow configureStaticPacketFormat()
+	static void configureWhiteningSeed(int);
 	static void configureXmitPower(unsigned int dBm);
 	static void configureMegaBitrate(unsigned int baud);
 	static void configureFastRampUp();
@@ -39,7 +40,7 @@ private:
 	static void configureShortCRCPolynomialForShortData();
 	static void configureStaticOnAirPacketFormat();
 	static void configureStaticPayloadFormat(const uint8_t PayloadCount, const uint8_t AddressLength);
-	static void configureWhiteningSeed(int);
+
 
 
 	// overloaded

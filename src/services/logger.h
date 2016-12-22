@@ -29,7 +29,7 @@ void initLogging(void)
 
 void initLogging();
 void log(const char* aString);
-void logByte(uint8_t);
+// void logByte(uint8_t);
 void logInt(uint32_t);
 void logLongLong(uint64_t);
 

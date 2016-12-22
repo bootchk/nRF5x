@@ -33,7 +33,7 @@ HfClock hfClock;
 PowerSupply powerSupply;
 Radio radio;
 
-
+void msgReceivedCallback();
 void msgReceivedCallback() {
 	log("Msg received\n");
 }

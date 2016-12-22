@@ -226,13 +226,14 @@ void Radio::setMsgReceivedCallback(void (*onRcvMsgCallback)()){
 
 
 //#define LONG_MESSAGE 1
-#define MEDIUM_MESSAGE
+#define MEDIUM_MESSAGE 1
+
 
 void Radio::configurePhysicalProtocol() {
 
 	assert(isDisabledState());
 	// Specific to the protocol, here rawish
-	device.configureFixedFrequency();	// also configures whitening seed
+	device.configureFixedFrequency(FrequencyIndex);
 	device.configureFixedLogicalAddress();
 	device.configureNetworkAddressPool();
 #ifdef LONG_MESSAGE
@@ -244,14 +245,16 @@ void Radio::configurePhysicalProtocol() {
 	device.configureStaticPacketFormat(FixedPayloadCount, MediumNetworkAddressLength);
 #endif
 	device.setShortcutsAvoidSomeEvents();
-	device.configureMegaBitrate(2);
+	device.configureMegaBitrate(MegabitRate);
 	device.configureFastRampUp();
 
-	// FUTURE, not working: device.configureWhiteningOn();
-	// Convention: whitening seed derived from channel
-	// ?? how does 37 derive from channel 2?
-	// or 38, 39
-	// configureWhiteningSeed(37);
+	// Must follow configureStaticPacketFormat, which destroys PCNF1 register
+	device.configureWhiteningOn();
+	/*
+	 * Convention: whitening seed derived from frequency.
+	 * All units must use same whitening seed.
+	 */
+	device.configureWhiteningSeed(2);
 
 	// !!! DMA set up later, not here.
 

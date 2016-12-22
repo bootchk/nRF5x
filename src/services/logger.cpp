@@ -20,9 +20,12 @@ void log(const char* aString) {
 	SEGGER_RTT_WriteString(0, aString);
 }
 
+#ifdef FUTURE
+I had trouble with this being undefined in linker, name mangled to logPK...
 void logByte(uint8_t value){
 	(void) SEGGER_RTT_printf(0, "x%02x\n", value);
 }
+#endif
 
 void logInt(uint32_t value){
 	(void) SEGGER_RTT_printf(0, "%u", value);

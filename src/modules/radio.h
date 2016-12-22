@@ -100,11 +100,34 @@ public:
 	 */
 	static const uint8_t FixedPayloadCount = 11;
 
+	/*
+	 * bitrate in megabits [1,2]
+	 */
+	static const uint8_t MegabitRate = 2;
+
+
 	// Length of transmitted physical layer address (not part of payload.)
 	// All units have same physical address so
 	static const uint8_t LongNetworkAddressLength = 4;	// 1 byte preamble, 3 bytes base
 	static const uint8_t MediumNetworkAddressLength = 3;	// 1 byte preamble, 2 bytes base
 	static const uint8_t ShortNetworkAddressLength = 2;	// 1 byte preamble, 1 bytes base
+
+	/*
+	 * Frequency index in [0..100]
+	 *
+	 * Freq fixed to one of 3 BT advertising channels, to avoid WiFi interference.
+	 *
+	 * 2, 26, 80 : freq = 2.4gHz + FrequencyIndex
+	 * e.g. 80 yields 2480 kHz
+	 *
+	 * The BT channel ID's are much different.
+	 * BT is 2402 to 2480
+	 *
+	 * TODO why not use above 2480?
+	 */
+	static const uint8_t FrequencyIndex = 80;
+
+
 
 
 	static void receivedEventHandler();
