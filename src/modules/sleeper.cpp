@@ -29,7 +29,7 @@ ReasonForWake reasonForWake = None;
 /*
  * IRQ handler callbacks
  *
- * Since there are two concurrent devices, there is a race to set reasonForWake
+ * Since there are two concurrent devices (radio and counter), there is a race to set reasonForWake
  *
  * !!! Note there may be other Timers which wake us but whose callbacks do not set reasonForWake.
  */
@@ -91,7 +91,11 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 				timeout,
 				rcvTimeoutTimerCallback);
 		mcu.sleep();
-		// awakened by event: received msg or timeout or other
+		/*
+		 * awakened by event: received msg or timeout or other event.
+		 * !!! Other timer expirations may wake us.
+		 * But other timer expirations won't call self's callback.
+		 */
 
 		/*
 		 * If timer expired, timer is already stopped.

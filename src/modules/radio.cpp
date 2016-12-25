@@ -261,7 +261,7 @@ void Radio::configurePhysicalProtocol() {
 	// FUTURE: parameters
 	// Default tx power
 	// Default mode i.e. bits per second
-	assert(device.frequency() == 2);
+	assert(device.frequency() == FrequencyIndex);
 }
 
 // void Radio::isConfigured() { }
