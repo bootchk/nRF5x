@@ -44,6 +44,12 @@ void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 	// assert ledLogger initialized
 	// assert TimerService initialized
 
+	if (timerService->isTimerStarted(Second)) {
+		// Led already flashing.
+		// Illlegal to startTimer already started.
+		return;
+	}
+
 	ledLogger.switchLED(ordinal, true);
 
 	// start timer to turn LED off
