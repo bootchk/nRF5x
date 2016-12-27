@@ -10,7 +10,7 @@
 namespace {
 
 bool didInterruptStartingEvent = false;
-Nvic* nvic;	// uses
+Nvic* nvic = nullptr;	// uses
 
 void enableInterruptOnRunning() {
 
@@ -76,12 +76,16 @@ void HfCrystalClock::init(Nvic* aNvic){
 
 /*
  * Only trigger start task.
+ * Does not ensure isRunning
  */
 void HfCrystalClock::start(){
+
+	assert(nvic != nullptr);	// has been initted
 
 	// Enable the High Frequency clock to the system as a whole
 	nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
 	nrf_clock_task_trigger(NRF_CLOCK_TASK_HFCLKSTART);
+	// assume HAL is correct and write cache flushed
 
 #ifdef OLD
 	non-HAL
@@ -96,7 +100,9 @@ void HfCrystalClock::start(){
 
 bool HfCrystalClock::isRunning(){
 	/*
-	 * This doesn't use Hal and is wrong: just indicates event.
+	 * This doesn't use Hal
+	 * Also it might be wrong: docs are not clear that event guarantees running
+	 * (but I think it is just misnamed, and HFCLKSTARTED really means running.)
 	 * while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) { }
 	 */
 	// cast to avoid warning, poor SDK
@@ -109,7 +115,7 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 	assert(!nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED));
 	enableInterruptOnRunning();
 	start();
-	// sleep until IRQ for started event signals
+	// sleep until IRQ signals started event
 	while (! didInterruptStartingEvent) {
 		/*
 		 * !!! Event must come, and we ignore other events from clock and other sources
@@ -129,13 +135,7 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 void HfCrystalClock::startAndWaitUntilRunning(){
 
 	// Enable the High Frequency clock to the system as a whole
-	nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
-	nrf_clock_task_trigger(NRF_CLOCK_TASK_HFCLKSTART);
-#ifdef  OLD
-	NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
-	// No need to flush ARM write cache, the read below will do it
-	NRF_CLOCK->TASKS_HFCLKSTART = 1;
-#endif
+	start();
 
 	// Spin (wasting energy)
 	while ( !isRunning()  ) {}
