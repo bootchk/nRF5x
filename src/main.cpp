@@ -29,7 +29,7 @@ LongClockTimer longClockTimer;
 Nvic nvic;
 
 
-HfClock hfClock;
+HfCrystalClock hfClock;
 PowerSupply powerSupply;
 Radio radio;
 

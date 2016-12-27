@@ -128,6 +128,8 @@ public:
 	static const uint8_t FrequencyIndex = 80;
 
 
+	// Radio knows and exposes to others
+	static HfCrystalClock* hfCrystalClock;
 
 
 	static void receivedEventHandler();
@@ -139,7 +141,7 @@ public:
 			// Used devices
 			Nvic*,
 			PowerSupply*,
-			HfClock*
+			HfCrystalClock*
 			);
 
 	/*

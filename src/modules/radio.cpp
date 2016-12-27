@@ -39,7 +39,7 @@ RadioDevice device;
 // protocol module uses but doesn't own
 Nvic* nvic;
 PowerSupply* powerSupply;
-HfClock* hfClock;
+
 
 void (*aRcvMsgCallback)() = nullptr;
 
@@ -62,6 +62,10 @@ void RADIO_IRQHandler() {
 } // namespace
 
 
+
+
+
+HfCrystalClock* Radio::hfCrystalClock;
 
 
 
@@ -176,12 +180,12 @@ void Radio::dispatchPacketCallback() {
 void Radio::init(
 		Nvic* aNvic,
 		PowerSupply* aPowerSupply,
-		HfClock* aHfClock
+		HfCrystalClock* aHfClock
 		)
 {
 	nvic = aNvic;
 	powerSupply = aPowerSupply;
-	hfClock = aHfClock;
+	hfCrystalClock = aHfClock;
 
 	// Not require radio device power on
 
@@ -285,7 +289,11 @@ void Radio::powerOn() {
 
 	// require Vcc > 2.1V (see note below about DCDC)
 
-	hfClock->startXtalSource();	// radio requires XTAL!!! hf clock, not the RC hf clock
+	// radio requires XTAL!!! hf clock, not the RC hf clock
+	assert(hfCrystalClock->isRunning());
+
+	// OBSOLETE hfCrystalClock->start();
+
 	device.setRadioPowered(true);
 	spinUntilReady();
 
@@ -330,7 +338,7 @@ void Radio::powerOff() {
 	device.setRadioPowered(false);
 	// not ensure not ready; caller must spin if necessary
 
-	hfClock->stopXtalSource();
+	hfCrystalClock->stop();
 	// assert hf RC clock resumes for other peripherals
 
 	state = PowerOff;
