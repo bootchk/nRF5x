@@ -20,3 +20,13 @@ void Nvic::enableRTC0IRQ() {
 	NVIC_EnableIRQ(RTC0_IRQn);
 }
 
+void Nvic::enablePowerClockIRQ(){
+	NVIC_ClearPendingIRQ(POWER_CLOCK_IRQn);
+	NVIC_EnableIRQ(POWER_CLOCK_IRQn);
+}
+
+void Nvic::disablePowerClockIRQ(){
+	NVIC_ClearPendingIRQ(POWER_CLOCK_IRQn);
+	NVIC_DisableIRQ(POWER_CLOCK_IRQn);
+}
+

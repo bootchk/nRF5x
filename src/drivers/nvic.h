@@ -16,5 +16,8 @@ public:
 	// Often never called, since RTC runs forever in many apps
 	static void disableRTC0IRQ();
 
+	static void enablePowerClockIRQ();
+	static void disablePowerClockIRQ();
+
 	// FUTURE static bool isEnabledRadioIRQ();
 };

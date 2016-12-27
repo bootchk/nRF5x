@@ -1,5 +1,6 @@
 #pragma once
 
+#include "nvic.h"
 
 /*
  * The HF (16Mhz) xtal clock.
@@ -23,9 +24,22 @@
 class HfCrystalClock {
 
 public:
+	// Uses nvic
+	static void init(Nvic* nvic);
+
 	static bool isRunning();
 	static void start();
 	static void stop();
+
+	/*
+	 * Spin mcu while starting.
+	 */
 	static void startAndWaitUntilRunning();
+
+	/*
+	 * Sleep during startup to avoid energy consumption.
+	 * Does not return until running, but is low power until then.
+	 * HfCrystalClock takes about 0.5 mSec to run stable.
+	 */
 	static void startAndSleepUntilRunning();
 };

@@ -4,17 +4,22 @@
 #include <nrf_clock.h>	// HAL
 
 #include "hfClock.h"
+#include "nvic.h"
 
 
 namespace {
 
 bool didInterruptStartingEvent = false;
+Nvic* nvic;	// uses
 
 void enableInterruptOnRunning() {
+
+	nvic->enablePowerClockIRQ();
 	// Event signals clock is running !!!!
 	nrf_clock_int_enable(NRF_CLOCK_INT_HF_STARTED_MASK);
 }
 void disableInterruptOnRunning() {
+	nvic->disablePowerClockIRQ();
 	nrf_clock_int_disable(NRF_CLOCK_INT_HF_STARTED_MASK);
 }
 
@@ -33,6 +38,7 @@ void POWER_CLOCK_IRQHandler() {
 		// Clear event so interrupt not triggered again.
 		nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
 	}
+	//else // Unexpected wake up
 }
 
 }	// extern C
@@ -60,6 +66,13 @@ void POWER_CLOCK_IRQHandler() {
  *
  * The radio requires HXFO (to precisely delimit bits on the carrier?)
  */
+
+
+void HfCrystalClock::init(Nvic* aNvic){
+	nvic = aNvic;
+}
+
+
 
 /*
  * Only trigger start task.
