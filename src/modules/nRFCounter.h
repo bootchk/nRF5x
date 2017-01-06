@@ -67,4 +67,6 @@ public:
 	static bool isTimerStarted(TimerIndex index);
 
 	static void cancelTimer(TimerIndex index);
+
+	static bool isOSClockRunning();
 };

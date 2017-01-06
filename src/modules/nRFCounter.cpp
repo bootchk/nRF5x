@@ -91,6 +91,7 @@ void RTC0_IRQHandler(void)
 		// assert interrupt still enabled
 	}
 
+	// Source event is comparison
 	// Loop over compare regs
 	for (unsigned int i=0; i<LongClockTimer::CountTimerInstances; i++ ) {
 		if ( compareRegisters[i].isEvent() ) {
@@ -124,6 +125,10 @@ void LongClockTimer::init(Nvic* nvic) {
 
 	// RTC requires LFC started
 	startXtalOscillator();
+	/*
+	 * Oscillator might not be running (startup time.)
+	 * Oscillator source might temporarily be RC instead of XTAL.
+	 */
 
 	// Product anomaly 20 on nRF52 says do this
 	counter.stop();
@@ -140,6 +145,7 @@ void LongClockTimer::init(Nvic* nvic) {
 
 	initCompareRegs();
 
+	// not assert xtal oscillator isRunning?
 	// assert counter is running
 	// assert interrupt enabled for overflow
 	// assert compareRegisters are configured by default to disabled interrupt w/ nullptr callbacks
@@ -201,3 +207,6 @@ void LongClockTimer::cancelTimer(TimerIndex index){
 }
 
 
+bool LongClockTimer::isOSClockRunning(){
+	return lowFrequencyClock.isRunning();
+}

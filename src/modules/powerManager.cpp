@@ -43,12 +43,21 @@ PowerComparator powerComparator;
  * You can swap the middle meanings.
  * Currently the firefly algorithm uses most current for work, so reserve is below that.
  *
+ * Brownout is 1.8V.
+ * External voltage monitor resets at 2.0V.
+ * Boot requires a small reserve.
+ * Radio requires about 0.2V on capacitor.
+ * Radio must not brownout mcu.
+ * Work requires > 0.2V on capacitor.
+ * Work may dip voltage below that needed for radio.
  * Radio is required to keep sync.
+ * Work may temporarily take Vcc below needed for radio.
  */
 bool PowerManager::isPowerExcess()     { return powerComparator.isVddGreaterThan2_7V();}
 bool PowerManager::isPowerForWork()    { return powerComparator.isVddGreaterThan2_5V();}
-bool PowerManager::isPowerForReserve() {return powerComparator.isVddGreaterThan2_3V();}
-bool PowerManager::isPowerForRadio()   { return powerComparator.isVddGreaterThan2_1V();}
+bool PowerManager::isPowerForRadio()   { return powerComparator.isVddGreaterThan2_3V();}
+bool PowerManager::isPowerForReserve() {return powerComparator.isVddGreaterThan2_1V();}
+
 
 VoltageRange PowerManager::getVoltageRange() {
 	VoltageRange result;

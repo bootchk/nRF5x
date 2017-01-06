@@ -26,11 +26,13 @@ public:
 
 	static void start();
 
+
 	/*
-	 * Was there a prior call to start()?
+	 * Was there a prior call to start() AND did the LFCKLSTARTED event occur?
 	 * !!! Does not guarantee isRunning()
 	 */
 	static bool isStarted();
+
 
 	/*
 	 * Is clock running (and stable)?

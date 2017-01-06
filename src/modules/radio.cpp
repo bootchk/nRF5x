@@ -46,8 +46,8 @@ void (*aRcvMsgCallback)() = nullptr;
 // State currently just used for assertions
 RadioState state;
 
-// 60 is extra,
-volatile uint8_t radioBuffer[Radio::FixedPayloadCount+60];
+// No guards around buffer
+volatile uint8_t radioBuffer[Radio::FixedPayloadCount];
 
 
 extern "C" {

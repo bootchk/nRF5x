@@ -109,7 +109,7 @@ void NMI_Handler(void)  { resetOrHalt(); }
 
 // M0 bus faults and other hw faults
 // M4 further splits this out.
-__attribute__ ((unused))
+__attribute__ ((used))
 void HardFault_Handler(void) { resetOrHalt(); }
 
 // call to OS: SVC instruction executed

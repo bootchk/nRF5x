@@ -12,9 +12,17 @@
 
 
 /*
- * Start.
- * !!! Does not guarantee clock is ready: use isStarted();
+ * Implementation notes:
+ * !!! Start() does not guarantee clock is running!!!
+ * But according to the documents, the clock initially begins ticking on the RC oscillator,
+ * and switches to the XTAL oscillator automatically.
+ * Time for RC to start is 600uSec (say a few thousand instructions on the nRF52.)
+ * Timer for XTAL to start is 0.25 seconds !!!
+ *
+ *
  */
+
+
 void LowFrequencyClock::start() {
 	/*
 	 * Assumes source configured prior, else default source.
@@ -23,15 +31,22 @@ void LowFrequencyClock::start() {
 	nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
 	// We leave the started event set, it means little here and interrupt is not enabled
 
-	// Wait for event
-	while (!isStarted()) {}
-
-	// not assert isRunning()
+	/*
+	 * !!! Not wait for any event.
+	 * not assert isRunning()
+	 */
 }
+
+#ifdef OBSOLETE
+
+// Wait for event
+	while (!isStarted()) {}
+#endif
 
 bool LowFrequencyClock::isStarted() {
 	return nrf_clock_event_check(NRF_CLOCK_EVENT_LFCLKSTARTED);
 }
+
 
 /*
  * Is the lf clock running (and stable).

@@ -154,5 +154,7 @@ void HfCrystalClock::stop(){
 	 *  Will generate event, but interrupt not enabled, and we don't care whether event really happens:
 	 *  not spinning for event indicating stopped
 	 */
+	// ?? Do we need a delay here?
+	assert(!isRunning());
 }
 
