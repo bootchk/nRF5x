@@ -54,6 +54,13 @@ public:
 	 */
 	static const unsigned int CountTimerInstances = 3;
 
+	/*
+	 * init does not guarantee clock is running (only that it is started.)
+	 * You can start a timer even if clock is not running, but it may delay longer than requested,
+	 * until oscillator isRunning and thus isOSClockRunning().
+	 *
+	 * If you require accurate timer, start a dummy timer before you start an accurate timer.
+	 */
 	static void init(Nvic*);
 	static void reset();
 

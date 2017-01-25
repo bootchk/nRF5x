@@ -44,4 +44,12 @@ public:
 	 * (Not needed by most apps.)
 	 * Assume the PowerManager functions as designed and does not power down clock.
 	 */
+
+	/*
+	 * Waste cpu cycles until running.
+	 * Usually not used.
+	 * A more power efficient design is to wait for an interrupt from completion of calibration
+	 * OR wait for an interrupt from counter whose source is the oscillator.
+	 */
+	static void spinUntilRunning();
 };

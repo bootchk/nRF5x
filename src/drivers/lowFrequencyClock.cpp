@@ -51,8 +51,12 @@ bool LowFrequencyClock::isStarted() {
 /*
  * Is the lf clock running (and stable).
  * More that just "is started", but is the hw beyond its startup delay.
- * Note this is independent of clock source.
- * This does NOT guarantee the source.
+ *
+ * Startup delay is:
+ *   RC:  600uSec
+ *   XO:  0.25Sec
+ *
+ * !!! Note this is independent of clock source.  This does NOT guarantee the source.
  */
 bool LowFrequencyClock::isRunning() {
 	/*
@@ -77,4 +81,9 @@ void LowFrequencyClock::configureXtalSource() {
 		assert(false);
 	}
 	nrf_clock_lf_src_set(NRF_CLOCK_LFCLK_Xtal);
+}
+
+
+void LowFrequencyClock::spinUntilRunning() {
+	while( !isRunning()) {}
 }

@@ -31,15 +31,17 @@ funcPtr timerCallback[3];
 CompareRegister compareRegisters[3];
 
 
+/*
+ * !!! Does not guarantee oscillator is running.
+ */
 void startXtalOscillator() {
 	lowFrequencyClock.configureXtalSource();
 	// assert source is LFXO
 
 	lowFrequencyClock.start();
-
-	while( !lowFrequencyClock.isRunning()) {}	// spin
-	assert(lowFrequencyClock.isRunning());
+	// not assert(lowFrequencyClock.isRunning());
 }
+
 
 // TODO this could be done as initializers, not at runtime and would then be in ROM?
 void initCompareRegs() {
@@ -145,8 +147,12 @@ void LongClockTimer::init(Nvic* nvic) {
 
 	initCompareRegs();
 
-	// not assert xtal oscillator isRunning?
-	// assert counter is running
+	/*
+	 * not assert rc or xtal oscillator isRunning.
+	 * Accuracy might be low until isRunning.
+	 * The RC oscillator will running first, but even it may not be running.
+	 */
+	// assert counter is started.
 	// assert interrupt enabled for overflow
 	// assert compareRegisters are configured by default to disabled interrupt w/ nullptr callbacks
 }
