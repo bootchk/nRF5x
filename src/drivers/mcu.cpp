@@ -1,4 +1,6 @@
 
+#include <cassert>
+
 #include "mcu.h"
 
 #include "nrf.h"	// SEV, WEV
@@ -15,6 +17,8 @@
  * !!! Note using a placeholderTimer, which occasionally wakes us and does not set reasonForWake.
  */
 void MCU::sleep() {
+
+
 	// Make sure any pending events are cleared
 	__SEV();
 	__WFE();	// Since internal event flag is set, this clears it without sleeping

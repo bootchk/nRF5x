@@ -10,8 +10,8 @@
 #include "../drivers/powerSupply.h"
 
 // Debugging
-#include "ledLogger.h"
-LEDLogger ledLogger2;
+// TODO pass this into radio and only call it if non-null
+// LEDService ledLogger2;
 
 
 /*
@@ -81,7 +81,7 @@ void Radio::receivedEventHandler(void)
 
     	clearEventForMsgReceivedInterrupt();
 
-    	ledLogger2.toggleLED(2);	// debug: LED 2 show every receive
+    	// ledLogger2.toggleLED(2);	// debug: LED 2 show every receive
 
     	/*
     	 * Call next layer.
@@ -373,7 +373,7 @@ BufferPointer Radio::getBufferAddress() { return radioBuffer + 30; }
 
 
 void Radio::transmitStaticSynchronously(){
-	ledLogger2.toggleLED(4);	// Dual purpose LED4: invalid or xmit
+	// ledLogger2.toggleLED(4);	// Dual purpose LED4: invalid or xmit
 	disableInterruptForEndTransmit();	// spin, not interrupt
 	transmitStatic();
 	spinUntilDisabled();

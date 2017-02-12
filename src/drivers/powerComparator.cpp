@@ -6,21 +6,27 @@
 
 /*
  * Implementation notes:
- * not using an interrupt
+ * Uses the power fail comparator, but using just an even, not an interrupt.
+ *
+ * Reads to flush ARM write cache must not be optimized out,
+ * the write that must be flushed is a trigger to an external device
+ * that must occur timely, i.e. when the write is made
+ * and not at some unknown time in the future when memory is read.
  */
 
 namespace {
 
 /*
- * Set threshold .
- * Side effect is disable.
+ * Set threshold and disable bits.
  * Device will not compare until enabled.
  *
  * Alternative is to set threshold without clearing disable bit, using mask POWER_POFCON_POF_Msk
  */
 void setThreshold2_1AndDisable() {
 	/*
-	 * Set and clear multiple bits.
+	 * Set and clear multiple bits:
+	 * - one threshold bit to one.
+	 * - the enable/disable bit to zero.
 	 */
 	NRF_POWER->POFCON = POWER_POFCON_THRESHOLD_V21 << POWER_POFCON_THRESHOLD_Pos;
 }
@@ -63,28 +69,29 @@ bool testVddThenDisable() {
 
 
 
-void PowerComparator::enable() {
+void __attribute__((optimize("O0")))
+PowerComparator::enable() {
 	/*
-	 * BIS bitset the enable bit
+	 * BIS bitset the enable bit.
+	 * This triggers immediate event if threshold is met.
 	 */
 	NRF_POWER->POFCON |= POWER_POFCON_POF_Msk;
-	/*
-	 * !!! Flush ARM write cache to ensure immediate effect
-	 */
+
+	// !!! Flush ARM write cache to ensure immediate effect
 	(void) NRF_POWER->POFCON;
 
-	assert( NRF_POWER->POFCON & POWER_POFCON_POF_Msk);
-	// assert event is set if power is less than threshold
+	assert( NRF_POWER->POFCON & POWER_POFCON_POF_Msk);	// ensure enable bit was set
+	// hw ensurs event is set if power is less than threshold
 }
 
-void PowerComparator::disable() {
+void __attribute__((optimize("O0")))
+PowerComparator::disable() {
 	/*
 	 * BIC bitclear the enable bit
 	 */
 	NRF_POWER->POFCON &= ! POWER_POFCON_POF_Msk;
-	/*
-	 * !!! Flush ARM write cache to ensure immediate effect
-	 */
+
+	// !!! Flush ARM write cache to ensure immediate effect
 	(void) NRF_POWER->POFCON;
 
 	assert( ! (NRF_POWER->POFCON & POWER_POFCON_POF_Msk) );

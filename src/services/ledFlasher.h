@@ -1,5 +1,6 @@
 #pragma once
 
+#include <modules/ledService.h>
 #include "../modules/nRFCounter.h"  // LongClockTimer
 
 
@@ -31,7 +32,7 @@ public:
 	 */
 	static const unsigned int MinTicksPerFlash = 20;
 
-	static void init(LongClockTimer*);
+	static void init(LongClockTimer*, LEDService*);
 
 	/*
 	 * No effect if ordinal out of range defined by boards.h

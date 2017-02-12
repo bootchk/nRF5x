@@ -1,22 +1,22 @@
 
 
+#include <modules/ledService.h>
 #include "ledFlasher.h"
 
 #include "../modules/nRFCounter.h"
-#include "../modules/ledLogger.h"
 
 
 namespace {
 
 LongClockTimer* timerService;
-LEDLogger ledLogger;
+LEDService* ledService;
 
 /*
  * Callback from timer, keep it short.
  * The timer interrupt wakes the mcu if was sleeping.
  */
 void ledOffCallback() {
-	ledLogger.switchLED(1, false);
+	ledService->switchLED(1, false);
 	// Timer cancels itself
 }
 
@@ -24,15 +24,12 @@ void ledOffCallback() {
 
 } // namespace
 
-void LEDFlasher::init(LongClockTimer* aTimerService) {
-	// require TimerService() started
-	ledLogger.init();
+void LEDFlasher::init(LongClockTimer* aTimerService, LEDService* aLedService) {
+	// require TimerService started
+	// require LedLogger initialized
 
 	timerService = aTimerService;
-
-	// ensure LEDs are configured
-	// ensure LEDs are off
-	// ensure timerService ready
+	ledService = aLedService;
 }
 
 void LEDFlasher::flashLED(unsigned int ordinal) {
@@ -50,7 +47,7 @@ void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 		return;
 	}
 
-	ledLogger.switchLED(ordinal, true);
+	ledService->switchLED(ordinal, true);
 
 	// start timer to turn LED off
 	timerService->startTimer(
