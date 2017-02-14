@@ -59,10 +59,12 @@ GPIOMask createMaskOfManagedIndices(unsigned int count, GPIOIndex led1GPIO, GPIO
 }
 
 GPIOMask maskFromOrdinal(unsigned int ordinal) {
+	assert (! ((ordinal < 1) || (ordinal > ledCount)));
+
 	GPIOMask result = 0;
-	// zero mask if ordinal out of range
-	if (! ((ordinal < 1) || (ordinal > ledCount)))
-			result = 1 << ledOrdinalToPinMap[ordinal-1];
+	result = 1 << ledOrdinalToPinMap[ordinal-1];
+
+	assert(result != 0);
 	return result;
 }
 
@@ -84,8 +86,10 @@ void LEDService::init(unsigned int count, bool arePinsSunk, GPIOIndex led1GPIO, 
 	createMap(count, led1GPIO, led2GPI0, led3GPIO, led4GPIO);
 	allLedPinsMask = createMaskOfManagedIndices(count, led1GPIO, led2GPI0, led3GPIO, led4GPIO);
 
-	gpio.configureOut(allLedPinsMask, arePinsSunk);
+	gpio.init(allLedPinsMask, arePinsSunk);
+	// !!! off before enable out so no glitch
 	gpio.turnOff(allLedPinsMask);
+	gpio.enableOut(allLedPinsMask);
 
 	// assert LED GPIO pins configured
 	// assert self count, map, allLedsMask are initialized

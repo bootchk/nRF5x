@@ -6,9 +6,13 @@
  * All pins are configured the same way (out, and sink/source the same for each pin.)
  *
  * Algebra of legal calling order:
- * configureOut(), turnOn() etc
- * I.E. configureOut must be called first with the full set of managed pins.
+ * init(), turnOff(), enableOut(), ...
+ * init(), turnOn(), enableOut(), ...
+ * I.E. init() must be called first with the full set of managed pins.
  * Subsequent calls pass a mask of a subset of pins.
+ * To avoid a glitch, turnOff or turnOn before enableOut()
+ *
+ * State of GPIO and electrical state of hw pin persists during sleep.
  */
 
 #pragma once
@@ -24,7 +28,21 @@ typedef uint32_t GPIOMask;
 
 class GPIODriver {
 public:
-	static void configureOut(GPIOMask allPinsMask, bool arePinsSunk);
+	/*
+	 * Configure driver: has no effect on hw pins.
+	 */
+	static void init(GPIOMask allPinsMask, bool arePinsSunk);
+
+	/*
+	 * Set GPIO direction to OUT.
+	 * This enables, i.e. connects GPIO state to external pin.
+	 * Before: GPIO pin direction could be IN, OUT, or disconnected.
+	 * After: GPIO pin direction is OUT and the electrical level on the pin corresponds to state.
+	 *
+	 * !!! If you know what state you want, set it before you enableOut().
+	 * Otherwise, you might get a glitch between enableOut() and setting state e.g. turnOff.
+	 */
+	static void enableOut(GPIOMask allPinsMask);
 	/*
 	 * On and Off are logical states.
 	 * The physical pin may be electrical low to effect logical on when pin is sinking.
