@@ -5,6 +5,9 @@
  *
  * Obscure: logical operations to create a mask that embodies sunk/sourced.
  */
+
+#include <cassert>
+
 #include <nrf.h>
 #include <nrf_gpio.h>
 #include "gpioDriver.h"
@@ -22,36 +25,52 @@ GPIOMask sunkPinsMask;
 }
 
 
-
-
-void GPIODriver::configureOut(GPIOMask mask, bool arePinsSunk) {
-	// Capture.
+void GPIODriver::init(GPIOMask mask, bool arePinsSunk) {
 	// Does not allow a mix of sunk and source managed pins
 	managedPinsMask = mask;
 	if (arePinsSunk)
 		sunkPinsMask = mask;
 	else
 		sunkPinsMask = ~mask;	// sunkPinsMask has bits set where not set in managedPinsMask
+}
 
+void GPIODriver::enableOut(GPIOMask mask) {
+	assert(mask & managedPinsMask);
 
-	// Configure pin direction out
+	// Iterate over bits of mask: separate config register for each pin
 	uint32_t pin;
 	for (pin = 0; pin < 32; pin++)
-		if ( mask & (1 << pin) )
-			nrf_gpio_cfg_output(pin);
+		if ( mask & (1 << pin) ) {
+			// Convenience function for standard drive current (max 0.5mA)
+			// nrf_gpio_cfg_output(pin);
 
+			// Configure high current output (max 5mA)
+			nrf_gpio_cfg(
+					pin,
+					NRF_GPIO_PIN_DIR_OUTPUT,
+					NRF_GPIO_PIN_INPUT_DISCONNECT,
+					NRF_GPIO_PIN_NOPULL,
+					NRF_GPIO_PIN_H0H1,	// !!! high current
+					NRF_GPIO_PIN_NOSENSE);
+		}
 }
+
 /*
  * On and Off are logical states.
  * The physical pin may be electrical low to effect logical on when pin is sinking.
  */
 void GPIODriver::turnOn(GPIOMask mask) {
+	assert(mask & managedPinsMask);
+	assert( ! (mask & ~managedPinsMask));
+
 	NRF_GPIO->OUTCLR = mask & (managedPinsMask & sunkPinsMask);
 	NRF_GPIO->OUTSET = mask & (managedPinsMask & ~sunkPinsMask);
 }
 
 void GPIODriver::turnOff(GPIOMask mask){
-	// assert mask is subset of managed pins
+	assert(mask & managedPinsMask);  // mask is subset of managed pins
+	assert( ! (mask & ~managedPinsMask));
+
 	NRF_GPIO->OUTSET = mask & (managedPinsMask & sunkPinsMask);
 	NRF_GPIO->OUTCLR = mask & (managedPinsMask & ~sunkPinsMask);
 }
