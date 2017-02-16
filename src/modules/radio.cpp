@@ -46,7 +46,12 @@ void (*aRcvMsgCallback)() = nullptr;
 // State currently just used for assertions
 RadioState state;
 
-// No guards around buffer
+/*
+ * Buffer R/W by concurrent radio HW (volatile) using DMA.
+ * No guards around buffer.
+ * We pass address and length to radio HW and it does NOT write outside the buffer.
+ * We also pass address and length to Serializer.
+ */
 volatile uint8_t radioBuffer[Radio::FixedPayloadCount];
 
 
@@ -367,8 +372,10 @@ void Radio::setupFixedDMA() {
 	device.configurePacketAddress(getBufferAddress());
 }
 
-// Return a pointer to middle of buffer, guarded
-BufferPointer Radio::getBufferAddress() { return radioBuffer + 30; }
+/*
+ * radioBuffer is an array, return its address by using its name on right hand side.
+ */
+BufferPointer Radio::getBufferAddress() { return radioBuffer; }
 
 
 
