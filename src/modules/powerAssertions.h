@@ -1,0 +1,4 @@
+
+void assertUltraLowPower();
+void assertRadioPower();
+

@@ -11,5 +11,5 @@
 class MCU {
 public:
 	/* sleep mcu until an event */
-	void sleep();
+	static void sleep();
 };

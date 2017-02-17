@@ -15,6 +15,8 @@
 #include "modules/nRFCounter.h"
 #include "modules/sleeper.h"
 #include "modules/radio.h"
+#include "modules/ledService.h"
+#include "modules/powerAssertions.h"
 
 // Expose certain  drivers not wrapped in modules yet
 // TODO module instead of function

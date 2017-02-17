@@ -5,6 +5,8 @@
 
 #include "nrf.h"	// SEV, WEV
 
+
+
 /*
  * nrf52:
  * - will not wake from "system off" by a timer (only reset or GPIO pin change.)
@@ -17,7 +19,6 @@
  * !!! Note using a placeholderTimer, which occasionally wakes us and does not set reasonForWake.
  */
 void MCU::sleep() {
-
 
 	// Make sure any pending events are cleared
 	__SEV();

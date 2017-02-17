@@ -68,7 +68,7 @@ public:
 
 	static void startTimer(
 			TimerIndex index,	// [0:2]
-			OSTime timeout, // [0:xffffff]
+			OSTime timeout, // [0:0xffffff]
 			void (*onTimeoutCallback)());
 
 	static bool isTimerStarted(TimerIndex index);
