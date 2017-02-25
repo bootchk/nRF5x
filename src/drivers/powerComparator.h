@@ -28,7 +28,15 @@ public:
 	 */
 	static void enable();
 	static void disable();
+	static bool isDisabled();
 	static void disableInterrupt();
+
+	/*
+	 * Did device generate event for the configured threshold?
+	 * Does not clear the event.
+	 */
+	static bool isPOFEvent();
+	static void clearPOFEvent();
 
 public:
 	/*

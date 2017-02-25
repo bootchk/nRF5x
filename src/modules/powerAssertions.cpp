@@ -7,6 +7,8 @@
 void assertUnusedOff();	// local
 
 
+
+
 /*
  * For debugging, assert conditions proper to allow ultra low power.
  * The nrf chip will power down peripherals and clocks not used to achieve low power.
@@ -39,11 +41,21 @@ void assertUnusedOff() {
 	//NVIC_ClearPendingIRQ(FPU_IRQn);
 }
 
+
+#define NDEBUG 1
+#ifdef NDEBUG
+void assertUltraLowPower() { return; }
+void assertRadioPower() { return; }
+#else
+
 /*
  * All peripherals except RTC and LFXO off.
  * Especially peripherals not in use at time of call: radio and its HFXO.
  */
 void assertUltraLowPower() {
+
+	// TEMP
+	return;
 
 	assertUnusedOff();
 
@@ -57,7 +69,9 @@ void assertUltraLowPower() {
 }
 
 void assertRadioPower() {
+
 	assertUnusedOff();
 }
 
+#endif
 
