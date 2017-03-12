@@ -1,10 +1,10 @@
 
+#include <modules/longClockTimer.h>
 #include <cassert>
 
 #include "sleeper.h"
 
 // implementation needs
-#include "nRFCounter.h"
 #include "../drivers/mcu.h"
 
 

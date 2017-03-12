@@ -3,7 +3,7 @@
 #include <modules/ledService.h>
 #include "ledFlasher.h"
 
-#include "../modules/nRFCounter.h"
+#include "../modules/longClockTimer.h"
 
 
 namespace {
@@ -20,9 +20,10 @@ void ledOffCallback() {
 	// Timer cancels itself
 }
 
-
-
 } // namespace
+
+
+
 
 void LEDFlasher::init(LongClockTimer* aTimerService, LEDService* aLedService) {
 	// require TimerService started
@@ -31,6 +32,9 @@ void LEDFlasher::init(LongClockTimer* aTimerService, LEDService* aLedService) {
 	timerService = aTimerService;
 	ledService = aLedService;
 }
+
+
+
 
 void LEDFlasher::flashLED(unsigned int ordinal) {
 	// amount==1, minimum amount
@@ -43,16 +47,25 @@ void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 
 	if (timerService->isTimerStarted(Second)) {
 		// Led already flashing.
-		// Illlegal to startTimer already started.
+		// Illegal to startTimer already started.
 		return;
 	}
 
 	ledService->switchLED(ordinal, true);
 
+
+
+	// Clamp to max
+	if (amount > MaxFlashAmount )
+		amount = MaxFlashAmount;
+
+	// Calculate timeout in units ticks from amount in units of min visible flash
+	OSTime timeout = amount * MinVisibleTicksPerFlash;
+
 	// start timer to turn LED off
 	timerService->startTimer(
 			Second,
-			amount * MinTicksPerFlash,
+			timeout,
 			ledOffCallback
 			);
 }

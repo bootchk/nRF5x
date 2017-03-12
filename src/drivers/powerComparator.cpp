@@ -29,12 +29,19 @@ void setThresholdAndDisable(uint32_t threshold) {
 	 * - the enable/disable bit to zero.
 	 */
 	NRF_POWER->POFCON = threshold << POWER_POFCON_THRESHOLD_Pos;
-	uint32_t foo = NRF_POWER->POFCON;
+	// uint32_t foo = NRF_POWER->POFCON;
 	assert(PowerComparator::isDisabled());
 }
 
+/*
+ * Delay from POFCON enable until event is generated.
+ * Testing shows only a few instruction cycles is enough.
+ * i.e. the call and return is enough.
+ * This must not be optimized out.
+ */
+void delayForPOFEvent() {
 
-
+}
 
 /*
  * Return result of compare Vdd to threshold.
@@ -53,6 +60,13 @@ bool testVddGreaterThanThresholdThenDisable() {
 	PowerComparator::clearPOFEvent();
 
 	PowerComparator::enable();
+
+	/*
+	 * Testing shows that POFCON does not generate event immediately,
+	 * at least on nrf52.  Requires a very short delay.
+	 */
+	delayForPOFEvent();
+
 	/*
 	 * Event indicates Vdd less than threshold.
 	 * Invert: return true if Vdd greater than threshold.

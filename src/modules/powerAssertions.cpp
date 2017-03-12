@@ -26,6 +26,8 @@ void assertUnusedOff();	// local
  * Peripherals we don't use at all.
  */
 void assertUnusedOff() {
+
+#ifdef NRF52
 	// nrf52 FPU is disabled.
 	assert(SCB->CPACR == 0);
 
@@ -33,11 +35,14 @@ void assertUnusedOff() {
 	#define FPU_EXCEPTION_MASK 0x0000009F
 	assert(! (__get_FPSCR()  & FPU_EXCEPTION_MASK) );
 
+	// FPU interrupt not pending
+	assert( ! NVIC_GetPendingIRQ(FPU_IRQn));
+#endif
+
 	// DCDC power regulator disabled
 	assert(NRF_POWER->DCDCEN == 0);
 
-	// FPU interrupt not pending
-	assert( ! NVIC_GetPendingIRQ(FPU_IRQn));
+
 	//NVIC_ClearPendingIRQ(FPU_IRQn);
 }
 

@@ -13,7 +13,7 @@
 
 
 
-#include "modules/nRFCounter.h"
+#include <modules/longClockTimer.h>
 #include "modules/radio.h"
 
 

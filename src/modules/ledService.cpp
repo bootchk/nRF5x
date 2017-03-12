@@ -80,7 +80,7 @@ void LEDService::init(unsigned int count, bool arePinsSunk, GPIOIndex led1GPIO, 
 	 * This references constants defined by macros, not ledOrdinalToPinMap.
 	 */
 
-	assert(count<5);
+	assert(count<5 and count>0);
 	// Similar to Nordic board.h LED macros, but at runtime, not at macro time
 	ledCount = count;
 	createMap(count, led1GPIO, led2GPI0, led3GPIO, led4GPIO);

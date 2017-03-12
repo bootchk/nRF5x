@@ -1,36 +1,44 @@
 #pragma once
 
+#include "../modules/longClockTimer.h"
 #include "../modules/ledService.h"
-#include "../modules/nRFCounter.h"  // LongClockTimer
 
 
 
 /*
- * Flash an LED.
+ * Flash an LED
+ *
+ * Basic features:
+ * - start a flash (returns immediately and flash ends later without further calls)
+ * - understands amount barely enough for human to see
+ * - duration is a parameter 'amount' which is in units of the minimim visible flash
+ *
  *
  * Low power:
- * - just briefly enough to see
  * - use Timer to turn it off, so can sleep after calling flashLED
+ *
+ * Use TimerService which uses an interrupt and callback that are very short.
+ * Anyway, it might affect other interrupt servicing.
+ *
+ * Constraints:
+ * - duration is max limited by implementation of Timer (24-bit)
+ * - duration is min limited by implementation of Timer ( can't set a timeout less than say 2 ticks.)
+ * - duration is also min limited to at least what is visible
+ * - a request to flash while LED is already being flashed (ON) is ignored
  */
+
 class LEDFlasher {
 public:
-	/*
-	 * Since we flash at sync points,
-	 * we must not flash longer than a sync period,
-	 * else LED still on next time we want to flash.
-	 *
-	 * Typical: sync period is 0.7 sec.
-	 * So at .6mSec per flash, 1000 flashes almost fills the syncPeriod
-	 *
-	 */
-	// This should be dependent on SyncPeriodDuration
-	static const unsigned int MaxFlashAmount = 1000;
 
 	/*
 	 * Ticks for 32kHz clock are 0.030 mSec
 	 * This gives a .6 mSec flash, which is barely visible in indoor room light.
 	 */
-	static const unsigned int MinTicksPerFlash = 20;
+	static const unsigned int MinVisibleTicksPerFlash = 20;
+
+	static const unsigned int MaxFlashAmount = LongClockTimer::MaxTimeout / MinVisibleTicksPerFlash;
+
+
 
 	static void init(LongClockTimer*, LEDService*);
 
