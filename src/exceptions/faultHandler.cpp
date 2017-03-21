@@ -1,7 +1,9 @@
 
 
 #include <inttypes.h>
-#include <nrf.h>	// SEV, WEV
+#include <nrf.h>	// __disable_irq
+
+#include "../drivers/mcu.h"
 
 
 /*
@@ -38,15 +40,12 @@ void sleepForeverInLowPower() {
 	 */
 
 	// power off radio
+	// TODO this is not necessary, this only resets the radio, it powers itself off
 	NRF_RADIO->POWER = 0;
-	(void) NRF_RADIO->POWER;	// flush ARM write cache
+	MCU::flushWriteCache();
 
 	while(true) {
-		// Sleep in low power
-		__SEV();
-		__WFE();	// Since internal event flag is set, this clears it without sleeping
-		__WFE();
-		// if any event, continue to sleep
+		MCU::sleep();
 	}
 }
 

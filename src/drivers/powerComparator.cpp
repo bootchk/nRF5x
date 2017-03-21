@@ -1,6 +1,7 @@
 
 #include <cassert>
 #include "nrf.h"
+#include "mcu.h"
 
 #include "powerComparator.h"
 
@@ -29,18 +30,30 @@ void setThresholdAndDisable(uint32_t threshold) {
 	 * - the enable/disable bit to zero.
 	 */
 	NRF_POWER->POFCON = threshold << POWER_POFCON_THRESHOLD_Pos;
-	// uint32_t foo = NRF_POWER->POFCON;
+	MCU::flushWriteCache();
 	assert(PowerComparator::isDisabled());
 }
 
 /*
  * Delay from POFCON enable until event is generated.
- * Testing shows only a few instruction cycles is enough.
- * i.e. the call and return is enough.
+ * Testing shows only a few instruction cycles is enough i.e. the call and return is enough?
+ * Here, I delay for two cycles of the peripheral bus (at 1/4 the rate of the cpu bus) i.e. 8 cpu cycles.
+ * This ensures that the POFCON sees the write in the first peripheral bus cycle,
+ * and then can generate the event in the next peripheral bus cycle.
+ * I am not sure about any of this.
+ *
  * This must not be optimized out.
  */
 void delayForPOFEvent() {
+	asm ("nop");
+	asm ("nop");
+	asm ("nop");
+	asm ("nop");
 
+	asm ("nop");
+	asm ("nop");
+	asm ("nop");
+	asm ("nop");
 }
 
 /*
@@ -87,12 +100,10 @@ void __attribute__((optimize("O0")))
 PowerComparator::enable() {
 	/*
 	 * BIS bitset the enable bit.
-	 * This triggers immediate event if Vcc less than threshold.
+	 * This triggers event if Vcc less than threshold.
 	 */
 	NRF_POWER->POFCON |= POWER_POFCON_POF_Msk;
-
-	// !!! Flush ARM write cache to ensure immediate effect
-	(void) NRF_POWER->POFCON;
+	MCU::flushWriteCache();
 
 	assert( NRF_POWER->POFCON & POWER_POFCON_POF_Msk);	// ensure enable bit was set
 	// hw ensurs event is set if power is less than threshold
@@ -104,9 +115,7 @@ void __attribute__((optimize("O0")))
 PowerComparator::disable() {
 	// BIC bitclear the enable bit
 	NRF_POWER->POFCON &= ~ POWER_POFCON_POF_Msk;
-
-	// !!! Flush ARM write cache to ensure immediate effect
-	(void) NRF_POWER->POFCON;
+	MCU::flushWriteCache();
 
 	assert( ! (NRF_POWER->POFCON & POWER_POFCON_POF_Msk) );
 }
@@ -127,7 +136,7 @@ PowerComparator::clearPOFEvent() {
 	assert(isDisabled());
 
 	NRF_POWER->EVENTS_POFWARN = 0;
-	(void) NRF_POWER->EVENTS_POFWARN;	// flush
+	MCU::flushWriteCache();
 
 	assert( not isPOFEvent());	// ensure
 }

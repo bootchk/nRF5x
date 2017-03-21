@@ -47,7 +47,7 @@ void assertUnusedOff() {
 }
 
 
-#define NDEBUG 1
+//#define NDEBUG 1
 #ifdef NDEBUG
 void assertUltraLowPower() { return; }
 void assertRadioPower() { return; }

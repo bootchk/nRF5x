@@ -30,3 +30,9 @@ void MCU::sleep() {
 
 	// There is conflicting advice about the proper order.  This order seems to work.
 }
+
+
+void MCU::flushWriteCache() {
+	// Implementation: read any address, which flushes write cache.
+	(void) NRF_POWER->POFCON;
+}

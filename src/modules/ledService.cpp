@@ -20,6 +20,7 @@
 namespace {
 
 const int MaxLedCount = 4;
+bool _wasInit = false;
 
 /*
  * Map from ordinal to GPIO pin in range [0..31]
@@ -79,6 +80,7 @@ void LEDService::init(unsigned int count, bool arePinsSunk, GPIOIndex led1GPIO, 
 	 * configure GPIO pins as digital out to LED.
 	 * This references constants defined by macros, not ledOrdinalToPinMap.
 	 */
+	_wasInit = true;
 
 	assert(count<5 and count>0);
 	// Similar to Nordic board.h LED macros, but at runtime, not at macro time
@@ -95,6 +97,10 @@ void LEDService::init(unsigned int count, bool arePinsSunk, GPIOIndex led1GPIO, 
 	// assert self count, map, allLedsMask are initialized
 	// ensure LEDs are dark
 	assert(! gpio.isOn(allLedPinsMask));
+}
+
+bool LEDService::wasInit() {
+	return _wasInit;
 }
 
 void LEDService::toggleLEDsInOrder() {

@@ -30,6 +30,7 @@ typedef unsigned int LEDOrdinal;
 class LEDService {
 public:
 	static void init(unsigned int count, bool arePinsSunk, GPIOIndex led1GPIO, GPIOIndex led2GPI0, GPIOIndex led3GPIO, GPIOIndex led4GPIO);
+	static bool wasInit();
 
 	/*
 	 * For these, the ordinal must be in range [1..count] else asserts
