@@ -27,9 +27,12 @@ typedef unsigned int LEDOrdinal;
  * Valid sequence is: init(), toggleLEDs(), ...
  */
 
+
+
+
 class LEDService {
 public:
-	static void init(unsigned int count, bool arePinsSunk, GPIOIndex led1GPIO, GPIOIndex led2GPI0, GPIOIndex led3GPIO, GPIOIndex led4GPIO);
+	static void init(unsigned int count, McuSinksOrSources arePinsSunk, GPIOIndex led1GPIO, GPIOIndex led2GPI0, GPIOIndex led3GPIO, GPIOIndex led4GPIO);
 	static bool wasInit();
 
 	/*

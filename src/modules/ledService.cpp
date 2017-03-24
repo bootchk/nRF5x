@@ -75,7 +75,7 @@ GPIOMask maskFromOrdinal(unsigned int ordinal) {
 
 
 
-void LEDService::init(unsigned int count, bool arePinsSunk, GPIOIndex led1GPIO, GPIOIndex led2GPI0, GPIOIndex led3GPIO, GPIOIndex led4GPIO){
+void LEDService::init(unsigned int count, McuSinksOrSources arePinsSunk, GPIOIndex led1GPIO, GPIOIndex led2GPI0, GPIOIndex led3GPIO, GPIOIndex led4GPIO){
 	/*
 	 * configure GPIO pins as digital out to LED.
 	 * This references constants defined by macros, not ledOrdinalToPinMap.

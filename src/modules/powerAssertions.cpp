@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "nrf.h"
+#include "nrf_clock.h"
 
 #include "powerAssertions.h"
 
@@ -39,6 +40,22 @@ void assertUnusedOff() {
 	assert( ! NVIC_GetPendingIRQ(FPU_IRQn));
 #endif
 
+	// Peripherals in reset condition
+
+	// Not writing to FLASH
+	assert(NRF_NVMC->CONFIG == 0);
+	// WDT not running
+	assert(NRF_WDT->RUNSTATUS == 0);
+	// MWU disabled
+	assert(NRF_MWU->REGIONEN == 0);
+
+	// TODO Not exist a register to detect power sub-mode (LOWPOWER or CONSTANT_LATENCY)
+	// and Nordic docs say it defaults to low-power, but we could trigger the task here
+	// NRF_POWER->TASKS_LOWPWR = 1;
+
+	// GPIO's inputs and disconnected
+	// TODO only the ones we don't use
+
 	// DCDC power regulator disabled
 	assert(NRF_POWER->DCDCEN == 0);
 
@@ -59,18 +76,15 @@ void assertRadioPower() { return; }
  */
 void assertUltraLowPower() {
 
-	// TEMP
-	return;
-
 	assertUnusedOff();
 
 	// radio disabled (reset)
 	assert(NRF_RADIO->POWER == 0);
 
 	// HF XTAL clock not running
-	assert( ! ((NRF_CLOCK->HFCLKSTAT & (CLOCK_HFCLKSTAT_STATE_Msk | CLOCK_HFCLKSTAT_SRC_Msk)) ==
-            (CLOCK_HFCLKSTAT_STATE_Msk | (CLOCK_HFCLKSTAT_SRC_Xtal << CLOCK_HFCLKSTAT_SRC_Pos))));
-	// nrf_clock_hf_is_running( (nrf_clock_hfclk_t) CLOCK_HFCLKSTAT_SRC_Xtal));
+	//assert( ! ((NRF_CLOCK->HFCLKSTAT & (CLOCK_HFCLKSTAT_STATE_Msk | CLOCK_HFCLKSTAT_SRC_Msk)) ==
+    //       (CLOCK_HFCLKSTAT_STATE_Msk | (CLOCK_HFCLKSTAT_SRC_Xtal << CLOCK_HFCLKSTAT_SRC_Pos))));
+	assert(! nrf_clock_hf_is_running( CLOCK_HFCLKSTAT_SRC_Xtal));
 }
 
 void assertRadioPower() {
