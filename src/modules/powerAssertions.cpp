@@ -46,8 +46,10 @@ void assertUnusedOff() {
 	assert(NRF_NVMC->CONFIG == 0);
 	// WDT not running
 	assert(NRF_WDT->RUNSTATUS == 0);
+#ifdef NRF52
 	// MWU disabled
 	assert(NRF_MWU->REGIONEN == 0);
+#endif
 
 	// TODO Not exist a register to detect power sub-mode (LOWPOWER or CONSTANT_LATENCY)
 	// and Nordic docs say it defaults to low-power, but we could trigger the task here
