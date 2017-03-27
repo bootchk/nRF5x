@@ -36,3 +36,10 @@ void MCU::flushWriteCache() {
 	// Implementation: read any address, which flushes write cache.
 	(void) NRF_POWER->POFCON;
 }
+
+
+void MCU::enableInstructionCache(){
+#ifdef NRF52
+	NRF_NVMC->ICACHECNF=0x01;
+#endif
+}
