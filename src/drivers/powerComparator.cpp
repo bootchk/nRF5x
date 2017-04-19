@@ -36,8 +36,11 @@ void setThresholdAndDisable(uint32_t threshold) {
 
 /*
  * Delay from POFCON enable until event is generated.
- * Testing shows only a few instruction cycles is enough i.e. the call and return is enough?
- * Here, I delay for two cycles of the peripheral bus (at 1/4 the rate of the cpu bus) i.e. 8 cpu cycles.
+ * Testing shows this is necessary,
+ * Nordic docs don't document what delay is necessary.
+ *
+ *
+ * Here, for the NRF52, delay for two cycles of the peripheral bus (at 1/4 the rate of the cpu bus) i.e. 8 cpu cycles.
  * This ensures that the POFCON sees the write in the first peripheral bus cycle,
  * and then can generate the event in the next peripheral bus cycle.
  * I am not sure about any of this.
