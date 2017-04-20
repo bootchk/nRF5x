@@ -43,6 +43,7 @@ class LongClockTimer {
 public:
 	// Not support timeouts longer than compare register
 	static const unsigned int MaxTimeout = 0xFFFFFF;
+
 	// Device won't reliably cause event for timeouts < 2
 	// Some authors use 3 for safety
 	// app_timer used 5, because it had other delays?
@@ -68,7 +69,7 @@ public:
 
 	static void startTimer(
 			TimerIndex index,	// [0:2]
-			OSTime timeout, // [0:xffffff]
+			OSTime timeout, // [0:0xffffff]
 			void (*onTimeoutCallback)());
 
 	static bool isTimerStarted(TimerIndex index);

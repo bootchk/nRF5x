@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "nRFCounter.h"
+#include <modules/longClockTimer.h>
 
 
 /*

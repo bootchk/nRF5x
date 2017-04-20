@@ -24,6 +24,11 @@ typedef uint8_t GPIOIndex;	// [0..31]
 
 typedef uint32_t GPIOMask;
 
+enum McuSinksOrSources {
+	McuSources =0,
+	McuSinks
+};
+
 
 
 class GPIODriver {
@@ -31,7 +36,7 @@ public:
 	/*
 	 * Configure driver: has no effect on hw pins.
 	 */
-	static void init(GPIOMask allPinsMask, bool arePinsSunk);
+	static void init(GPIOMask allPinsMask, McuSinksOrSources arePinsSunk);
 
 	/*
 	 * Set GPIO direction to OUT.

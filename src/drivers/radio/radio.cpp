@@ -3,6 +3,7 @@
 #include "nrf.h"
 
 #include "radio.h"
+#include "../mcu.h"
 
 /*
  * More implementation of RadioDevice is in radioConfigure.c and radioAddress.c
@@ -63,7 +64,7 @@ void RadioDevice::startDisablingTask(){
 
 void RadioDevice::clearDisabledEvent(){
 	NRF_RADIO->EVENTS_DISABLED = 0;
-	(void)NRF_RADIO->EVENTS_DISABLED;	// flush ARM write buffer
+	MCU::flushWriteCache();
 }
 
 bool RadioDevice::isDisabledState() {
@@ -91,7 +92,7 @@ bool RadioDevice::isReceiveInProgressEvent() {
 
 void RadioDevice::clearReceiveInProgressEvent() {
 	NRF_RADIO->EVENTS_ADDRESS = 0;
-	(void) NRF_RADIO->EVENTS_ADDRESS;	// flush ARM write cache
+	MCU::flushWriteCache();
 }
 
 
@@ -113,7 +114,7 @@ bool RadioDevice::isPacketDone() {
 
 void RadioDevice::clearPacketDoneEvent() {
 	NRF_RADIO->EVENTS_END = 0;
-	(void)NRF_RADIO->EVENTS_END;	// flush ARM write buffer
+	MCU::flushWriteCache();
 	assert(!isPacketDone());	// ensure
 }
 

@@ -5,6 +5,7 @@
 
 #include "hfClock.h"
 #include "nvic.h"
+#include "mcu.h"
 
 
 namespace {
@@ -118,10 +119,11 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 	// sleep until IRQ signals started event
 	while (! didInterruptStartingEvent) {
 		/*
-		 * !!! Event must come, and we ignore other events from clock and other sources
+		 * !!! Event must come, else infinite loop.
+		 * Ignore other events from clock and other sources
 		 * e.g. timers for flashing LED's (whose interrupts will occur, but returns to this thread.)
 		 */
-		// do nothing
+		MCU::sleep();
 	}
 	// assert event is cleared.
 

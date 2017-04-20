@@ -12,6 +12,7 @@
  * The radio needs a running HF xtal clock, but a wireless stack may stop it to save power.
  *
  * It takes upwards of 0.5 mSec to start and become stable.
+ * (400uSec nrf51, 360 uSec nrf52, max)
  *
  * The event HFCLKSTARTED actually means "running and stable" and does not mean "start task has been triggered."
  *
@@ -23,12 +24,16 @@
 
 class HfCrystalClock {
 
+private:
+	static void start();
+
+
 public:
 	// Uses nvic
 	static void init(Nvic* nvic);
 
 	static bool isRunning();
-	static void start();
+
 	static void stop();
 
 	/*

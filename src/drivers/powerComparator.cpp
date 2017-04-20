@@ -1,6 +1,7 @@
 
 #include <cassert>
 #include "nrf.h"
+#include "mcu.h"
 
 #include "powerComparator.h"
 
@@ -22,25 +23,41 @@ namespace {
  *
  * Alternative is to set threshold without clearing disable bit, using mask POWER_POFCON_POF_Msk
  */
-void setThreshold2_1AndDisable() {
+void setThresholdAndDisable(uint32_t threshold) {
 	/*
 	 * Set and clear multiple bits:
-	 * - one threshold bit to one.
+	 * - several threshold bits to a bit pattern
 	 * - the enable/disable bit to zero.
 	 */
-	NRF_POWER->POFCON = POWER_POFCON_THRESHOLD_V21 << POWER_POFCON_THRESHOLD_Pos;
+	NRF_POWER->POFCON = threshold << POWER_POFCON_THRESHOLD_Pos;
+	MCU::flushWriteCache();
+	assert(PowerComparator::isDisabled());
 }
-void setThreshold2_3AndDisable() { NRF_POWER->POFCON = POWER_POFCON_THRESHOLD_V23 << POWER_POFCON_THRESHOLD_Pos; }
-void setThreshold2_5AndDisable() { NRF_POWER->POFCON = POWER_POFCON_THRESHOLD_V25 << POWER_POFCON_THRESHOLD_Pos; }
-void setThreshold2_7AndDisable() { NRF_POWER->POFCON = POWER_POFCON_THRESHOLD_V27 << POWER_POFCON_THRESHOLD_Pos; }
 
 /*
- * Did device generate event for the configured threshold?
- * Does not clear the event.
+ * Delay from POFCON enable until event is generated.
+ * Testing shows this is necessary,
+ * Nordic docs don't document what delay is necessary.
+ *
+ *
+ * Here, for the NRF52, delay for two cycles of the peripheral bus (at 1/4 the rate of the cpu bus) i.e. 8 cpu cycles.
+ * This ensures that the POFCON sees the write in the first peripheral bus cycle,
+ * and then can generate the event in the next peripheral bus cycle.
+ * I am not sure about any of this.
+ *
+ * This must not be optimized out.
  */
-bool isPOFEvent() { return NRF_POWER->EVENTS_POFWARN == 1; }
+void delayForPOFEvent() {
+	asm ("nop");
+	asm ("nop");
+	asm ("nop");
+	asm ("nop");
 
-void clearPOFEvent() { NRF_POWER->EVENTS_POFWARN = 0; }
+	asm ("nop");
+	asm ("nop");
+	asm ("nop");
+	asm ("nop");
+}
 
 /*
  * Return result of compare Vdd to threshold.
@@ -49,17 +66,30 @@ void clearPOFEvent() { NRF_POWER->EVENTS_POFWARN = 0; }
  * - event cleared
  *
  */
-bool testVddThenDisable() {
+bool testVddGreaterThanThresholdThenDisable() {
 	bool result;
 
+	// Require threshold to be set
+	// But some thresholds (V21) have value zero on nrf51
+
+	// clear event so enabling might reset it
+	PowerComparator::clearPOFEvent();
+
 	PowerComparator::enable();
+
+	/*
+	 * Testing shows that POFCON does not generate event immediately,
+	 * at least on nrf52.  Requires a very short delay.
+	 */
+	delayForPOFEvent();
+
 	/*
 	 * Event indicates Vdd less than threshold.
 	 * Invert: return true if Vdd greater than threshold.
 	 */
-	result = ! isPOFEvent();
+	result = ! PowerComparator::isPOFEvent();
 	PowerComparator::disable();
-	clearPOFEvent();
+	PowerComparator::clearPOFEvent();
 	return result;
 }
 
@@ -73,31 +103,46 @@ void __attribute__((optimize("O0")))
 PowerComparator::enable() {
 	/*
 	 * BIS bitset the enable bit.
-	 * This triggers immediate event if threshold is met.
+	 * This triggers event if Vcc less than threshold.
 	 */
 	NRF_POWER->POFCON |= POWER_POFCON_POF_Msk;
-
-	// !!! Flush ARM write cache to ensure immediate effect
-	(void) NRF_POWER->POFCON;
+	MCU::flushWriteCache();
 
 	assert( NRF_POWER->POFCON & POWER_POFCON_POF_Msk);	// ensure enable bit was set
 	// hw ensurs event is set if power is less than threshold
 }
 
+
+
 void __attribute__((optimize("O0")))
 PowerComparator::disable() {
-	/*
-	 * BIC bitclear the enable bit
-	 */
-	NRF_POWER->POFCON &= ! POWER_POFCON_POF_Msk;
-
-	// !!! Flush ARM write cache to ensure immediate effect
-	(void) NRF_POWER->POFCON;
+	// BIC bitclear the enable bit
+	NRF_POWER->POFCON &= ~ POWER_POFCON_POF_Msk;
+	MCU::flushWriteCache();
 
 	assert( ! (NRF_POWER->POFCON & POWER_POFCON_POF_Msk) );
 }
 
 
+bool PowerComparator::isDisabled() {
+	// POFCON POF bit equal to zero => disabled
+	return (NRF_POWER->POFCON & POWER_POFCON_POF_Msk) == 0;
+}
+
+
+bool PowerComparator::isPOFEvent() { return NRF_POWER->EVENTS_POFWARN == 1; }
+
+
+void __attribute__((optimize("O0")))
+PowerComparator::clearPOFEvent() {
+	// Require disabled, else may be immediately reset after clearing
+	assert(isDisabled());
+
+	NRF_POWER->EVENTS_POFWARN = 0;
+	MCU::flushWriteCache();
+
+	assert( not isPOFEvent());	// ensure
+}
 
 /*
  * !!! Implementation is correct even if other interrupts from same source are used.
@@ -114,19 +159,19 @@ bool PowerComparator::isVddGreaterThan2_1V() {
 	// Assume default state of interrupt not enabled.
 	// If caller has enabled interrupts, caller must handle them.
 
-	setThreshold2_1AndDisable();
-	return testVddThenDisable();
+	setThresholdAndDisable(POWER_POFCON_THRESHOLD_V21);
+	return testVddGreaterThanThresholdThenDisable();
 }
 
 bool PowerComparator::isVddGreaterThan2_3V(){
-	setThreshold2_3AndDisable();
-	return testVddThenDisable();
+	setThresholdAndDisable(POWER_POFCON_THRESHOLD_V23);
+	return testVddGreaterThanThresholdThenDisable();
 }
 bool PowerComparator::isVddGreaterThan2_5V(){
-	setThreshold2_5AndDisable();
-	return testVddThenDisable();
+	setThresholdAndDisable(POWER_POFCON_THRESHOLD_V25);
+	return testVddGreaterThanThresholdThenDisable();
 }
 bool PowerComparator::isVddGreaterThan2_7V(){
-	setThreshold2_7AndDisable();
-	return testVddThenDisable();
+	setThresholdAndDisable(POWER_POFCON_THRESHOLD_V27);
+	return testVddGreaterThanThresholdThenDisable();
 }
