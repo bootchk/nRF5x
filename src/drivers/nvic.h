@@ -20,4 +20,7 @@ public:
 	static void disablePowerClockIRQ();
 
 	// FUTURE static bool isEnabledRadioIRQ();
+
+	// Trigger reset via software
+	static void softResetSystem();
 };

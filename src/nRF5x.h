@@ -18,6 +18,8 @@
 #include "modules/ledService.h"
 #include "modules/powerAssertions.h"
 
+#include "exceptions/faultHandlers.h"
+
 // Expose certain  drivers not wrapped in modules yet
 // TODO module instead of function
 #include "drivers/uniqueID.h"

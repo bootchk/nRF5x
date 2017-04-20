@@ -29,4 +29,6 @@ public:
 	 * IOW, it is not clear that enabling instruction cache saves overall power.
 	 */
 	static void enableInstructionCache();
+
+	static void disableIRQ();
 };

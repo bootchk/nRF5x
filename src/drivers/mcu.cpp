@@ -43,3 +43,8 @@ void MCU::enableInstructionCache(){
 	NRF_NVMC->ICACHECNF=0x01;
 #endif
 }
+
+
+void MCU::disableIRQ(){
+	__disable_irq();
+}
