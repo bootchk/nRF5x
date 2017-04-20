@@ -5,9 +5,10 @@
 #include "../drivers/mcu.h"
 #include "../drivers/nvic.h"
 #include "../modules/radio.h"
+#include "../drivers/customFlash.h"
 
+#include "faultHandlers.h"
 
-#define NDEBUG 1
 
 namespace {
 
@@ -21,8 +22,6 @@ namespace {
  *
  * This is application specific, for the peripherals I am using.
  */
-
-
 void powerOffPeripherals() {
 
 	// TODO turn off RTC
@@ -35,31 +34,13 @@ void powerOffPeripherals() {
 }
 
 
-/*
- * A fault has occurred.
- * Attempt to record it and to stay out of brownout.
- */
-void sleepForeverInLowPower() {
-	// Most important to attempt to record what happened.
-	// TODO record reason in flash so we can see it after repowering connected to debug probe
-
-	// Disable all further interrupts from peripherals that might be concurrently operating.
-	MCU::disableIRQ();
-
-	// Optionally reduce power so brownout doesn't compound the fault
-	powerOffPeripherals();
-
-	while(true) {
-		MCU::sleep();
-	}
-}
-
 
 /*
  * Conditionally compile:
  * - Release mode: reset and keep trying to function
  * - Debug mode: sleep forever in low power
  */
+__attribute__((noreturn))
 void resetOrHalt() {
     // On fault, the system can only recover with a reset.
 #ifdef NDEBUG
@@ -74,10 +55,31 @@ void resetOrHalt() {
 } // namespace
 
 
+
+
+
 extern "C" {
 
-void foo() {
+/*
+ * A fault has occurred.
+ * Attempt to record it and to stay out of brownout.
+ */
+__attribute__((noreturn))
+void sleepForeverInLowPower() {
+	// Most important to attempt to record what happened.
+	// The caller should do that before calling this.
 
+	// Disable all further interrupts from peripherals that might be concurrently operating.
+	MCU::disableIRQ();
+
+	// Optionally reduce power so brownout doesn't compound the fault
+	powerOffPeripherals();
+
+	// Since there are no peripherals and no timer, this will sleep in very low power
+	// The only thing that can wake it is an interrupt signal on a pin.
+	while(true) {
+		MCU::sleep();
+	}
 }
 
 #if USE_SOFT_DEVICE
@@ -120,6 +122,14 @@ void genericNMIHandler()  { resetOrHalt(); }
 void genericSVCHandler(void) { resetOrHalt(); }
 void genericPendSVHandler(void) { resetOrHalt(); }
 void genericSysTickHandler(void) { resetOrHalt(); }
-void genericHardFaultHandler(void) { resetOrHalt(); }
+
+__attribute__((noreturn))
+void genericHardFaultHandler(void) {
+	// word 1 reserved to indicate hard fault
+	CustomFlash::writeZeroAtIndex(1);
+	resetOrHalt();
+}
+
+
 
 } // extern C

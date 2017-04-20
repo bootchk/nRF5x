@@ -1,3 +1,5 @@
+#pragma once
+
 
 /*
  * Generic fault handlers.
@@ -19,14 +21,24 @@
 
 extern "C" {
 
+__attribute__((noreturn))
+void sleepForeverInLowPower();
+
 void genericNMIHandler();    // Certain peripherals or SW. Non-maskable, only preempted by reset
 void genericSVCHandler();    // call to OS: SVC instruction executed
 void genericPendSVHandler(); // OS Context switching
 void genericSysTickHandler(); // OS clock
 
 // M0 bus faults and other hw faults
-// M4 also defines other faults, subclasses, having their own vectors
+
 void genericHardFaultHandler();
+
+// M4 also defines other faults, subclasses, having their own vectors
+/*
+MemoryManagement_Handler	memory protection violation
+BusFault_Handler	odd or undefined address
+UsageFault_Handler undefined opcode, etc.
+*/
 
 /*
  * Handler for:
@@ -35,7 +47,7 @@ void genericHardFaultHandler();
  *
  * The default handler does: app_error_save_and_stop(id, pc, info);
  */
-void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info);
+//void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info);
 
 
 }	// extern C

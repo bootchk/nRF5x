@@ -7,16 +7,21 @@
  * assert calls abort() and then _exit()
  *
  * The _exit() defined in newlib nano infinite loops.
+ * For an embedded app with nanopower, better to indicate fault and then sleep.
  */
 
-/*
- // TODO attribute noreturn
-  // TODO WFI as a halt or an infinite loop
+#include "../drivers/customFlash.h"
+#include "../exceptions/faultHandlers.h"
+
+
 extern "C"
+
+__attribute__((noreturn))
 void _exit() {
 
-	int i = 1;
+	// word 0 reserved to indicate exit was called from assertion
+	CustomFlash::writeZeroAtIndex(0);
 
-	i++;
+	sleepForeverInLowPower();
 }
-*/
+
