@@ -13,6 +13,11 @@
 namespace {
 
 
+enum {
+	HardFaultFlagIndex = 1,
+	ExitFaultFlagIndex
+};
+
 /*
  * Power off any used devices (specific to app).
  * So that the mcu might not brownout, but the app is halted (non-functional.)
@@ -126,7 +131,14 @@ void genericSysTickHandler(void) { resetOrHalt(); }
 __attribute__((noreturn))
 void genericHardFaultHandler(void) {
 	// word 1 reserved to indicate hard fault
-	CustomFlash::writeZeroAtIndex(1);
+	CustomFlash::writeZeroAtIndex(HardFaultFlagIndex);
+	resetOrHalt();
+}
+
+__attribute__((noreturn))
+void genericExitFaultHandler(void) {
+	// word 2 reserved to indicate hard fault
+	CustomFlash::writeZeroAtIndex(ExitFaultFlagIndex);
 	resetOrHalt();
 }
 

@@ -30,8 +30,20 @@ void genericPendSVHandler(); // OS Context switching
 void genericSysTickHandler(); // OS clock
 
 // M0 bus faults and other hw faults
-
 void genericHardFaultHandler();
+
+
+/*
+ * assertion failed
+ * assert calls abort() and then _exit()
+ *
+ * The _exit() defined in newlib nano infinite loops.
+ * For an embedded app with nanopower, better to indicate fault and then sleep.
+ *
+ * You must override _exit() defined in newlib nano to call this.
+ * Apparently not easy to override from a library.
+ */
+void genericExitFaultHandler();
 
 // M4 also defines other faults, subclasses, having their own vectors
 /*
