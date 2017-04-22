@@ -1,6 +1,6 @@
 
 // Use HAL
-#include "nrf_rtc.h"
+#include <nrf_rtc.h>
 
 /*
  * Thin wrapper on compare register of Nordic RTC device.

@@ -20,6 +20,7 @@
 #include "drivers/nvic.h"
 #include "drivers/powerSupply.h"
 #include "drivers/hfClock.h"
+#include "drivers/customFlash.h"
 
 #include "services/logger.h"
 
@@ -43,7 +44,11 @@ void msgReceivedCallback() {
 int main() {
 	// assert embedded system startup is done and calls main.
 
+
+
 	longClockTimer.init(&nvic);
+
+	CustomFlash::writeZeroAtIndex(0);
 
 	radio.init(
 			&nvic,

@@ -2,14 +2,12 @@
 #include <inttypes.h>
 #include <stdarg.h>			// variadic
 
-// from NRF_SDK/external/segger_rtt
-#include <SEGGER_RTT.h>
-
-
 #include "logger.h"
 
 // may be defined in Makefilenrf52 -DLOGGING
 #ifdef LOGGING
+// from NRF_SDK/external/segger_rtt
+#include <SEGGER_RTT.h>
 
 void initLogging() {
 	SEGGER_RTT_Init();

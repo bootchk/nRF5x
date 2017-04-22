@@ -86,7 +86,7 @@ void assertUltraLowPower() {
 	// HF XTAL clock not running
 	//assert( ! ((NRF_CLOCK->HFCLKSTAT & (CLOCK_HFCLKSTAT_STATE_Msk | CLOCK_HFCLKSTAT_SRC_Msk)) ==
     //       (CLOCK_HFCLKSTAT_STATE_Msk | (CLOCK_HFCLKSTAT_SRC_Xtal << CLOCK_HFCLKSTAT_SRC_Pos))));
-	assert(! nrf_clock_hf_is_running( CLOCK_HFCLKSTAT_SRC_Xtal));
+	assert(! nrf_clock_hf_is_running( NRF_CLOCK_HFCLK_HIGH_ACCURACY));
 }
 
 void assertRadioPower() {

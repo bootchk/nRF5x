@@ -12,8 +12,9 @@
  * Thus determining whether 'lit' requires high/low state on a GPIO.
  */
 
-#include <modules/ledService.h>
+
 #include <cassert>
+#include "../modules/ledService.h"
 #include "../drivers/gpioDriver.h"
 
 

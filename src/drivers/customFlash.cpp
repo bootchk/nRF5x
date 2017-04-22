@@ -13,4 +13,4 @@ void CustomFlash::writeZeroAtIndex(unsigned int index){
 	*(uint32_t *)(FlashController::UICRStartAddress + index*4) = 0 ;
 
 	FlashController::disableWrite();
-};
+}
