@@ -14,8 +14,8 @@ namespace {
 
 
 enum {
-	HardFaultFlagIndex = 1,
-	ExitFaultFlagIndex
+	HardFaultFlagIndex = 1,	// hw fault
+	ExitFaultFlagIndex	// assert()
 };
 
 /*
@@ -50,7 +50,7 @@ void resetOrHalt() {
     // On fault, the system can only recover with a reset.
 #ifdef NDEBUG
 	// TODO we may want to leave assertions in the release version: change NDEBUG to IS_RELEASE
-	// If C standard symbol NDEBUG is defined, assertions off, and this resets system instead of sleeping
+	// If C standard symbol NDEBUG is defined, assertions off, and this resets system instead of sleeping.
     Nvic::softResetSystem();
 #else
     sleepForeverInLowPower();

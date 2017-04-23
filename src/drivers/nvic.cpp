@@ -30,3 +30,7 @@ void Nvic::disablePowerClockIRQ(){
 	NVIC_DisableIRQ(POWER_CLOCK_IRQn);
 }
 
+
+void Nvic::softResetSystem(){
+	NVIC_SystemReset();
+}

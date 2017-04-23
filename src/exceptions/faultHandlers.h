@@ -8,12 +8,19 @@
  * - in production, soft reset
  * - in debugging, turn off devices (radio and RTC) and sleep in a loop.
  *
- * Your app must redefine the default handlers to call these generic handlers.
- * The default handlers are weakly defined and 'called' from the interrupt vectors
- * (Nordic: in gcc_startup.S)
- * In general, the default handlers are inadequate, simply looping.
+ * Your app can redefine the default handlers to call these generic handlers.
+ * The default handlers are weakly defined and 'called' from interrupt vectors (Nordic: in gcc_startup.S)
+ *
+ * You SHOULD redefine the default handlers.
+ * Default handlers are inadequate, simply looping.
  * Looping will lead high current consumption, to brownout, then power recovery, and reset.
  * In that scenario, the app may appear to keep functioning, but have gone through a reset.
+ *
+ * For that scenario, where brownout reset occurs,
+ * these handlers leave a trace in flash.
+ * Thus you can put the system on a debugger probe to read flash to determine what happened.
+ *
+ * If you define NDEBUG, assertions will be off and the only fault should be HardFault.
  *
  * These are generic and should not depend on the target i.e. Nordic.
  * I.E. the implementation should call other modules, not Nordic dependent drivers.
