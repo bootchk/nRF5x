@@ -41,8 +41,7 @@ void genericHardFaultHandler();
 
 
 /*
- * assertion failed
- * assert calls abort() and then _exit()
+ * assertion failed: assert() calls abort() and then _exit()
  *
  * The _exit() defined in newlib nano infinite loops.
  * For an embedded app with nanopower, better to indicate fault and then sleep.
@@ -51,6 +50,13 @@ void genericHardFaultHandler();
  * Apparently not easy to override from a library.
  */
 void genericExitFaultHandler();
+
+/*
+ * Assertion failed.
+ * Write subset of details to flash
+ */
+void genericAssertionFaultHandler(const char* functionName, int lineNumber);
+
 
 // M4 also defines other faults, subclasses, having their own vectors
 /*

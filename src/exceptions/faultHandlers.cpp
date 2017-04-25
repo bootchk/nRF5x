@@ -14,8 +14,10 @@ namespace {
 
 
 enum {
+	// index 0 not used
 	HardFaultFlagIndex = 1,	// hw fault
-	ExitFaultFlagIndex	// assert()
+	ExitFaultFlagIndex,	// assert()
+	LineNumberFlagIndex
 };
 
 /*
@@ -130,18 +132,20 @@ void genericSysTickHandler(void) { resetOrHalt(); }
 
 __attribute__((noreturn))
 void genericHardFaultHandler(void) {
-	// word 1 reserved to indicate hard fault
 	CustomFlash::writeZeroAtIndex(HardFaultFlagIndex);
 	resetOrHalt();
 }
 
 __attribute__((noreturn))
 void genericExitFaultHandler(void) {
-	// word 2 reserved to indicate hard fault
 	CustomFlash::writeZeroAtIndex(ExitFaultFlagIndex);
 	resetOrHalt();
 }
 
-
+void genericAssertionFaultHandler(const char* functionName, int lineNumber){
+	CustomFlash::writeIntAtIndex(LineNumberFlagIndex, lineNumber);
+	CustomFlash::copyStringToFlash(functionName);
+	resetOrHalt();
+}
 
 } // extern C
