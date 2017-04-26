@@ -36,6 +36,11 @@ public:
 	 */
 	static const unsigned int MinVisibleTicksPerFlash = 20;
 
+	/*
+	 * Timer constrains max.
+	 * Timer may be 32-bit, i.e. 16M
+	 * Which yields (16M/20)*0.0006 = 50s
+	 */
 	static const unsigned int MaxFlashAmount = LongClockTimer::MaxTimeout / MinVisibleTicksPerFlash;
 
 

@@ -34,7 +34,7 @@
 namespace {
 
 // protocol module owns radio device
-RadioDevice device;
+// RadioDevice device;
 
 // protocol module uses but doesn't own
 Nvic* nvic;
@@ -71,7 +71,7 @@ void RADIO_IRQHandler() {
 
 
 HfCrystalClock* Radio::hfCrystalClock;
-
+RadioDevice Radio::device;
 
 
 
@@ -199,20 +199,14 @@ void Radio::init(
 	// There is a startup time before transmission can subsequently be started.
 	powerSupply->enableDCDCPower();	// Radio device wants this enabled.
 
-	/*
-	 * assert radio is configured to device reset defaults.
-	 * But default configuration of radio is non-functional (No packetPtr, etc.)
-	 * Caller must do additional configuration.
-	 */
-
+	// assert radio is configured to device reset defaults, which is non-functional.
+	configurePhysicalProtocol();
 
 	/*
-	 * not ensure Radio or its underlying RadioDevice is functional: must configure
-	 *
-	 * not ensure isPowerOn(): must power it on
-	 *
 	 * not ensure callback not nullptr: must set else radio might receive but not relay packet on
+	 * not ensure HFXO is started, which radio needs
 	 */
+	assert(isConfigured());
 }
 
 
@@ -220,77 +214,21 @@ void Radio::setMsgReceivedCallback(void (*onRcvMsgCallback)()){
 	aRcvMsgCallback = onRcvMsgCallback;
 }
 
-/*
- * Configuration
- *
- * A. Radio POR power-on-reset resets device configuration to default values.
- * B. Reset defaults seem to be non-functional
- *
- * Thus configure() must be called after every radio device transitions from power off=>on?
- *
- * C. Configuration can only be done when radio is DISABLED.
- * (except for certain registers, EVENT regs, PACKETPTR register, see elsewhere.)
- */
 
 
-
-//#define LONG_MESSAGE 1
-#define MEDIUM_MESSAGE 1
-
-
-void Radio::configurePhysicalProtocol() {
-
-	assert(isDisabledState());
-	// Specific to the protocol, here rawish
-	device.configureFixedFrequency(FrequencyIndex);
-	device.configureFixedLogicalAddress();
-	device.configureNetworkAddressPool();
-#ifdef LONG_MESSAGE
-	device.configureMediumCRC();
-	device.configureStaticPacketFormat(FixedPayloadCount, LongNetworkAddressLength);
-#endif
-#ifdef MEDIUM_MESSAGE
-	device.configureShortCRC();		// OR LongCRC
-	device.configureStaticPacketFormat(FixedPayloadCount, MediumNetworkAddressLength);
-#endif
-	device.setShortcutsAvoidSomeEvents();
-	device.configureMegaBitrate(MegabitRate);
-	device.configureFastRampUp();
-
-	// Must follow configureStaticPacketFormat, which destroys PCNF1 register
-	device.configureWhiteningOn();
-	/*
-	 * Convention: whitening seed derived from frequency.
-	 * All units must use same whitening seed.
-	 */
-	device.configureWhiteningSeed(2);
-
-	// !!! DMA set up later, not here.
-
-	// FUTURE: parameters
-	// Default tx power
-	// Default mode i.e. bits per second
-	assert(device.frequency() == FrequencyIndex);
-}
-
-// void Radio::isConfigured() { }
-
-void Radio::configureXmitPower(unsigned int dBm) {
-	device.configureXmitPower(dBm);
-}
+void Radio::abortUse() { disable(); }
+bool Radio::isInUse() { return ! device.isDisabledState(); }
 
 
-// Powering
-// Power off saves more power than just disable.  A SoftDevice powers off to save power.
-
-void Radio::powerOnAndConfigure() {
-	powerOn();
+// TODO not used
+void Radio::resetAndConfigure() {
+	reset();
 	configurePhysicalProtocol();
 }
 
 
-void Radio::powerOn() {
-	assert(!device.isPowerOn());  // require off
+void Radio::reset() {
+	// Does not require !device.isPowerOn()), it can be left enabled.
 
 	// require Vcc > 2.1V (see note below about DCDC)
 
@@ -299,7 +237,12 @@ void Radio::powerOn() {
 
 	// OBSOLETE hfCrystalClock->start();
 
+	// !!! toggling the bit called 'POWER' is actually just reset and does not affect power
+	// The chip manages power to radio automatically.
+	device.setRadioPowered(false);
 	device.setRadioPowered(true);
+
+	// TODO why do we need this?
 	spinUntilReady();
 
 	// assert if it was off, the radio and its registers are in initial state as specified by datasheet
@@ -329,7 +272,7 @@ void Radio::spinUntilReady() {
 	spinUntilDisabled();
 }
 
-void Radio::powerOff() {
+void Radio::shutdownDependencies() {
 	// not require on; might be off already
 
 	/*
@@ -338,20 +281,22 @@ void Radio::powerOff() {
 	 * The docs do not make clear whether the device passes through
 	 * the DISABLED state (generating an interrupt) when powered off.
 	 */
-	assert(device.isDisabledState());
+	assert(!isInUse());
 
+	/* OLD
 	device.setRadioPowered(false);
 	// not ensure not ready; caller must spin if necessary
+	*/
 
 	hfCrystalClock->stop();
 	// assert hf RC clock resumes for other peripherals
 
 	state = PowerOff;
-	// assert radio and HFCLK are off, or will be soon
+	// assert HFXO off, or will be soon
+	// assert the chip has powered radio off
 }
 
 
-bool Radio::isPowerOn() { return device.isPowerOn(); }
 
 #ifdef OBSOLETE
 // Get address and length of buffer the radio owns.
@@ -453,7 +398,7 @@ void Radio::disable() {
 	state = Idle;
 }
 
-bool Radio::isDisabledState() { return device.isDisabledState(); }
+
 
 void Radio::spinUntilDisabled() {
 	// Assert we started the task DISABLE or we think isDisabled, want to assert isDisabled

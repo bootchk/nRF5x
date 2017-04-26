@@ -36,8 +36,10 @@ void powerOffPeripherals() {
 
 	// TODO turn off GPIO's (e.g. LED)
 
-	// Reset radio so its power off (not transceiving).  Nordic platform, uses no power.
-	Radio::powerOff();
+	// Make radio not transceiving (chip will power it off.)
+	Radio::abortUse();
+	// Also power off radio's dependencies (HFXO)
+	Radio::shutdownDependencies();
 }
 
 

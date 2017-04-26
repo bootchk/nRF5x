@@ -2,6 +2,7 @@
 
 #include <inttypes.h>
 
+#include "../drivers/radio/radio.h"
 #include "../drivers/hfClock.h"
 #include "../drivers/nvic.h"
 #include "../drivers/powerSupply.h"
@@ -87,6 +88,9 @@ typedef enum {
 class Radio {
 
 public:
+
+	static RadioDevice device;	// Radio owns instance of RadioDevice
+
 	// Define protocol lengths
 
 	/*
@@ -154,17 +158,32 @@ public:
 	/*
 	 * Configure parameters of physical protocol: freq, addr, CRC, bitrate, etc
 	 */
+	static bool isConfigured();
 	static void configurePhysicalProtocol();
 
 	// platform independent 1: +4, 8: -40, else 0.   Units dBm.
 	// FUTURE enum
 	static void configureXmitPower(unsigned int dBm);
 
-	static void powerOnAndConfigure();
-	static void powerOff();
-	static bool isPowerOn();
+	static void resetAndConfigure();
 
-	static bool isDisabledState();
+
+	// Power off peripherals the radio depends on.
+	static void shutdownDependencies();
+
+	//static void powerOff();
+	//static bool isPowerOn();
+
+	// Make not xmitting or receiving.
+	static void abortUse();
+
+	/*
+	 *  is radio receiving or transmitting?
+	 *  !!! The chip automatically powers radio power.
+	 */
+	static bool isInUse();
+
+	//static bool isDisabledState();
 	static bool isEnabledInterruptForPacketDoneEvent();
 
 	// FUTURE DYNAMIC static void getBufferAddressAndLength(uint8_t** handle, uint8_t* lengthPtr);
@@ -206,7 +225,9 @@ public:
 private:
 	static void setupFixedDMA();
 
-	static void powerOn();	// public uses powerOnAndConfigure, a radio on is useless without configuration
+	// reset configuration
+	static void reset();	// public uses resetOnAndConfigure, a radio on is useless without configuration
+
 	static void spinUntilReady();
 	static void dispatchPacketCallback();
 
