@@ -13,6 +13,9 @@
  * the write that must be flushed is a trigger to an external device
  * that must occur timely, i.e. when the write is made
  * and not at some unknown time in the future when memory is read.
+ *
+ * These thresholds are common to NRF51 and NRF52.
+ * NRF52 family has finer grained thresholds (more thresholds), but highest is only 2.8V
  */
 
 namespace {
@@ -175,3 +178,4 @@ bool PowerComparator::isVddGreaterThan2_7V(){
 	setThresholdAndDisable(POWER_POFCON_THRESHOLD_V27);
 	return testVddGreaterThanThresholdThenDisable();
 }
+

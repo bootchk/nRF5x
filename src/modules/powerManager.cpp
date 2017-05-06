@@ -1,6 +1,7 @@
 
 #include "powerManager.h"
 #include "../drivers/powerComparator.h"
+#include "../drivers/adc.h"
 
 namespace {
 
@@ -12,6 +13,7 @@ namespace {
  */
 PowerComparator powerComparator;
 
+ADC adc;
 }  // namespace
 
 
@@ -53,24 +55,45 @@ PowerComparator powerComparator;
  * Radio is required to keep sync.
  * Work may temporarily take Vcc below needed for radio.
  */
-bool PowerManager::isPowerExcess()     { return powerComparator.isVddGreaterThan2_7V();}
+
+
+bool PowerManager::isPowerExcess() {
+	// adc differs by family: NRF51 ADC, NRF52 SAADC
+	// There is no adc device common to both families
+	bool result;
+#ifdef NRF52
+	return powerComparator.isVddGreaterThan2_7V();
+#elif NRF51
+	int value = adc.getVccProportionTo255();
+	result = value > 242;	// 3.4V
+#else
+#error "NRF51 or NRF52 not defined"
+#endif
+	return result;
+}
+
+
+
 bool PowerManager::isPowerForWork()    { return powerComparator.isVddGreaterThan2_5V();}
 bool PowerManager::isPowerForRadio()   { return powerComparator.isVddGreaterThan2_3V();}
 bool PowerManager::isPowerForReserve() {return powerComparator.isVddGreaterThan2_1V();}
 
 
 VoltageRange PowerManager::getVoltageRange() {
+	/*
+	 * Implementation: step through levels from high to low
+	 */
 	VoltageRange result;
-	if (powerComparator.isVddGreaterThan2_7V()) {
+	if (isPowerExcess()) {
 		result = VoltageRange::Excess;
 	}
-	else if (powerComparator.isVddGreaterThan2_5V()) {
+	else if (isPowerForWork()) {
 		result = VoltageRange::High;
 	}
-	else if (powerComparator.isVddGreaterThan2_3V()) {
+	else if (isPowerForRadio()) {
 		result = VoltageRange::Medium;
 	}
-	else if (powerComparator.isVddGreaterThan2_1V()) {
+	else if (isPowerForReserve()) {
 		result = VoltageRange::Low;
 	}
 	else {

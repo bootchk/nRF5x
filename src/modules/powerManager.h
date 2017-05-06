@@ -37,7 +37,7 @@ public:
 	/*
 	 * Levels
 	 */
-	static bool isPowerExcess();
+	static bool isPowerExcess();	// Above Vmax of chip 3.6V
 	static bool isPowerForReserve();
 	static bool isPowerForWork();
 	static bool isPowerForRadio();

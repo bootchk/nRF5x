@@ -3,6 +3,7 @@
 #include "nrf.h"
 #include "nrf_clock.h"
 
+#include "../modules/radio.h"
 #include "powerAssertions.h"
 
 void assertUnusedOff();	// local
@@ -16,7 +17,7 @@ void assertUnusedOff();	// local
  *
  * Do not call when radio is being used: HF XTAL source and radio enabled.
  *
- * Coded w/o using drivers.
+ * Some coded w/o using drivers, i.e. not portable
  *
  * PowerComparator??
  * TODO GPIO's configured disconnected
@@ -24,9 +25,9 @@ void assertUnusedOff();	// local
  */
 
 /*
- * Peripherals we don't use at all.
+ * Peripherals we never use at all.
  */
-void assertUnusedOff() {
+void assertNeverUsedDevicesOff() {
 
 #ifdef NRF52
 	// nrf52 FPU is disabled.
@@ -66,7 +67,6 @@ void assertUnusedOff() {
 }
 
 
-//#define NDEBUG 1
 #ifdef NDEBUG
 void assertUltraLowPower() { return; }
 void assertRadioPower() { return; }
@@ -74,24 +74,20 @@ void assertRadioPower() { return; }
 
 /*
  * All peripherals except RTC and LFXO off.
- * Especially peripherals not in use at time of call: radio and its HFXO.
+ * Including peripherals we use, but should be inactive at time of call: radio and its HFXO.
  */
 void assertUltraLowPower() {
 
-	assertUnusedOff();
+	assertNeverUsedDevicesOff();
 
-	// radio disabled (reset)
-	assert(NRF_RADIO->POWER == 0);
+	assert(!Radio::isInUse());
 
-	// HF XTAL clock not running
-	//assert( ! ((NRF_CLOCK->HFCLKSTAT & (CLOCK_HFCLKSTAT_STATE_Msk | CLOCK_HFCLKSTAT_SRC_Msk)) ==
-    //       (CLOCK_HFCLKSTAT_STATE_Msk | (CLOCK_HFCLKSTAT_SRC_Xtal << CLOCK_HFCLKSTAT_SRC_Pos))));
-	assert(! nrf_clock_hf_is_running( NRF_CLOCK_HFCLK_HIGH_ACCURACY));
+	assert(! HfCrystalClock::isRunning());
 }
 
 void assertRadioPower() {
 
-	assertUnusedOff();
+	assertNeverUsedDevicesOff();
 }
 
 #endif

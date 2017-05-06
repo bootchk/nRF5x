@@ -327,7 +327,10 @@ BufferPointer Radio::getBufferAddress() { return radioBuffer; }
 void Radio::transmitStaticSynchronously(){
 	// ledLogger2.toggleLED(4);	// Dual purpose LED4: invalid or xmit
 	disableInterruptForEndTransmit();	// spin, not interrupt
+
+	// Lag for rampup, i.e. not on air immediately
 	transmitStatic();
+	// FUTURE: sleep while xmitting to save power
 	spinUntilDisabled();
 	// assert xmit is complete and device is disabled
 }
