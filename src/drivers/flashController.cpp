@@ -13,3 +13,6 @@ void FlashController::disableWrite(){
 	while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
 }
 
+bool FlashController::isDisabled() {
+	return (NRF_NVMC->CONFIG == 0); // read-only state
+}

@@ -27,11 +27,11 @@ ReasonForWake reasonForWake = None;
 
 
 /*
- * IRQ handler callbacks
+ * Callback from RTC_IRQ dispatched on event for Timer compare register
  *
  * Since there are two concurrent devices (radio and counter), there is a race to set reasonForWake
  *
- * !!! Note there may be other Timers which wake us but whose callbacks do not set reasonForWake.
+ * !!! May be other Timers which wake mcu but whose callbacks do not set reasonForWake.
  */
 /*
  * Callbacks from IRQHandler, so keep short or schedule a task, queue work, etc.
@@ -41,8 +41,10 @@ ReasonForWake reasonForWake = None;
  */
 
 void rcvTimeoutTimerCallback() {
-	if (reasonForWake == None)	// if msg didn't arrive just ahead of timeout, before main could cancel timeout
+	if (reasonForWake == None) {	// if msg didn't arrive just ahead of timeout, before main could cancel timeout
 		reasonForWake = TimerExpired;
+		// TODO assert that Timer current Count - Timer starting count == timeout
+	}
 }
 
 } // namespace
@@ -109,7 +111,8 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	 * Cases:
 	 * - never slept and simulated reasonForWake == Timeout
 	 * - OR slept then woke and:
-	 * -- IRQ handler set reasonForWake in [Timeout, MsgReceived)
+	 * -- RTC or RADIO IRQ handler set reasonForWake in [Timeout, MsgReceived)
+	 * -- RTC IRQ for another Timer and reasonForWake is still none
 	 * -- unexpected event woke us and reasonForWake is still None
 	 *
 	 * In all cases, assert timer is stopped (so using our timer semantics, it can be started again.)
@@ -124,7 +127,10 @@ void Sleeper::cancelTimeout(){
 }
 
 
-
+/*
+ * Called by RadioIRQ.
+ * Not assert packet is valid.
+ */
 void Sleeper::msgReceivedCallback() {
 	/*
 	 * If msg arrives after main read reasonForWake and before it stopped the receiver,

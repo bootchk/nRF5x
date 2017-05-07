@@ -40,6 +40,11 @@ uint16_t readADC() {
 }
 
 
+bool ADC::isDisabled() {
+	return NRF_ADC->ENABLE == ADC_ENABLE_ENABLE_Disabled;
+}
+
+
 int ADC::getVccProportionTo255(){
 	//uint32_t foo = nrf_adc_result_get();
 

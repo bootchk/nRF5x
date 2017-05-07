@@ -404,8 +404,14 @@ void Radio::disable() {
 
 
 void Radio::spinUntilDisabled() {
-	// Assert we started the task DISABLE or we think isDisabled, want to assert isDisabled
-	// Wait until the event that signifies disable is complete
+	/*
+	 * Assert:
+	 * - we started the task DISABLE
+	 * - or we think is in reset state (just after RADIO->POWER toggled)
+	 * - or a shortcut from active state such as TX will succeed
+	 * Not to be used to wait for a receive, because it may fail
+	 */
+	// Wait until state == disabled  (not checking for event.)
 	// See data sheet.  For (1Mbit mode, TX) delay is ~6us, for RX, ~0us
 	while (!device.isDisabledState()) ;
 }

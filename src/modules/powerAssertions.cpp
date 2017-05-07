@@ -4,6 +4,8 @@
 #include "nrf_clock.h"
 
 #include "../modules/radio.h"
+#include "../drivers/adc.h"
+#include "../drivers/powerComparator.h"
 #include "powerAssertions.h"
 
 void assertUnusedOff();	// local
@@ -83,6 +85,14 @@ void assertUltraLowPower() {
 	assert(!Radio::isInUse());
 
 	assert(! HfCrystalClock::isRunning());
+
+	assert( PowerComparator::isDisabled());
+
+#ifdef NRF51
+	assert( ADC::isDisabled());
+#endif
+
+	assert( FlashController::isDisabled());
 }
 
 void assertRadioPower() {

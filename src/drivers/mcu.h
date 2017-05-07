@@ -9,7 +9,13 @@
 class MCU {
 public:
 
-	/* sleep mcu until an event */
+	/*
+	 * sleep mcu until an event
+	 *
+	 * Note used several places:
+	 * - hfxo startup
+	 * - sleeper
+	 */
 	static void sleep();
 
 	/*

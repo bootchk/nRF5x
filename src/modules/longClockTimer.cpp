@@ -156,6 +156,8 @@ void LongClockTimer::init(Nvic* nvic) {
 	// assert counter is started.
 	// assert interrupt enabled for overflow
 	// assert compareRegisters are configured by default to disabled interrupt w/ nullptr callbacks
+
+	// nrf51 anomaly 72 irrelevant: LFCLK is running, permanently
 }
 
 
