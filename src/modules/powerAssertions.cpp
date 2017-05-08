@@ -93,6 +93,8 @@ void assertUltraLowPower() {
 #endif
 
 	assert( FlashController::isDisabled());
+
+	// TODO for nrf52 can assert not in debug mode
 }
 
 void assertRadioPower() {
