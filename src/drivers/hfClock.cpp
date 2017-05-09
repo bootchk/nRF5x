@@ -134,6 +134,7 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 }
 
 
+// TODO Not used
 void HfCrystalClock::startAndWaitUntilRunning(){
 
 	// Enable the High Frequency clock to the system as a whole

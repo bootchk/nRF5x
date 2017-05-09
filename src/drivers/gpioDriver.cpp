@@ -22,7 +22,29 @@ GPIOMask managedPinsMask;
 
 // Mask of sunk pins: logic low pulls current from LED in series with Vcc.
 GPIOMask sunkPinsMask;
+
+/*
+ * Not sure this is necessary:
+ * some forum posts say that the reset condition guarantees low power
+ * while others say that NOPULL should nt be used.
+ */
+void initLowPower() {
+	// Set every pin to IN, DISCONNECT,
+	for (uint32_t pin = 0; pin < 32; pin++) {
+
+		// Configure high current output (max 5mA)
+		nrf_gpio_cfg(
+				pin,
+				NRF_GPIO_PIN_DIR_INPUT,
+				NRF_GPIO_PIN_INPUT_DISCONNECT,
+				NRF_GPIO_PIN_PULLDOWN,
+				NRF_GPIO_PIN_H0H1,	// !!! high current
+				NRF_GPIO_PIN_NOSENSE);
+	}
 }
+
+
+}	// namespace
 
 
 void GPIODriver::init(GPIOMask mask, McuSinksOrSources arePinsSunk) {
@@ -32,6 +54,9 @@ void GPIODriver::init(GPIOMask mask, McuSinksOrSources arePinsSunk) {
 		sunkPinsMask = mask;
 	else
 		sunkPinsMask = ~mask;	// sunkPinsMask has bits set where not set in managedPinsMask
+
+	// TODO test whether this is necessary
+	initLowPower();
 }
 
 void GPIODriver::enableOut(GPIOMask mask) {

@@ -6,6 +6,7 @@
 #include "../modules/radio.h"
 #include "../drivers/adc.h"
 #include "../drivers/powerComparator.h"
+#include "../drivers/flashController.h"
 #include "powerAssertions.h"
 
 void assertUnusedOff();	// local
@@ -41,18 +42,16 @@ void assertNeverUsedDevicesOff() {
 
 	// FPU interrupt not pending
 	assert( ! NVIC_GetPendingIRQ(FPU_IRQn));
+
+	// MWU disabled
+	assert(NRF_MWU->REGIONEN == 0);
 #endif
 
 	// Peripherals in reset condition
 
-	// Not writing to FLASH
-	assert(NRF_NVMC->CONFIG == 0);
 	// WDT not running
 	assert(NRF_WDT->RUNSTATUS == 0);
-#ifdef NRF52
-	// MWU disabled
-	assert(NRF_MWU->REGIONEN == 0);
-#endif
+
 
 	// TODO Not exist a register to detect power sub-mode (LOWPOWER or CONSTANT_LATENCY)
 	// and Nordic docs say it defaults to low-power, but we could trigger the task here
@@ -64,8 +63,15 @@ void assertNeverUsedDevicesOff() {
 	// DCDC power regulator disabled
 	assert(NRF_POWER->DCDCEN == 0);
 
-
+	// Pending flags prevent sleep even if interrupts disabled
 	//NVIC_ClearPendingIRQ(FPU_IRQn);
+	assert( ! NVIC_GetPendingIRQ(RADIO_IRQn));
+	assert( ! NVIC_GetPendingIRQ(RTC0_IRQn));
+	assert( ! NVIC_GetPendingIRQ(POWER_CLOCK_IRQn));
+
+	// Not reset for unexpected reason
+	// This doesn't work in debug because the reason will be
+	// assert( NRF_POWER->RESETREAS == 0 );
 }
 
 

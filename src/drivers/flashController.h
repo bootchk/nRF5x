@@ -11,7 +11,7 @@ class FlashController {
 public:
 	static const uint32_t UICRStartAddress = 0x10001080;	// target dependent
 
-	static bool FlashController::isDisabled();
+	static bool isDisabled();
 
 	// !!! Both have busy waits
 	static void enableWrite();
