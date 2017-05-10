@@ -36,5 +36,8 @@ public:
 	 */
 	static void enableInstructionCache();
 
+	// There is no enableIRQ(), at reset they are enabled
+	// Disable all interrupts (using mcu PRIMASK register.)
+	// Since there is no enableIRQ(), this should only be used in a fatal condition
 	static void disableIRQ();
 };

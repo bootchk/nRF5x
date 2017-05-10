@@ -138,7 +138,9 @@ void LongClockTimer::init(Nvic* nvic) {
 
 	// Docs don't say this can't be done while counter is running
 	counter.configureOverflowInterrupt();
-	// assert interrupt is enabled and mostSignificantBits will increment on overflow
+	// assert overflow interrupt is enabled in device
+	// assert RTC0_IRQ is enabled (for counter and timers)
+	// mostSignificantBits will increment on overflow
 
 	// assert prescaler is default of 0, i.e. 30uSec tick
 
