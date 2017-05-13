@@ -4,11 +4,11 @@
 #include "customFlash.h"
 
 
-void CustomFlash::writeZeroAtIndex(unsigned int index){
+void CustomFlash::writeZeroAtIndex(FlagIndex index){
 	writeIntAtIndex(index, 0);
 }
 
-void CustomFlash::writeIntAtIndex(unsigned int index, int value){
+void CustomFlash::writeIntAtIndex(FlagIndex index, int value){
 
 	// assert index >=0 and <= 31
 

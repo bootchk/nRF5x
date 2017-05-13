@@ -12,14 +12,6 @@
 
 namespace {
 
-
-enum {
-	// index 0 not used
-	HardFaultFlagIndex = 1,	// hw fault
-	ExitFaultFlagIndex,	// assert()
-	LineNumberFlagIndex
-};
-
 /*
  * Power off any used devices (specific to app).
  * So that the mcu might not brownout, but the app is halted (non-functional.)

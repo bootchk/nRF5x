@@ -18,17 +18,37 @@
  *
  *
  */
+
+/*
+ * Index of words in UICR.
+ *
+ * Typically use word as a flag for certain exceptions and other events.
+ * A flag is 'set' by writing all zeroes to it.
+ * Events are specific to the application.
+ */
+enum FlagIndex {
+	// index 0 not used
+	HardFaultFlagIndex = 1,	// hw fault
+	ExitFaultFlagIndex,	// assert()
+	BootedEventFlagIndex,
+	EnterSyncLoopEventFlagIndex,
+	LineNumberFlagIndex
+};
+
+
+
 class CustomFlash {
+	// Offset in bytes to here in UICR we write a string. e.g. address 0x10000840
+	static const int OffsetToString = 40;
 public:
-	// Where in UICR we write a string
-	static const int OffsetToString = 20;
+
 
 	// Write entire word to zero.
-	static void writeZeroAtIndex(unsigned int);
+	static void writeZeroAtIndex(FlagIndex);
 
 	// Write int to word
-	static void writeIntAtIndex(unsigned int, int);
+	static void writeIntAtIndex(FlagIndex, int);
 
-	// To a fixed place in flash
+	// Copy prefix of string to a fixed place in flash
 	static void copyStringToFlash(const char* functionName);
 };

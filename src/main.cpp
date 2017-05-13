@@ -48,7 +48,7 @@ int main() {
 
 	longClockTimer.init(&nvic);
 
-	CustomFlash::writeZeroAtIndex(0);
+	CustomFlash::writeZeroAtIndex( BootedEventFlagIndex);
 
 	radio.init(
 			&nvic,
