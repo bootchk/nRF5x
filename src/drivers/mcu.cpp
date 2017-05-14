@@ -33,7 +33,7 @@ void MCU::sleep() {
 
 
 void MCU::flushWriteCache() {
-	// Implementation: read any address, which flushes write cache.
+	// Implementation: read any IO mapped address, which flushes write buffer on IO bus nrf52
 	(void) NRF_POWER->POFCON;
 }
 

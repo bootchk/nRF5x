@@ -7,6 +7,9 @@
 #include "../drivers/counter.h"
 #include "../drivers/compareRegister.h"
 
+extern "C" { void RTC0_IRQHandler(void); }
+
+
 /*
  * Private data.
  * If you use the underlying peripherals elsewhere, you must coordinate.
@@ -85,7 +88,10 @@ void initCompareRegs() {
  * Overrides weak default handler defined by gcc_startup_nrf52.c.
  */
 extern "C" {	// Binding must be "C" to override default handler.
-void RTC0_IRQHandler(void)
+
+__attribute__ ((interrupt ("RTC_IRQ")))
+void
+RTC0_IRQHandler(void)
 {
 	// Source event is overflow
 	if ( counter.isOverflowEvent() ) {
@@ -154,6 +160,8 @@ void LongClockTimer::init(Nvic* nvic) {
 	 * not assert rc or xtal oscillator isRunning.
 	 * Accuracy might be low until isRunning.
 	 * The RC oscillator will running first, but even it may not be running.
+	 * LFRC starts in 600uSec (nrf52)
+	 * LFXO starts in 0.25Sec
 	 */
 	// assert counter is started.
 	// assert interrupt enabled for overflow

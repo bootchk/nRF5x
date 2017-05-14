@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include <nrf.h>	// direct access to NRF_CLOCK
+//#include <nrf.h>	// direct access to NRF_CLOCK
 #include <nrf_clock.h>	// HAL
 
 #include "hfClock.h"
@@ -33,7 +33,9 @@ extern "C" {
  *
  * C so overrides default
  */
-void POWER_CLOCK_IRQHandler() {
+__attribute__ ((interrupt ("POWER_CLOCK_IRQ")))
+void
+POWER_CLOCK_IRQHandler() {
 	if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED)) {
 		didInterruptStartingEvent = true;
 		// Clear event so interrupt not triggered again.
@@ -134,7 +136,7 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 }
 
 
-// TODO Not used
+#ifdef NOTUSED
 void HfCrystalClock::startAndWaitUntilRunning(){
 
 	// Enable the High Frequency clock to the system as a whole
@@ -147,6 +149,7 @@ void HfCrystalClock::startAndWaitUntilRunning(){
 	assert(NRF_CLOCK->HFCLKSTAT & CLOCK_HFCLKSTAT_SRC_Msk);	// 1 == Xtal
 	assert(NRF_CLOCK->HFCLKSTAT & CLOCK_HFCLKRUN_STATUS_Msk);	// 1 == running
 }
+#endif
 
 
 void HfCrystalClock::stop(){
@@ -154,8 +157,7 @@ void HfCrystalClock::stop(){
 	// non-HAL NRF_CLOCK->TASKS_HFCLKSTOP = 1;
 
 	/*
-	 *  Will generate event, but interrupt not enabled, and we don't care whether event really happens:
-	 *  not spinning for event indicating stopped
+	 *  Will generate event, but interrupt not enabled, and we don't wait for event indicating stopped
 	 */
 	// ?? Do we need a delay here?
 	assert(!isRunning());

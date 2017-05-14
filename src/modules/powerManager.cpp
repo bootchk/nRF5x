@@ -13,7 +13,9 @@ namespace {
  */
 PowerComparator powerComparator;
 
+#ifdef NRF51
 ADC adc;
+#endif
 }  // namespace
 
 

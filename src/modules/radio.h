@@ -165,7 +165,7 @@ public:
 	// FUTURE enum
 	static void configureXmitPower(unsigned int dBm);
 
-	static void resetAndConfigure();
+	//static void resetAndConfigure();
 
 
 	// Power off peripherals the radio depends on.
@@ -193,8 +193,8 @@ public:
 
 	// Static: buffer owned by radio, of fixed length
 	static void transmitStatic();
-	static void spinUntilXmitComplete();
 	static void transmitStaticSynchronously();	// blocking
+	static void spinUntilXmitComplete();
 	static void stopXmit();
 
 	static void receiveStatic();
@@ -225,21 +225,30 @@ public:
 private:
 	static void setupFixedDMA();
 
-	// reset configuration
-	static void reset();	// public uses resetOnAndConfigure, a radio on is useless without configuration
+	/*
+	 * reset configuration.
+	 *
+	 * Only needed if configuration is to be changed other than at POR time, when we already know radio is reset
+	 */
+	//static void reset();
 
-	static void spinUntilReady();
+	/*
+	 * Is radio ready for OTA, i.e. rampup is done.
+	 * Not needed since we use shortcuts.
+	 */
+	//static void spinUntilReady();
+
 	static void dispatchPacketCallback();
 
-	static void disable();
-	static void spinUntilDisabled();
 	static void setupInterruptForMsgReceivedEvent();
 
 	static void startXmit();
 	static void startRcv();
 
-	static void enableRXTask();
-	static void enableTXTask();
+	static void startRXTask();
+	static void startTXTask();
+	static void startDisableTask();
+	static void spinUntilDisabled();
 
 	static bool isEventForMsgReceivedInterrupt();
 	static void clearEventForMsgReceivedInterrupt();

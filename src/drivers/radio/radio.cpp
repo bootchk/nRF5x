@@ -51,6 +51,7 @@ void RadioDevice::clearEndTransmitEvent() {
 
 void RadioDevice::startRXTask() {
 	NRF_RADIO->TASKS_RXEN = 1;
+	// TODO flushWriteCache everywhere
 }
 void RadioDevice::startTXTask() {
 	NRF_RADIO->TASKS_TXEN = 1;
@@ -97,7 +98,6 @@ void RadioDevice::clearReceiveInProgressEvent() {
 
 
 bool RadioDevice::isDisabledEventSet() {
-	// Used to spin until clear
 	return NRF_RADIO->EVENTS_DISABLED; // == 1
 }
 

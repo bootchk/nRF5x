@@ -28,11 +28,14 @@
  */
 enum FlagIndex {
 	// index 0 not used
-	HardFaultFlagIndex = 1,	// hw fault
-	ExitFaultFlagIndex,	// assert()
+	HardFaultFlagIndex = 1,			// hw fault
+	ExitFaultFlagIndex,				// assert() called
 	BootedEventFlagIndex,
 	EnterSyncLoopEventFlagIndex,
-	LineNumberFlagIndex
+	ExcessPowerEventFlagIndex,		// Vcc above 3.6V
+	BrownoutPowerEventFlagIndex,	// Vcc below 2.1V
+	WorkEventFlagIndex,				// Worked e.g. flashed LED
+	LineNumberFlagIndex				// line no of assert
 };
 
 

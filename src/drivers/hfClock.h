@@ -36,10 +36,7 @@ public:
 
 	static void stop();
 
-	/*
-	 * Spin mcu while starting.
-	 */
-	static void startAndWaitUntilRunning();
+	// static void startAndWaitUntilRunning();
 
 	/*
 	 * Sleep during startup to avoid energy consumption.

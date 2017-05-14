@@ -14,6 +14,8 @@
  * Compare 1/3Vcc to 1.2V reference band gap (VBG)
  */
 
+#ifdef NRF51
+
 namespace {
 
 void enableADC() {
@@ -59,3 +61,5 @@ int ADC::getVccProportionTo255(){
 	// If result is 1024, Vcc is greater than or equal to 3.6V
 	return result;
 };
+
+#endif	// NRF51

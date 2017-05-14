@@ -56,7 +56,10 @@ volatile uint8_t radioBuffer[Radio::FixedPayloadCount];
 
 
 extern "C" {
-void RADIO_IRQHandler() {
+
+__attribute__ ((interrupt ("RADIO_IRQ")))
+void
+RADIO_IRQHandler()  {
 	Radio::receivedEventHandler();	// relay to static C++ method
 	// assert ARM is in IRQ mode and assembler will generate proper RTI instructions
 	// ARM set an internal event flag will be set on RTI that must be cleared by SEV
@@ -216,15 +219,37 @@ void Radio::setMsgReceivedCallback(void (*onRcvMsgCallback)()){
 
 
 
-void Radio::abortUse() { disable(); }
+void Radio::abortUse() {
+	startDisableTask();
+	// May be a delay until radio is disabled i.e. ready for next task
+}
 bool Radio::isInUse() { return ! device.isDisabledState(); }
 
+void Radio::spinUntilDisabled() {
+	/*
+	 * Assert:
+	 * - we started the task DISABLE
+	 * - or we think is in reset state (just after RADIO->POWER toggled or POR)
+	 * - or a shortcut from active state such as TX will succeed
+	 * Not to be used to wait for a receive, because it may fail
+	 */
+	/*
+	 *  Implementation: Wait until state == disabled  (not checking for event.)
+	 *
+	 *  See data sheet.
+	 *  For (1Mbit mode, TX) to disabled delay is ~6us.
+	 *  RX to disabled delay is ~0us
+	 *  delay from reset (toggle POWER) to disabled is ???
+	 */
+	while (!device.isDisabledState()) ;
+}
 
-// TODO not used
+#ifdef OLD
 void Radio::resetAndConfigure() {
 	reset();
 	configurePhysicalProtocol();
 }
+
 
 
 void Radio::reset() {
@@ -232,17 +257,16 @@ void Radio::reset() {
 
 	// require Vcc > 2.1V (see note below about DCDC)
 
-	// radio requires XTAL!!! hf clock, not the RC hf clock
+	// radio requires HFXO xtal clock, not the HFRC hf clock
 	assert(hfCrystalClock->isRunning());
-
-	// OBSOLETE hfCrystalClock->start();
 
 	// !!! toggling the bit called 'POWER' is actually just reset and does not affect power
 	// The chip manages power to radio automatically.
 	device.setRadioPowered(false);
 	device.setRadioPowered(true);
 
-	// TODO why do we need this?
+	// Assert there is no delay: state is immediately disabled?
+	// There is a delay using the DISABLE Task from RX or TX
 	spinUntilReady();
 
 	// assert if it was off, the radio and its registers are in initial state as specified by datasheet
@@ -254,7 +278,7 @@ void Radio::reset() {
 
 	// !!! Configuration was lost, caller must now configure it
 	assert(!isEnabledInterruptForMsgReceived());
-	assert(device.isDisabledState());		// after power on and ready, initial state is DISABLED
+	assert(device.isDisabledState());		// after reset, initial state is DISABLED
 }
 
 
@@ -271,6 +295,8 @@ void Radio::spinUntilReady() {
 	device.startDisablingTask();
 	spinUntilDisabled();
 }
+#endif
+
 
 void Radio::shutdownDependencies() {
 	// not require on; might be off already
@@ -331,7 +357,7 @@ void Radio::transmitStaticSynchronously(){
 	// Lag for rampup, i.e. not on air immediately
 	transmitStatic();
 	// FUTURE: sleep while xmitting to save power
-	spinUntilDisabled();
+	spinUntilXmitComplete();
 	// assert xmit is complete and device is disabled
 }
 
@@ -382,39 +408,23 @@ void Radio::receive(volatile uint8_t * data, uint8_t length) {
  * Start a task on the device.
  * Require device is configured, including data and DMA.
  */
-// TODO rename startxxTask
-void Radio::enableRXTask() {
+void Radio::startRXTask() {
 	device.clearMsgReceivedEvent();	// clear event that triggers interrupt
 	device.startRXTask();
 }
-void Radio::enableTXTask() {
+
+void Radio::startTXTask() {
 	device.clearEndTransmitEvent();	// clear event we spin on
 	device.startTXTask();
 }
 
-// Disabling
-
-void Radio::disable() {
+void Radio::startDisableTask() {
 	assert(!isEnabledInterruptForEndTransmit());
 	device.clearDisabledEvent();
 	device.startDisablingTask();
 	state = Idle;
 }
 
-
-
-void Radio::spinUntilDisabled() {
-	/*
-	 * Assert:
-	 * - we started the task DISABLE
-	 * - or we think is in reset state (just after RADIO->POWER toggled)
-	 * - or a shortcut from active state such as TX will succeed
-	 * Not to be used to wait for a receive, because it may fail
-	 */
-	// Wait until state == disabled  (not checking for event.)
-	// See data sheet.  For (1Mbit mode, TX) delay is ~6us, for RX, ~0us
-	while (!device.isDisabledState()) ;
-}
 
 
 /*
@@ -451,13 +461,13 @@ void Radio::setupXmitOrRcv(volatile uint8_t * data, uint8_t length) {
 
 void Radio::startXmit() {
 	assert(device.isDisabledState());  // require, else behaviour undefined per datasheet
-	enableTXTask();
+	startTXTask();
 	// assert radio state will soon be TXRU and since shortcut, TX
 }
 
 void Radio::startRcv() {
 	assert(device.isDisabledState());  // require, else behaviour undefined per datasheet
-	enableRXTask();
+	startRXTask();
 	/*
 	 * assert: (since shortcuts)
 	 * 1. radio state will soon be RXRU
@@ -522,7 +532,8 @@ void Radio::spinUntilXmitComplete() {
 	// Here, for xmit, we do not enable interrupt on DISABLED event.
 	// Since it we expect it to be quick.
 	// FUTURE use interrupt on xmit.
-	while (! device.isDisabledState() ) {}
+
+	spinUntilDisabled();	// Disabled state means xmit done because using shortcuts
 	state = Idle;
 }
 
