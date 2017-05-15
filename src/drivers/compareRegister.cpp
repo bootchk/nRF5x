@@ -4,20 +4,27 @@
 // Use HAL
 #include "nrf_rtc.h"
 
+/*
+ * Implementation notes:
+ *
+ * See Nordic docs: enable event "enables routing to the PPI", and RTC task/event circuit is atypical from other peripherals.
+ * Events occur even if "event routing" is disabled.
+ * An event is a separate address.
+ */
 
 void CompareRegister::init(
 		nrf_rtc_event_t aEvent,
-		unsigned int aEventMask,
-		unsigned int aInterruptMask,
+		//unsigned int aEventMask,
+		nrf_rtc_int_t   aInterruptMask,
 		unsigned int aIndex
 		){
 	/*
 	 * Parameterize this instance with device addresses and masks.
 	 */
 	eventAddress = aEvent;
-	eventMask = aEventMask;
+	//eventMask = aEventMask;
 	interruptMask = aInterruptMask;
-	index = aIndex;
+	selfIndex = aIndex;
 }
 
 
@@ -25,14 +32,14 @@ void CompareRegister::enableInterrupt(){
 	// Clear event so we don't interrupt immediately
 	clearEvent();
 
-	nrf_rtc_event_enable(NRF_RTC0, eventMask);
+	// Not needed: nrf_rtc_event_enable(NRF_RTC0, eventMask);
 	nrf_rtc_int_enable(NRF_RTC0, interruptMask);
 	// not ensure nvic enabled
 }
 
 
 void CompareRegister::disableInterrupt(){
-	nrf_rtc_event_disable(NRF_RTC0, eventMask);
+	// Not needed: nrf_rtc_event_disable(NRF_RTC0, eventMask);
 	nrf_rtc_int_disable(NRF_RTC0, interruptMask);
 	// not ensure nvic disabled
 }
@@ -59,7 +66,7 @@ void CompareRegister::set(unsigned int timeout){
 	 * Modulo 24-bit math:
 	 * value is computed in 32-bit math but writing to the register masks with 0xFFFFFF,
 	 */
-	nrf_rtc_cc_set(NRF_RTC0, index, currentCount + timeout);
+	nrf_rtc_cc_set(NRF_RTC0, selfIndex, currentCount + timeout);
 	// assert nrf_rtc_cc_get() = (currentCount + timeout) % 0xFFFFFF
 }
 

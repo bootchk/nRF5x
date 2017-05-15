@@ -59,19 +59,19 @@ void initCompareRegs() {
 	// Parameters of compareRegisters are fixed by hw design
 	compareRegisters[0].init(
 			NRF_RTC_EVENT_COMPARE_0,
-			RTC_EVTEN_COMPARE0_Msk,
+			//RTC_EVTEN_COMPARE0_Msk,
 			NRF_RTC_INT_COMPARE0_MASK,
 			0	// index
 	);
 	compareRegisters[1].init(
 			NRF_RTC_EVENT_COMPARE_1,
-			RTC_EVTEN_COMPARE1_Msk,
+			//RTC_EVTEN_COMPARE1_Msk,
 			NRF_RTC_INT_COMPARE1_MASK,
 			1	// index
 	);
 	compareRegisters[2].init(
 			NRF_RTC_EVENT_COMPARE_2,
-			RTC_EVTEN_COMPARE2_Msk,
+			//RTC_EVTEN_COMPARE2_Msk,
 			NRF_RTC_INT_COMPARE2_MASK,
 			2	// index
 	);
@@ -210,9 +210,8 @@ void LongClockTimer::startTimer(
 	 * else counter exceeds compare already, and no interrupt till much later after counter rolls over.
 	 */
 	compareRegisters[index].set(timeout);
-	// event not enabled yet
+	// interrupt from compare not enabled yet
 	compareRegisters[index].enableInterrupt();
-	// event and interrupt enabled for compare reg
 
 	// assert RTC0 IRQ enabled (earlier for Counter.)
 }
