@@ -68,9 +68,13 @@ void assertNeverUsedDevicesOff() {
 	assert( ! NVIC_GetPendingIRQ(RADIO_IRQn));
 	assert( ! NVIC_GetPendingIRQ(RTC0_IRQn));
 	assert( ! NVIC_GetPendingIRQ(POWER_CLOCK_IRQn));
+	assert( ! NVIC_GetPendingIRQ(ADC_IRQn));
+
+	// TODO other, unused IRQ such as WDT, MemCU
+
 
 	// Not reset for unexpected reason
-	// This doesn't work in debug because the reason will be
+	// This doesn't work in debug because the reason will be DIF
 	// assert( NRF_POWER->RESETREAS == 0 );
 }
 

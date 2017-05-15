@@ -9,16 +9,11 @@
  * - holds only one item.
  * - is not generic on type of object held
  * - is not thread safe
+ *
+ * - is not static, i.e. this data members
  */
 
 
-// static data members
-namespace {
-
-WorkPayload item;
-bool isItem = false;
-
-}
 
 void Mailbox::put(WorkPayload aItem){
 	// FUTURE Thread safe: atomic

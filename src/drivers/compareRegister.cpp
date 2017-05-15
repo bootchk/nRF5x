@@ -55,7 +55,12 @@ void CompareRegister::set(unsigned int timeout){
 	 */
 	// require event disabled?
 	unsigned int currentCount = nrf_rtc_counter_get(NRF_RTC0);
+	/*
+	 * Modulo 24-bit math:
+	 * value is computed in 32-bit math but writing to the register masks with 0xFFFFFF,
+	 */
 	nrf_rtc_cc_set(NRF_RTC0, index, currentCount + timeout);
+	// assert nrf_rtc_cc_get() = (currentCount + timeout) % 0xFFFFFF
 }
 
 

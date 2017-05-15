@@ -12,6 +12,7 @@
  * Statically configured to empty.
  * Algebra:
  * reset; isMail() == false
+ * put(); isMail() == true; fetch(); isMail() == false
  *
  * Note there is no init() to empty the mailbox.
  * After an exception, it might be necessary to flush the mailbox by reading it.
@@ -20,13 +21,15 @@
 
 
 class Mailbox {
+	WorkPayload item;
+	bool isItem = false;
+
 public:
 	// put overwrites a mail when overflows
-	static void put(WorkPayload item);
+	void put(WorkPayload item);
 
 	// fetch first mail in box (if queued)
-	static WorkPayload fetch();
+	WorkPayload fetch();
 
-	//
-	static bool isMail();
+	bool isMail();
 };

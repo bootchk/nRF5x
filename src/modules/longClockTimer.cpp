@@ -48,6 +48,12 @@ void startXtalOscillator() {
 
 
 // TODO this could be done as initializers, not at runtime and would then be in ROM?
+/*
+ * Init the facades to the RTCTimers, i.e. the addresses and masks of each compare register.
+ *
+ * This does not guarantee the state of the hw compare registers
+ * (but typically, all are in POR reset state i.e. disabled.)
+ */
 void initCompareRegs() {
 	// This is expanded because the hw constants are defined by unparameterized macros
 	// Parameters of compareRegisters are fixed by hw design
@@ -93,6 +99,12 @@ __attribute__ ((interrupt ("RTC_IRQ")))
 void
 RTC0_IRQHandler(void)
 {
+	/*
+	 * Dispatch on event type: overflow or compare reg match
+	 *
+	 * !!! More than one event may be pending: handle them all
+	 */
+
 	// Source event is overflow
 	if ( counter.isOverflowEvent() ) {
 		mostSignificantBits++;
@@ -104,19 +116,8 @@ RTC0_IRQHandler(void)
 	// Loop over compare regs
 	for (unsigned int i=0; i<LongClockTimer::CountTimerInstances; i++ ) {
 		if ( compareRegisters[i].isEvent() ) {
-			compareRegisters[i].disableInterrupt();
 			timerCallback[i]();	// call callback
-			timerCallback[i] = nullptr;	// show not running
-			compareRegisters[i].clearEvent();
-
-			/*
-			 * One-shot: assert:
-			 * - interrupt is disabled.
-			 * - event is cleared
-			 * - event is disabled
-			 * Counter continues and compare reg still set, but it can't fire.
-			 * Same effect as cancel.
-			 */
+			LongClockTimer::cancelTimer((TimerIndex) i);
 		}
 	}
 
@@ -204,6 +205,10 @@ void LongClockTimer::startTimer(
 	// remember callback
 	timerCallback[index] = aTimeoutCallback;
 
+	/*
+	 * Setting timeout and enabling interrupt must be close together,
+	 * else counter exceeds compare already, and no interrupt till much later after counter rolls over.
+	 */
 	compareRegisters[index].set(timeout);
 	// event not enabled yet
 	compareRegisters[index].enableInterrupt();
@@ -219,10 +224,24 @@ bool LongClockTimer::isTimerStarted(TimerIndex index) {
 void LongClockTimer::cancelTimer(TimerIndex index){
 	/*
 	 * Legal to cancel Timer that has not been started.
+	 * Legal to call from IRQ or main thread.
+	 *
+	 * Possible race: Timer IRQ may expire in the middle of this,
+	 * so whatever flag the Timer sets may be set even after this is called.
+	 *
+	 * We clear compare reg event, so it would not be set in a race.
 	 */
-	// TODO discuss possible race
 	compareRegisters[index].disableInterrupt();
 	timerCallback[index] = nullptr;
+	compareRegisters[index].clearEvent();
+	/*
+	 * One-shot: assert:
+	 * - compare interrupt is disabled.
+	 * - compare event is cleared
+	 * - compare event is disabled
+	 * - callback is cleared
+	 * Counter continues and compare reg still set, but it can't fire.
+	 */
 }
 
 

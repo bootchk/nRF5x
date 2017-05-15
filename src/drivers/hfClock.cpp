@@ -108,8 +108,7 @@ bool HfCrystalClock::isRunning(){
 	 * (but I think it is just misnamed, and HFCLKSTARTED really means running.)
 	 * while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) { }
 	 */
-	// cast to avoid warning, poor SDK
-	return nrf_clock_hf_is_running( (nrf_clock_hfclk_t) CLOCK_HFCLKSTAT_SRC_Xtal);
+	return nrf_clock_hf_is_running( NRF_CLOCK_HFCLK_HIGH_ACCURACY );
 }
 
 

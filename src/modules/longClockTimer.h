@@ -12,6 +12,7 @@ typedef uint64_t LongTime;
 
 typedef uint32_t OSTime;
 
+// Future: better class with + operator and use it for iterating
 enum TimerIndex {
 	First =0,
 	Second,

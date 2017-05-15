@@ -41,7 +41,7 @@ void LEDFlasher::flashLED(unsigned int ordinal) {
 }
 
 void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
-	// assert ledLogger initialized
+	// assert LEDService initialized
 	// assert TimerService initialized
 
 	if (timerService->isTimerStarted(Second)) {
