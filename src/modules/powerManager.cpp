@@ -58,6 +58,12 @@ ADC adc;
  * Work may temporarily take Vcc below needed for radio.
  */
 
+void PowerManager::init() {
+#ifdef NRF51
+	adc.init();
+#endif
+	// powerComparator need no init
+}
 
 bool PowerManager::isPowerExcess() {
 	// adc differs by family: NRF51 ADC, NRF52 SAADC
@@ -68,6 +74,7 @@ bool PowerManager::isPowerExcess() {
 #elif NRF51
 	ADCResult value = adc.getVccProportionTo255();
 	// Need to use value smaller than 0xFF? say 3.4V
+	// This is fragile: must use >= since value never greater than ADC::Result3_6V
 	result = (value >= ADC::Result3_6V);
 #else
 #error "NRF51 or NRF52 not defined"

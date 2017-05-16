@@ -34,6 +34,8 @@ enum class VoltageRange { Excess, High, Medium, Low, UltraLow };
 class PowerManager {
 
 public:
+	static void init();
+
 	/*
 	 * Levels
 	 */

@@ -13,6 +13,7 @@ public:
 	// Since using 8-bit resolution
 	static const ADCResult Result3_6V = 255;
 
+	static void init();
 	static bool isDisabled();
 	static ADCResult getVccProportionTo255();
 };
