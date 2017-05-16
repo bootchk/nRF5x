@@ -1,4 +1,5 @@
 
+#include <cassert>
 #include <inttypes.h>
 #include <nrf.h>
 #include "adc.h"
@@ -37,7 +38,11 @@ void configureADCReadOneThirdVccReference1_2VInternal() {
 uint16_t readADC() {
 	NRF_ADC->TASKS_START = 1;
 	while (((NRF_ADC->BUSY & ADC_BUSY_BUSY_Msk) >> ADC_BUSY_BUSY_Pos) == ADC_BUSY_BUSY_Busy) {};
-	return (uint16_t)NRF_ADC->RESULT; // 8 bit
+	uint16_t result;
+	result = (uint16_t) NRF_ADC->RESULT; // 8 bits valid
+	// Even if Vcc greater than 3.6V, result still less than 0xFF (for 8-bit resolution)
+	assert(result<=ADC::Result3_6V);
+	return result;
 }
 }
 
@@ -47,7 +52,7 @@ bool ADC::isDisabled() {
 }
 
 
-int ADC::getVccProportionTo255(){
+ADCResult ADC::getVccProportionTo255(){
 	//uint32_t foo = nrf_adc_result_get();
 
 	enableADC();
@@ -57,9 +62,12 @@ int ADC::getVccProportionTo255(){
 	// One post says it does not save current to disable
 	disableADC();
 
-	// Result/1024 is proportion of Vcc to 3.6V
-	// If result is 1024, Vcc is greater than or equal to 3.6V
+	/*
+	 * For 10-bit resolution:
+	 * Result/1024 is proportion of Vcc to 3.6V
+	 * If result is 1024, Vcc is greater than or equal to 3.6V
+	 */
 	return result;
-};
+}
 
 #endif	// NRF51

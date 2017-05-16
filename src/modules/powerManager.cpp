@@ -66,8 +66,9 @@ bool PowerManager::isPowerExcess() {
 #ifdef NRF52
 	return powerComparator.isVddGreaterThan2_7V();
 #elif NRF51
-	int value = adc.getVccProportionTo255();
-	result = value > 242;	// 3.4V
+	ADCResult value = adc.getVccProportionTo255();
+	// Need to use value smaller than 0xFF? say 3.4V
+	result = (value >= ADC::Result3_6V);
 #else
 #error "NRF51 or NRF52 not defined"
 #endif
