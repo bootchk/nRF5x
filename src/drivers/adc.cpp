@@ -1,26 +1,30 @@
 
 #include <cassert>
-#include <inttypes.h>
 #include <nrf.h>
+#include <nrf_adc.h>	// HAL
 #include "adc.h"
 
 /*
  * Implementation notes
  *
- * Does NOT use HAL because HAL does not seem to support input is Vcc scaled.
- *
- * Uses raw manipulation of registers.
+ * Using HAL
+ * (OLD implementation uses raw registers but doesn't seem to work.)
  *
  * 8-bit resolution throughout
  * Compare 1/3Vcc to 1.2V reference band gap (VBG)
  */
 
-#define NRF51	// TEMP
 
 #ifdef NRF51
 
 namespace {
 
+bool isConfigured = false;
+
+nrf_adc_config_t adcConfigParams;
+
+
+#ifdef OLD
 void enableADC() {
 	NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled;
 }
@@ -31,52 +35,74 @@ void disableADC() {
 }
 #endif
 
-/*
- * An alternative is to clear the END event, and spin on it
- */
+
 bool isADCBusy() {
 	return ( (NRF_ADC->BUSY & ADC_BUSY_BUSY_Msk) == ADC_BUSY_BUSY_Msk);
 }
+#endif
 
 
 void configureADCReadOneThirdVccReference1_2VInternal() {
+#ifdef OLD
 	NRF_ADC->CONFIG = (ADC_CONFIG_RES_8bit << ADC_CONFIG_RES_Pos) |
 		              (ADC_CONFIG_INPSEL_SupplyOneThirdPrescaling << ADC_CONFIG_INPSEL_Pos) |
 		              (ADC_CONFIG_REFSEL_VBG << ADC_CONFIG_REFSEL_Pos) |
 		              (ADC_CONFIG_PSEL_Disabled << ADC_CONFIG_PSEL_Pos) |
 		              (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos);
+#else
+	adcConfigParams.resolution = NRF_ADC_CONFIG_RES_8BIT;
+	adcConfigParams.scaling    = NRF_ADC_CONFIG_SCALING_SUPPLY_ONE_THIRD;
+	adcConfigParams.reference  = NRF_ADC_CONFIG_REF_VBG;
+	nrf_adc_configure(&adcConfigParams);
+	// ADC is disabled
+	nrf_adc_enable();
+#endif
 }
 
-void spinUntilConversionDone() {
+#ifdef OLD
+/*
+ * Alternatives:
+ * -clear the END event before this, and spin on it
+ * -spin on busy
+ */
+void spinUntilNotBusy() {
 	while ( isADCBusy() ) {};
 }
+void spinUntilConversionDone() {
+	while ( ! NRF_ADC->EVENTS_END ) {};
+}
+#endif
 
-uint16_t readADC() {
 
-	// Not selecting an input (not using the input multiplexer.)
+ADCResult readADC() {
 
+#ifdef OLD
+	assert(isConfigured);
+	assert(! ADC::isDisabled());
+	/*
+	 * We leave ADC enabled.
+	 * enable() only acquires the input (multiplexor)
+	 * If another task might be using the ADC on another input, need to select input channel here.
+	 */
+
+	NRF_ADC->EVENTS_END = 0;
 	NRF_ADC->TASKS_START = 1;
-
 	spinUntilConversionDone();
 
-	uint16_t result;
-	result = (uint16_t) NRF_ADC->RESULT; // 8 bits valid
+	ADCResult result;
+	result = NRF_ADC->RESULT; // 8 bits valid
 	// Even if Vcc greater than 3.6V, result still less than 0xFF (for 8-bit resolution)
 	assert(result<=ADC::Result3_6V);
+	assert(result>0);	// sanity, for purpose reading Vcc
 	return result;
 	// assert ADC still enabled but not busy.  It will power down automatically.
+#else
+	return nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_DISABLED);
+#endif
 }
 
 
 }	//namespace
-
-
-void ADC::init() {
-	configureADCReadOneThirdVccReference1_2VInternal();
-	enableADC();	// acquire input channel
-
-	// Configuration and input acq permanent.  Only using ADC for one purpose.
-}
 
 
 
@@ -85,10 +111,27 @@ bool ADC::isDisabled() {
 }
 
 
+void ADC::init() {
+#ifdef OLD
+	enableADC();	// Enable use, or acquire input channel(which defaults to none)?
+	spinUntilNotBusy();	// Can't configure while busy
+	configureADCReadOneThirdVccReference1_2VInternal();
+	// Configuration and input acq permanent.  Only using ADC for one purpose.
+#else
+	configureADCReadOneThirdVccReference1_2VInternal();
+#endif
+	isConfigured = true;
+}
+
+
+
+
+
+
 ADCResult ADC::getVccProportionTo255(){
 	//uint32_t foo = nrf_adc_result_get();
 
-	uint16_t result = readADC();	// busy wait
+	ADCResult result = readADC();	// busy wait
 
 	// One post says it does not save current to disable
 

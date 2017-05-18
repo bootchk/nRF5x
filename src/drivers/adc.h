@@ -5,7 +5,10 @@
  * nrf51 ADC
  */
 
-typedef uint16_t ADCResult ;
+/*
+ * For simplicity, the full size of the IO reg.
+ */
+typedef uint32_t ADCResult ;
 
 class ADC {
 

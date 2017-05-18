@@ -10,7 +10,7 @@
 #include "powerAssertions.h"
 
 void assertUnusedOff();	// local
-
+void assertNeverUsedDevicesOff();
 
 
 
@@ -98,9 +98,11 @@ void assertUltraLowPower() {
 
 	assert( PowerComparator::isDisabled());
 
-#ifdef NRF51
-	assert( ADC::isDisabled());
-#endif
+
+	/*
+	 * Not: assert( ADC::isDisabled());
+	 * The ADC stays enabled but uses no power when not converting.
+	 */
 
 	assert( FlashController::isDisabled());
 
