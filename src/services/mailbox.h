@@ -21,7 +21,7 @@
 
 
 class Mailbox {
-	WorkPayload item;
+	WorkPayload item = 0;
 	bool isItem = false;
 
 public:

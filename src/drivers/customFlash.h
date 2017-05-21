@@ -35,14 +35,22 @@ enum FlagIndex {
 	ExcessPowerEventFlagIndex,		// Vcc above 3.6V
 	BrownoutPowerEventFlagIndex,	// Vcc below 2.1V
 	WorkEventFlagIndex,				// Worked e.g. flashed LED
+	ExhaustedRadioPower,			// Vcc fell below 2.4V
+	UnexpectedWake,					// sleep ended but timer not expired
 	LineNumberFlagIndex				// line no of assert
 };
 
 
 
 class CustomFlash {
-	// Offset in bytes to here in UICR we write a string. e.g. address 0x10000840
-	static const int OffsetToString = 40;
+	/*
+	 * Offset in bytes to address in UICR we write a string. e.g. address 0x10000840
+	 *
+	 * Customer UICR is 0x80 (128) bytes (32 words)
+	 * Reserve at least 20 words (80 bytes) for flags.
+	 * Reserve 4 words (16 bytes) for string.
+	 */
+	static const int OffsetToString = 80;
 public:
 
 
