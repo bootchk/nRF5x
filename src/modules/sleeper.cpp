@@ -159,10 +159,10 @@ void Sleeper::msgReceivedCallback() {
 
 
 ReasonForWake Sleeper::getReasonForWake() {
-	ReasonForWake result = reasonForWake;
-	assert( result == None || result == TimerExpired || result == MsgReceived);
-	return result;
+	// Is an enum and compile time checked valid
+	return reasonForWake;
 }
+
 
 void Sleeper::clearReasonForWake() { reasonForWake = None; }
 
