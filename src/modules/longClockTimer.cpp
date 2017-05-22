@@ -16,8 +16,6 @@ extern "C" { void RTC0_IRQHandler(void); }
  */
 namespace {
 
-typedef void (*funcPtr)();
-
 LowFrequencyClock lowFrequencyClock;
 Counter counter;
 
@@ -31,7 +29,7 @@ uint32_t mostSignificantBits;
  * This class owns them also, and a callback for each's interrupt.
  * Callback is also used as a flag for 'started'
  */
-funcPtr timerCallback[3];
+TimerCallback timerCallback[3];
 CompareRegister compareRegisters[3];
 
 
@@ -112,14 +110,26 @@ RTC0_IRQHandler(void)
 		// assert interrupt still enabled
 	}
 
-	// Source event is comparison
-	// Loop over compare regs
-	for (unsigned int i=0; i<LongClockTimer::CountTimerInstances; i++ ) {
-		if ( compareRegisters[i].isEvent() ) {
-			timerCallback[i]();	// call callback
-			LongClockTimer::cancelTimer((TimerIndex) i);
-		}
+	// Source event is compare register match event
+	// Handle all compare regs: 0-1
+	if ( compareRegisters[First].isEvent() ) {
+		timerCallback[First](Expired);	// call callback
+		LongClockTimer::cancelTimer(First);
 	}
+	else {
+		/*
+		 * First Timer is unique: a sleep timer.
+		 * Pass the callback the reason for wake, so it can sleep again.
+		 */
+		timerCallback[0](OverflowOrOtherTimer);
+	}
+
+	if ( compareRegisters[Second].isEvent() ) {
+			timerCallback[Second](Expired);	// call callback
+			LongClockTimer::cancelTimer(Second);
+		}
+	// User of second timer doesn't sleep on it.
+
 
 	/*
 	 * If any events have triggered after we checked them,
@@ -191,7 +201,7 @@ LongTime LongClockTimer::nowTime() {
 void LongClockTimer::startTimer(
 		TimerIndex index,
 		OSTime timeout,
-		void (*aTimeoutCallback)()){
+		TimerCallback aTimeoutCallback){
 	assert(timeout < MaxTimeout);
 	assert(timeout >= MinTimeout);
 	assert(index < CountTimerInstances);

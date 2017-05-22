@@ -26,7 +26,8 @@
 typedef enum {
 	None = 2,
 	MsgReceived,
-	TimerExpired
+	TimerExpired,
+	TimerOverflowOrOtherTimer
 } ReasonForWake;
 
 

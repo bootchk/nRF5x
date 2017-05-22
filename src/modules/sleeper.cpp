@@ -37,14 +37,29 @@ ReasonForWake reasonForWake = None;
  * Callbacks from IRQHandler, so keep short or schedule a task, queue work, etc.
  * Here we set flag that main event loop reads.
  *
- * Passing address, so names can be C++ mangled
+ * We pass address around, so names can be C++ mangled
  */
 
-void rcvTimeoutTimerCallback() {
-	if (reasonForWake == None) {	// if msg didn't arrive just ahead of timeout, before main could cancel timeout
-		reasonForWake = TimerExpired;
-		// TODO assert that Timer current Count - Timer starting count == timeout
+void timerTimeoutCallback(TimerInterruptReason reason) {
+	switch(reason) {
+	case Expired:
+		if (reasonForWake == None) {
+			reasonForWake = TimerExpired;
+			// TODO assert that Timer current Count - Timer starting count == timeout
+		}
+		else {
+			// Msg arrived just ahead of timeout, before main could cancel timeout.
+			// See RADIO_IRQ which set reasonForWake
+			assert(reasonForWake = MsgReceived);
+		}
+		break;
+	case OverflowOrOtherTimer:
+		/*
+		 * Awakened, but not us.
+		 */
+		reasonForWake = TimerOverflowOrOtherTimer;
 	}
+	// assert reasonForWake is not None
 }
 
 } // namespace
@@ -91,7 +106,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		timerService->startTimer(
 				SleepTimerIndex,
 				timeout,
-				rcvTimeoutTimerCallback);
+				timerTimeoutCallback);
 		mcu.sleep();
 		/*
 		 * awakened by event: received msg or timeout or other event.
@@ -117,7 +132,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	 *
 	 * In all cases, assert timer is stopped (so using our timer semantics, it can be started again.)
 	 *
-	 * !!! Cannot assert that timeout amount of time has elapsed: unexpected events may wake early.
+	 * !!! Cannot assert that timeout amount of time has elapsed: other clock events may wake early.
 	 */
 }
 

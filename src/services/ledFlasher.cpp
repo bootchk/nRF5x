@@ -1,4 +1,6 @@
 
+#include <cassert>
+
 #include "ledFlasher.h"
 
 #include "../modules/ledService.h"
@@ -14,7 +16,10 @@ LEDService* ledService;
  * Callback from timer, keep it short.
  * The timer interrupt wakes the mcu if was sleeping.
  */
-void ledOffCallback() {
+void ledOffCallback(TimerInterruptReason reason) {
+	// We don't callback for Overflow or other timers
+	assert(reason == Expired);
+
 	ledService->switchLED(1, false);
 	// Timer cancels itself
 }

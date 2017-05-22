@@ -12,12 +12,31 @@ typedef uint64_t LongTime;
 
 typedef uint32_t OSTime;
 
+
+
+/*
+ * Enum Timer instances.
+ */
 // Future: better class with + operator and use it for iterating
 enum TimerIndex {
 	First =0,
 	Second,
 	Third
 };
+
+/*
+ * Reason for interrupt.
+ * Users of Timer that sleep on interrupt (WFI) may want to know when wake but timer not expired.
+ */
+enum TimerInterruptReason {
+	OverflowOrOtherTimer,
+	Expired
+};
+
+// Type of function called back when there is an interrupt from RTC
+typedef void (*TimerCallback)(TimerInterruptReason);
+
+
 
 /*
  * Thin wrapper around RTC device of Nordic nRF52/51.
@@ -71,7 +90,7 @@ public:
 	static void startTimer(
 			TimerIndex index,	// [0:2]
 			OSTime timeout, // [0:0xffffff]
-			void (*onTimeoutCallback)());
+			TimerCallback onTimeoutCallback);
 
 	static bool isTimerStarted(TimerIndex index);
 

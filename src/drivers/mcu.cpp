@@ -20,6 +20,7 @@
  */
 void MCU::sleep() {
 
+#ifdef OLD
 	// Make sure any pending events are cleared
 	__SEV();
 	__WFE();	// Since internal event flag is set, this clears it without sleeping
@@ -29,6 +30,10 @@ void MCU::sleep() {
 	// https://devzone.nordicsemi.com/index.php/how-do-you-put-the-nrf51822-chip-to-sleep#reply-1589
 
 	// There is conflicting advice about the proper order.  This order seems to work.
+#endif
+
+	// All events we are interested in have interrupts enabled
+	__WFI();
 }
 
 
