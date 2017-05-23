@@ -46,15 +46,22 @@ typedef enum {
  * Algebra of valid call sequences:
  *
  *  Typical:
- *    init(), powerOnAndConfigure(), getBufferAddress(), <put payload in buffer> transmitStaticSynchronously(),
+ *    init(), assert(isConfigured), getBufferAddress(), <put payload in buffer> transmitStaticSynchronously(),
  *            receiveStatic(), sleepUntilEventWithTimeout(),  if isDisabledState() getBufferAddress(); <get payload from buffer>,
- *            powerOff(), powerOnAndConfigure(), ...
+ *            resetAndConfigure(), ...
  *
  *  init() must be called once after mcu POR:
- *    mcu.reset(), init(), powerOnAndConfigure(), ...., mcu.reset(), init(), ...
+ *    mcu.reset(), init(), mcu.reset(), init(), ...
  *
- *  configure() must be called after powerOn() (use convenience function powerOnAndConfigure())
- *    init(), powerOn(), configureStatic(), receiveStatic, ...
+ *  configure() is called by init() and configuration is generally static.
+ *  FUTURE implement resetAndConfigure to redo the whole configuration.
+ *  Note that POR state of radio is POWER==1 i.e. recently reset.
+ *  Must toggle POWER to reset the configuration.
+ *  POWER does not really affect current consumption of radio!!!
+ *
+ *  Configuration can only be changed when radio is not in use i.e. disabled:
+ *    receiveStatic(), configureTXPower() is invalid
+ *    init(), configureTXPower() is valid
  *
  *  transmitStaticSynchronously blocks, but receiveStatic does not.  If reasonForWake is not MsgReceived,
  *  you must stopReceive() before next radio operation:
@@ -69,12 +76,12 @@ typedef enum {
  *        transmitStaticSynchronously()
  *
  *  You can transmit or receive in any order, but Radio is half-duplex:
- *    init(), powerOnAndConfigure(), receiveStatic(), ...stopReceive(),
+ *    init(), , receiveStatic(), ...stopReceive(),
  *       receiveStatic(), ..., stopReceive
  *       transmitStaticSynchronously(), ...
  *
  *	Radio isDisabledState() is true after certain other operations:
- *	   powerOnAndConfigure(), assert(isDisabledState())
+ *	   init(), assert(isDisabledState())
  *	   transmitStaticSynchronously(), assert(isDisabledState())
  *	   stopReceive(), assert(isDisabledState())
  *	   receiveStatic(), sleepUntilEventWithTimeout(), if sleeper.reasonForWake() == MsgReceived assert(isDisabledState())
@@ -96,7 +103,7 @@ public:
 	/*
 	 * Fixed: all payloads same size.
 	 *
-	 * Device configured to not transmit S0, LENGTH, S1
+	 * Device config: not transmit S0, LENGTH, S1
 	 * Buffer not include S0, LENGTH, S1 fields.
 	 *
 	 * Must match length of Message class (struct).
