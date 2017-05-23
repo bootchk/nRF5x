@@ -118,10 +118,13 @@ RTC0_IRQHandler(void)
 	}
 	else {
 		/*
-		 * First Timer is unique: a sleep timer.
+		 * First Timer is unique: used for a sleep loop.
+		 * If it is active, it will have woken by whatever event this is.
 		 * Pass the callback the reason for wake, so it can sleep again.
 		 */
-		timerCallback[0](OverflowOrOtherTimer);
+		if ( LongClockTimer::isTimerStarted(First) ) {
+			timerCallback[First](OverflowOrOtherTimer);
+		}
 	}
 
 	if ( compareRegisters[Second].isEvent() ) {

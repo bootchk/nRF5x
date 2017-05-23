@@ -117,7 +117,10 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 	assert(!nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED));
 	enableInterruptOnRunning();
 	start();
-	// sleep until IRQ signals started event
+	/*
+	 * sleep until IRQ signals started event.
+	 * !!! Other interrupts (clock overflow, etc. may wake the sleep.)
+	 */
 	while (! didInterruptStartingEvent) {
 		/*
 		 * !!! Event must come, else infinite loop.
