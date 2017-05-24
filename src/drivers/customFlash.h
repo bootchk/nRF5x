@@ -37,6 +37,10 @@ enum FlagIndex {
 	WorkEventFlagIndex,				// Worked e.g. flashed LED
 	ExhaustedRadioPower,			// Vcc fell below 2.4V
 	UnexpectedWake,					// sleep ended but timer not expired
+	UnexpectedMsg,					// Radio IRQ while radio disabled?
+	UnexpectedWakeWhileListen,		// radio on but woken for unknown reason
+	StartSync,						// enough power to listen/send sync
+	PauseSync,						// not enough power to listen/send sync
 	LineNumberFlagIndex				// line no of assert
 };
 

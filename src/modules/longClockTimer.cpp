@@ -89,6 +89,8 @@ void initCompareRegs() {
  * One handler for many interrupt sources (overflow, and compare regs)
  * Many sources can be pending, so handle them all.
  *
+ * Each IRQ may callback more than one user of Timer!
+ *
  * Overrides weak default handler defined by gcc_startup_nrf52.c.
  */
 extern "C" {	// Binding must be "C" to override default handler.
