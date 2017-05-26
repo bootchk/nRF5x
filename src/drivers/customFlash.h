@@ -31,18 +31,19 @@ enum FlagIndex {
 	HardFaultFlagIndex = 1,			// hw fault
 	ExitFaultFlagIndex,				// assert() called
 	BootedEventFlagIndex,
-	EnterSyncLoopEventFlagIndex,
+	StartReceive,                   // radio listen
 	ExcessPowerEventFlagIndex,		// Vcc above 3.6V
 	BrownoutPowerEventFlagIndex,	// Vcc below 2.1V
 	WorkEventFlagIndex,				// Worked e.g. flashed LED
 	NoPowerToFish,					// Vcc fell below 2.4V
 	NoPowerToStartSyncSlot,			// "
-	NoPowerToHalfSyncSlot,			// "
+	NoPowerToHalfSyncSlot,			// 10. "
 	UnexpectedWake,					// sleep ended but timer not expired
 	UnexpectedMsg,					// Radio IRQ while radio disabled?
 	UnexpectedWakeWhileListen,		// radio on but woken for unknown reason
 	StartSync,						// enough power to listen/send sync
 	PauseSync,						// not enough power to listen/send sync
+	LogFished,						// 16.
 	LineNumberFlagIndex				// line no of assert
 };
 
