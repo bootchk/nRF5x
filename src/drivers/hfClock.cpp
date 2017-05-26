@@ -13,16 +13,26 @@ namespace {
 bool didInterruptStartingEvent = false;
 Nvic* nvic = nullptr;	// uses
 
+
 void enableInterruptOnRunning() {
 
 	nvic->enablePowerClockIRQ();
-	// Event signals clock is running !!!!
+	/*
+	 * EVENT_HFCLKSTARTED signals HFXO clock is running stably !!!!
+	 * The name seems wrong:
+	 *  - it doesn't specify the XO
+	 *  - it says "STARTED" not "RUNNING"
+	 *  But see the docs.
+	 */
 	nrf_clock_int_enable(NRF_CLOCK_INT_HF_STARTED_MASK);
 }
+
+#ifdef NOTUSED
 void disableInterruptOnRunning() {
 	nvic->disablePowerClockIRQ();
 	nrf_clock_int_disable(NRF_CLOCK_INT_HF_STARTED_MASK);
 }
+#endif
 
 
 
@@ -41,7 +51,10 @@ POWER_CLOCK_IRQHandler() {
 		// Clear event so interrupt not triggered again.
 		nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
 	}
-	//else // Unexpected wake up
+	else {
+		//Unexpected wake up.  POFCON uses same IRQ vector, but we don't enable interrupt.
+		assert(false);
+	}
 }
 
 }	// extern C
@@ -73,6 +86,9 @@ POWER_CLOCK_IRQHandler() {
 
 void HfCrystalClock::init(Nvic* aNvic){
 	nvic = aNvic;
+
+	enableInterruptOnRunning();
+	// Leave it enabled
 }
 
 
@@ -113,13 +129,23 @@ bool HfCrystalClock::isRunning(){
 
 
 void HfCrystalClock::startAndSleepUntilRunning() {
-	didInterruptStartingEvent = false;
+	/*
+	 * Illegal to call if already running.
+	 * In that case, there might not be an event or interrupt to wake,
+	 * or the interrupt could occur quickly after we start() but before we sleep (WFI)
+	 */
+	assert( !isRunning() );
 	assert(!nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED));
-	enableInterruptOnRunning();
+
+	// assert interrupt is enabled
+	didInterruptStartingEvent = false;	// clear flag from ISR
 	start();
 	/*
 	 * sleep until IRQ signals started event.
-	 * !!! Other interrupts (clock overflow, etc. may wake the sleep.)
+	 * !!! Other interrupts (clock overflow, led Timer 2 etc. may wake the sleep.)
+	 * Other interrupts may increase time between start() and sleep().
+	 * The max start time is 360uSec NRF52,
+	 * so there should be plenty of time to get asleep before interrupt occurs.
 	 */
 	while (! didInterruptStartingEvent) {
 		/*
@@ -129,10 +155,9 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 		 */
 		MCU::sleep();
 	}
-	// assert event is cleared.
+	// assert ISR cleared event.
 
-	// Really don't need to disable interrupt.
-	disableInterruptOnRunning();
+	// Do not disable interrupt.
 
 	assert(isRunning());
 }

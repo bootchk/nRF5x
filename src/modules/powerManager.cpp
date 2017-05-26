@@ -65,6 +65,8 @@ void PowerManager::init() {
 	// powerComparator need no init
 }
 
+
+// Implemented using ADC or SAADC
 bool PowerManager::isPowerExcess() {
 	// adc differs by family: NRF51 ADC, NRF52 SAADC
 	// There is no adc device common to both families
@@ -82,11 +84,11 @@ bool PowerManager::isPowerExcess() {
 	return result;
 }
 
-
-
-bool PowerManager::isPowerForWork()    { return powerComparator.isVddGreaterThan2_5V();}
+// Implemented using POFCON
+bool PowerManager::isPowerForWork()    { return powerComparator.isVddGreaterThan2_7V();}
+bool PowerManager::isPowerForSync()    { return powerComparator.isVddGreaterThan2_5V();}
 bool PowerManager::isPowerForRadio()   { return powerComparator.isVddGreaterThan2_3V();}
-bool PowerManager::isPowerForReserve() {return powerComparator.isVddGreaterThan2_1V();}
+bool PowerManager::isPowerForIdle()    {return powerComparator.isVddGreaterThan2_1V();}
 
 
 VoltageRange PowerManager::getVoltageRange() {
@@ -95,20 +97,23 @@ VoltageRange PowerManager::getVoltageRange() {
 	 */
 	VoltageRange result;
 	if (isPowerExcess()) {
-		result = VoltageRange::Excess;
+		result = VoltageRange::AboveExcess;
 	}
+	else if (isPowerForSync()) {
+			result = VoltageRange::HighToExcess;
+		}
 	else if (isPowerForWork()) {
-		result = VoltageRange::High;
+		result = VoltageRange::MediumToHigh;
 	}
 	else if (isPowerForRadio()) {
-		result = VoltageRange::Medium;
+		result = VoltageRange::LowToMedium;
 	}
-	else if (isPowerForReserve()) {
-		result = VoltageRange::Low;
+	else if (isPowerForIdle()) {
+		result = VoltageRange::UltraLowToLow;
 	}
 	else {
 		// < 2.1V, near brownout of say 1.8V
-		result = VoltageRange::UltraLow;
+		result = VoltageRange::BelowUltraLow;
 	}
 
 	return result;

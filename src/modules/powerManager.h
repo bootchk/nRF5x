@@ -4,7 +4,7 @@
 /*
  * Four levels gives five ranges.
  */
-enum class VoltageRange { Excess, High, Medium, Low, UltraLow };
+enum class VoltageRange { BelowUltraLow, UltraLowToLow, LowToMedium, MediumToHigh, HighToExcess, AboveExcess};
 
 /*
  * Understands:
@@ -40,9 +40,12 @@ public:
 	 * Levels
 	 */
 	static bool isPowerExcess();	// Above Vmax of chip 3.6V
-	static bool isPowerForReserve();
-	static bool isPowerForWork();
-	static bool isPowerForRadio();
+	static bool isPowerForWork();	// In sync and can work
+	static bool isPowerForSync();	// Enough to start a SyncPeriod
+	static bool isPowerForRadio();  // Enough to finish a SyncePeriod
+	static bool isPowerForIdle();	// Only enough to count out SyncPeriods, not use radio
+
+
 
 	/*
 	 * Ranges

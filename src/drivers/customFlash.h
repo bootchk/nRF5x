@@ -35,7 +35,9 @@ enum FlagIndex {
 	ExcessPowerEventFlagIndex,		// Vcc above 3.6V
 	BrownoutPowerEventFlagIndex,	// Vcc below 2.1V
 	WorkEventFlagIndex,				// Worked e.g. flashed LED
-	ExhaustedRadioPower,			// Vcc fell below 2.4V
+	NoPowerToFish,					// Vcc fell below 2.4V
+	NoPowerToStartSyncSlot,			// "
+	NoPowerToHalfSyncSlot,			// "
 	UnexpectedWake,					// sleep ended but timer not expired
 	UnexpectedMsg,					// Radio IRQ while radio disabled?
 	UnexpectedWakeWhileListen,		// radio on but woken for unknown reason
