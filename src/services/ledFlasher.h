@@ -29,6 +29,11 @@
 
 class LEDFlasher {
 public:
+	/*
+	 * Amount is in units that equal 20 ticks.
+	 * Amount==1 is barely visible.
+	 */
+	static const unsigned int MinAmountToFlash = 1;
 
 	/*
 	 * Ticks for 32kHz clock are 0.030 mSec
@@ -51,8 +56,7 @@ public:
 	 * No effect if ordinal out of range defined by boards.h
 	 */
 
-	/* Flash the minimal visible time. */
-	static void flashLED(unsigned int ordinal);
+	static void flashLEDMinimumVisible(unsigned int ordinal);
 
 	/*
 	 * Flash at least minimal visible time, but less than MaxFlashAmount.

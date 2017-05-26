@@ -20,6 +20,7 @@ void ledOffCallback(TimerInterruptReason reason) {
 	// We don't callback for Overflow or other timers
 	assert(reason == Expired);
 
+	// TODO we should turn off led that is on, here assume it is first LED, ordinal 1
 	ledService->switchLED(1, false);
 	// Timer cancels itself
 }
@@ -40,15 +41,14 @@ void LEDFlasher::init(LongClockTimer* aTimerService, LEDService* aLedService) {
 
 
 
-void LEDFlasher::flashLED(unsigned int ordinal) {
-	// amount==1, minimum amount
-	flashLEDByAmount(ordinal, 1);
+void LEDFlasher::flashLEDMinimumVisible(unsigned int ordinal) {
+	flashLEDByAmount(ordinal, MinAmountToFlash);
 }
 
 void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 	// assert LEDService initialized
 	// assert TimerService initialized
-
+	assert(amount>=MinAmountToFlash);
 	if (timerService->isTimerStarted(Second)) {
 		// Led already flashing.
 		// Illegal to startTimer already started.

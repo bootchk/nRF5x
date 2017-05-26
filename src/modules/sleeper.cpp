@@ -102,7 +102,10 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		// TODO this should be a clamp, or throw
 		assert(timeout <= maxSaneTimeout );
 
-		// oneshot timer must not trigger before we sleep, else sleep forever
+		/*
+		 * oneshot timer must not trigger before we sleep, else sleep forever.
+		 * Not using WDT to guard against that.
+		 */
 		timerService->startTimer(
 				SleepTimerIndex,
 				timeout,

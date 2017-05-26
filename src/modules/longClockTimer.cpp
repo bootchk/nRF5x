@@ -202,14 +202,24 @@ LongTime LongClockTimer::nowTime() {
 }
 
 
-
+/*
+ * This must be kept short.
+ * The timeout could be as little as 3 ticks, or 3*30 = 90uSec, which allows about 1440 instructions.
+ */
 void LongClockTimer::startTimer(
 		TimerIndex index,
 		OSTime timeout,
 		TimerCallback aTimeoutCallback){
+	/*
+	 * These assertions do not need be short to prevent sleep forever.
+	 * But these assertions do affect the accuracy of the timeout
+	 * (the more time we spend here, the later the real timeout will occur
+	 * after the time for which the timeout was calculated.
+	 */
 	assert(timeout < MaxTimeout);
 	assert(timeout >= MinTimeout);
 	assert(index < CountTimerInstances);
+	// assert RTC0_IRQ enabled (enabled earlier for Counter, and stays enabled.
 
 	// Not legal to start Timer already started and not timed out or canceled.
 	if (isTimerStarted(index)) {
@@ -227,8 +237,13 @@ void LongClockTimer::startTimer(
 	compareRegisters[index].set(timeout);
 	// interrupt from compare not enabled yet
 	compareRegisters[index].enableInterrupt();
-
-	// assert RTC0 IRQ enabled (earlier for Counter.)
+	/*
+	 * The interval between setting the compare register and returning must be kept short,
+	 * since the caller's continuation is usually: sleep until interrupt.
+	 * The interrupt must not occur before the caller sleeps.
+	 * A clock overflow or Timer[Second] interrupt and ISR could occur in that interval.
+	 * The timeout could be as little as 3 ticks, or 3*30 = 90uSec, which allows about 1440 instructions.
+	 */
 }
 
 bool LongClockTimer::isTimerStarted(TimerIndex index) {
