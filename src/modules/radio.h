@@ -178,8 +178,6 @@ public:
 	// Power off peripherals the radio depends on.
 	static void shutdownDependencies();
 
-	//static void powerOff();
-	//static bool isPowerOn();
 
 	// Make not xmitting or receiving.
 	static void abortUse();

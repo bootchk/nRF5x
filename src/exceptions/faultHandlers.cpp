@@ -63,11 +63,11 @@ extern "C" {
 
 /*
  * A fault has occurred.
- * Attempt to record it and to stay out of brownout.
+ * Try to record it and to stay out of brownout.
  */
 __attribute__((noreturn))
 void sleepForeverInLowPower() {
-	// Most important to attempt to record what happened.
+	// Most important to try record what happened.
 	// The caller should do that before calling this.
 
 	// Disable all further interrupts from peripherals that might be concurrently operating.

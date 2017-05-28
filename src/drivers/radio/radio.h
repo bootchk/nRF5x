@@ -100,6 +100,9 @@ public:
 
 	static void setShortcutsAvoidSomeEvents();
 
-	static void setRadioPowered(bool);
-	static bool isPowerOn();
+/*
+ * There is no API for power to the radio.
+ * Nordic: NRF_RADIO->POWER is just for reset and does not actually power off/on the radio.
+ * The PowerManager powers on the radio automatically as necessary (when the radio is InUse.)
+ */
 };
