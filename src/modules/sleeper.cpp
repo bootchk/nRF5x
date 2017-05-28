@@ -27,7 +27,9 @@ ReasonForWake reasonForWake = NotSetByIRQ;
 
 
 /*
- * Callback from RTC_IRQ dispatched on event for Timer compare register
+ * Callback from RTC_IRQ dispatched on timeout event for Timer compare register.
+ * But also called if overflow, or another timer expires,
+ * so that the user of this Timer (who is sleeping) knows reason for wake.
  *
  * Since there are two concurrent devices (radio and counter), there is a race to set reasonForWake
  *
@@ -55,9 +57,20 @@ void timerTimeoutCallback(TimerInterruptReason reason) {
 		break;
 	case OverflowOrOtherTimer:
 		/*
-		 * Awakened, but not us.
+		 * Awakened, but not for First Timer.
+		 * Overflow and OtherTimer can come even if a reason is already set,
+		 * since the interrupt is always enabled for Overflow,
+		 * and interrupt for other timers is periodically enabled.
+		 * XXX simpler to use separate peripheral for other timers.
 		 */
-		reasonForWake = TimerOverflowOrOtherTimer;
+		if (reasonForWake == NotSetByIRQ) {
+			reasonForWake = TimerOverflowOrOtherTimer;
+		}
+		else {
+			/*
+			 * Reason is already a higher priority reason: MsgReceived, TimerExpired(?)
+			 */
+		}
 	}
 	// assert reasonForWake is not NotSetByIRQ
 }
