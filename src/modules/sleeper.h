@@ -24,7 +24,7 @@
 
 
 typedef enum {
-	None = 2,
+	NotSetByIRQ = 2,	//
 	MsgReceived,
 	TimerExpired,
 	TimerOverflowOrOtherTimer

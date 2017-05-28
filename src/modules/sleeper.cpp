@@ -20,7 +20,7 @@ TimerIndex SleepTimerIndex = First;	// Must not be used elsewhere
 
 OSTime maxSaneTimeout;
 
-ReasonForWake reasonForWake = None;
+ReasonForWake reasonForWake = NotSetByIRQ;
 
 
 
@@ -43,7 +43,7 @@ ReasonForWake reasonForWake = None;
 void timerTimeoutCallback(TimerInterruptReason reason) {
 	switch(reason) {
 	case Expired:
-		if (reasonForWake == None) {
+		if (reasonForWake == NotSetByIRQ) {
 			reasonForWake = TimerExpired;
 			// TODO assert that Timer current Count - Timer starting count == timeout
 		}
@@ -59,7 +59,7 @@ void timerTimeoutCallback(TimerInterruptReason reason) {
 		 */
 		reasonForWake = TimerOverflowOrOtherTimer;
 	}
-	// assert reasonForWake is not None
+	// assert reasonForWake is not NotSetByIRQ
 }
 
 } // namespace
@@ -167,5 +167,5 @@ ReasonForWake Sleeper::getReasonForWake() {
 }
 
 
-void Sleeper::clearReasonForWake() { reasonForWake = None; }
+void Sleeper::clearReasonForWake() { reasonForWake = NotSetByIRQ; }
 
