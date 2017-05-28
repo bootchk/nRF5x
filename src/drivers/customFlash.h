@@ -31,7 +31,7 @@ enum FlagIndex {
 	HardFaultFlagIndex = 1,			// hw fault
 	ExitFaultFlagIndex,				// assert() called
 	BootedEventFlagIndex,
-	StartReceive,                   // radio listen
+	NotUsed,                        //
 	ExcessPowerEventFlagIndex,		// Vcc above 3.6V
 	BrownoutPowerEventFlagIndex,	// Vcc below 2.1V
 	WorkEventFlagIndex,				// Worked e.g. flashed LED
@@ -44,6 +44,8 @@ enum FlagIndex {
 	StartSync,						// enough power to listen/send sync
 	PauseSync,						// not enough power to listen/send sync
 	LogFished,						// 16.
+	ListenHalf,
+	ListenFull,
 	LineNumberFlagIndex				// line no of assert
 };
 
