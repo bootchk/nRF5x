@@ -27,35 +27,38 @@ ReasonForWake reasonForWake = NotSetByIRQ;
 
 
 /*
- * Callback from RTC_IRQ dispatched on timeout event for Timer compare register.
- * But also called if overflow, or another timer expires,
- * so that the user of this Timer (who is sleeping) knows reason for wake.
+ * Callback from RTC_IRQ which dispatches on event: sleep timer compare register expire, other timer compare register expire, and overflow.
+ * This callback is called for all those events.
+ * !!! May be other Timers which wake mcu and whose callbacks are called as well as this, but those callbacks do not set reasonForWake.
  *
- * Since there are two concurrent devices (radio and counter), there is a race to set reasonForWake
+ * Here we set flag that main event loop reads so that the user of this Timer (who is sleeping) knows reason for wake.
+ * Since there are two concurrent devices (radio and counter), there is a race to set reasonForWake.
+ * Here we prioritize.
  *
- * !!! May be other Timers which wake mcu but whose callbacks do not set reasonForWake.
- */
-/*
- * Callbacks from IRQHandler, so keep short or schedule a task, queue work, etc.
- * Here we set flag that main event loop reads.
+ * This callback is from within IRQHandler with nested interrupts precluded, so keep short or schedule a task, queue work, etc.
  *
  * We pass address around, so names can be C++ mangled
  */
 
-void timerTimeoutCallback(TimerInterruptReason reason) {
+void timerIRQCallback(TimerInterruptReason reason) {
 	switch(reason) {
-	case Expired:
-		if (reasonForWake == NotSetByIRQ) {
-			reasonForWake = TimerExpired;
+	case SleepTimerCompare:
+		switch(reasonForWake) {
+		case NotSetByIRQ:
+		case CounterOverflowOrOtherTimerExpired:
+			// Higher priority reason
+			reasonForWake = SleepTimerExpired;
 			// TODO assert that Timer current Count - Timer starting count == timeout
-		}
-		else {
-			// Msg arrived just ahead of timeout, before main could cancel timeout.
-			// See RADIO_IRQ which set reasonForWake
-			assert(reasonForWake = MsgReceived);
+			break;
+		case MsgReceived:
+			// Do not overwrite highest priority: MsgReceived
+			break;
+		case SleepTimerExpired:
+			assert(false);	// Timer was started again before handling/clearing previous expiration.
 		}
 		break;
-	case OverflowOrOtherTimer:
+
+	case OverflowOrOtherTimerCompare:
 		/*
 		 * Awakened, but not for First Timer.
 		 * Overflow and OtherTimer can come even if a reason is already set,
@@ -63,13 +66,15 @@ void timerTimeoutCallback(TimerInterruptReason reason) {
 		 * and interrupt for other timers is periodically enabled.
 		 * XXX simpler to use separate peripheral for other timers.
 		 */
-		if (reasonForWake == NotSetByIRQ) {
-			reasonForWake = TimerOverflowOrOtherTimer;
-		}
-		else {
-			/*
-			 * Reason is already a higher priority reason: MsgReceived, TimerExpired(?)
-			 */
+		switch(reasonForWake) {
+		case NotSetByIRQ:
+			reasonForWake = CounterOverflowOrOtherTimerExpired;
+			break;
+		case MsgReceived:
+		case SleepTimerExpired:
+		case CounterOverflowOrOtherTimerExpired:
+			// Reason is already higher priority
+			break;
 		}
 	}
 	// assert reasonForWake is not NotSetByIRQ
@@ -105,7 +110,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		 * Don't sleep, but set reason for waking.
 		 * I.E. simulate a sleep.
 		 */
-		reasonForWake = TimerExpired;
+		reasonForWake = SleepTimerExpired;
 	}
 	else { // timeout >= the min that clock supports
 
@@ -122,7 +127,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		timerService->startTimer(
 				SleepTimerIndex,
 				timeout,
-				timerTimeoutCallback);
+				timerIRQCallback);
 		mcu.sleep();
 		/*
 		 * awakened by event: received msg or timeout or other event.

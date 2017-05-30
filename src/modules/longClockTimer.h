@@ -29,8 +29,8 @@ enum TimerIndex {
  * Users of Timer that sleep on interrupt (WFI) may want to know when wake but timer not expired.
  */
 enum TimerInterruptReason {
-	OverflowOrOtherTimer,
-	Expired
+	OverflowOrOtherTimerCompare,
+	SleepTimerCompare
 };
 
 // Type of function called back when there is an interrupt from RTC

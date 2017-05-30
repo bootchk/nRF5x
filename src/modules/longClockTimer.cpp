@@ -115,7 +115,8 @@ RTC0_IRQHandler(void)
 	// Source event is compare register match event
 	// Handle all compare regs: 0-1
 	if ( compareRegisters[First].isEvent() ) {
-		timerCallback[First](Expired);	// call callback
+		// Sleep timer expired
+		timerCallback[First](SleepTimerCompare);	// call callback
 		LongClockTimer::cancelTimer(First);
 	}
 	else {
@@ -125,12 +126,12 @@ RTC0_IRQHandler(void)
 		 * Pass the callback the reason for wake, so it can sleep again.
 		 */
 		if ( LongClockTimer::isTimerStarted(First) ) {
-			timerCallback[First](OverflowOrOtherTimer);
+			timerCallback[First](OverflowOrOtherTimerCompare);
 		}
 	}
 
 	if ( compareRegisters[Second].isEvent() ) {
-			timerCallback[Second](Expired);	// call callback
+			timerCallback[Second](OverflowOrOtherTimerCompare);	// call callback
 			LongClockTimer::cancelTimer(Second);
 		}
 	// User of second timer doesn't sleep on it.

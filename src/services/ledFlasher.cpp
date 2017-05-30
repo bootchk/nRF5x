@@ -18,7 +18,7 @@ LEDService* ledService;
  */
 void ledOffCallback(TimerInterruptReason reason) {
 	// We don't callback for Overflow or other timers
-	assert(reason == Expired);
+	assert(reason == OverflowOrOtherTimerCompare);
 
 	// TODO we should turn off led that is on, here assume it is first LED, ordinal 1
 	ledService->switchLED(1, false);

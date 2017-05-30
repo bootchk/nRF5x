@@ -26,8 +26,8 @@
 typedef enum {
 	NotSetByIRQ = 2,	//
 	MsgReceived,
-	TimerExpired,
-	TimerOverflowOrOtherTimer
+	SleepTimerExpired,
+	CounterOverflowOrOtherTimerExpired
 } ReasonForWake;
 
 
