@@ -73,13 +73,13 @@ bool LowFrequencyClock::isRunning() {
  * If you don't call this, source is reset default of LFRC.
  */
 void LowFrequencyClock::configureXtalSource() {
+
 	/*
-	 * Source cannot be configured while "running" (Nordic docs.)
-	 * I assume they mean "started."
+	 * Require: not started.
+	 * Nordic docs say "Source cannot be configured while running."  I assume they mean "started."
 	 */
-	if (isStarted()) {
-		assert(false);
-	}
+	assert( ! isStarted());
+
 	nrf_clock_lf_src_set(NRF_CLOCK_LFCLK_Xtal);
 }
 

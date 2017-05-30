@@ -136,9 +136,9 @@ void genericExitFaultHandler(void) {
 	resetOrHalt();
 }
 
-void genericAssertionFaultHandler(const char* functionName, int lineNumber){
+void genericAssertionFaultHandler(const char* locationText, int lineNumber){
 	CustomFlash::writeIntAtIndex(LineNumberFlagIndex, lineNumber);
-	CustomFlash::copyStringToFlash(functionName);
+	CustomFlash::copyStringPrefixToFlash(locationText);
 	resetOrHalt();
 }
 

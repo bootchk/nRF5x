@@ -15,8 +15,6 @@
  * UICR is distinctive flash: eraseable separately from other flash.
  * Alternative is other flash memory.
  * Note retained registers are retained through SYSTEM_OFF, but not through reset.
- *
- *
  */
 
 /*
@@ -58,8 +56,10 @@ class CustomFlash {
 	 * Customer UICR is 0x80 (128) bytes (32 words)
 	 * Reserve at least 20 words (80 bytes) for flags.
 	 * Reserve 4 words (16 bytes) for string.
+	 * Reserve 12 words (48 bytes) for string.
 	 */
 	static const int OffsetToString = 80;
+	static const unsigned int countWordsOfString = 12;
 public:
 
 
@@ -69,6 +69,6 @@ public:
 	// Write int to word
 	static void writeIntAtIndex(FlagIndex, int);
 
-	// Copy prefix of string to a fixed place in flash
-	static void copyStringToFlash(const char* functionName);
+	// To a fixed place in flash
+	static void copyStringPrefixToFlash(const char* functionName);
 };

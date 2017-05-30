@@ -21,23 +21,25 @@ void CustomFlash::writeIntAtIndex(FlagIndex index, int value){
 }
 
 
-void CustomFlash::copyStringToFlash(const char* functionName){
+void CustomFlash::copyStringPrefixToFlash(const char* text){
 
 	FlashController::enableWrite();
 
 	// Address arithmetic.  UICR is 32-bit words.
-	// Write only prefix of function name
+	// Write only prefix of text
 	// Size of flash, say 16 chars
 
 	/*
 	 * Cannot use strcpy() because UICR is not byte-addressable
 	 *
-	 * Hack: write only the first 12 chars.
-	 * This assumes that functionName starts on a word boundary?
+	 * Hack: write only the first 16 chars.
+	 * This assumes that text starts on a word boundary?
+	 * This assumes text is longer than 16 chars
 	 */
-	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString) = *(uint32_t*)(functionName);
-	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString + 4) = *(uint32_t*)(functionName+4);
-	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString + 8) = *(uint32_t*)(functionName+8);
+	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString) = *(uint32_t*)(text);
+	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString + 4) = *(uint32_t*)(text+4);
+	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString + 8) = *(uint32_t*)(text+8);
+	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString + 12) = *(uint32_t*)(text+8);
 
 	FlashController::disableWrite();
 }
