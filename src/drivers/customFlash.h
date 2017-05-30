@@ -59,7 +59,7 @@ class CustomFlash {
 	 * Reserve 12 words (48 bytes) for string.
 	 */
 	static const int OffsetToString = 80;
-	static const unsigned int countWordsOfString = 12;
+	static const unsigned int countWordsOfFlashString = 12;
 public:
 
 

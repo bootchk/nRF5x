@@ -36,10 +36,9 @@ void CustomFlash::copyStringPrefixToFlash(const char* text){
 	 * This assumes that text starts on a word boundary?
 	 * This assumes text is longer than 16 chars
 	 */
-	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString) = *(uint32_t*)(text);
-	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString + 4) = *(uint32_t*)(text+4);
-	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString + 8) = *(uint32_t*)(text+8);
-	*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString + 12) = *(uint32_t*)(text+8);
+	for (unsigned int word = 0; word<countWordsOfFlashString; word++ ) {
+		*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString + 4*word) = *(uint32_t*)(text + 4*word);
+	}
 
 	FlashController::disableWrite();
 }
