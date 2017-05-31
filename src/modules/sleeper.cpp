@@ -88,16 +88,15 @@ void timerIRQCallback(TimerInterruptReason reason) {
 
 
 
-void Sleeper::init(
-		OSTime maxAppTimeout,
-		LongClockTimer* aLCT) {
+void Sleeper::init(LongClockTimer* aLCT) {
 	// assert a TimerService exists and is initialized (creating a Timer depends on it.)
 	timerService = aLCT;	//receiveTimer.create(rcvTimeoutTimerCallback);
-	maxSaneTimeout = maxAppTimeout;
-
 	// assert(receiveTimerService.isOSClockRunning());
 }
 
+void Sleeper::setSaneTimeout(OSTime maxAppTimeout) {
+	maxSaneTimeout = maxAppTimeout;
+}
 
 void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	// units are ticks, when RTC has zero prescaler: 30uSec

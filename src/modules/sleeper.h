@@ -39,12 +39,18 @@ public:
 	// Public because passed to radio so it can hook IRQ into it
 	static void msgReceivedCallback();
 
-	/* maxSaneTimeout: max timeout a sane app should ask for. */
-	static void init(
-			OSTime maxSaneTimeout,
-			LongClockTimer *);
 
-	/* Sleep until any system event, and set a Timer that generates a waking event after timeout ticks. */
+	static void init(LongClockTimer *);
+
+	/* maxSaneTimeout: max timeout a sane app should ask for. */
+	static void setSaneTimeout(OSTime maxSaneTimeout);
+
+	/*
+	 * Sleep until any system event, and set a Timer that generates a waking event after timeout ticks.
+	 * That is, sleep no more than timeout.
+	 * Could sleep less if any event wakes us.
+	 * Also sets ReasonForWake.
+	 */
 	static void sleepUntilEventWithTimeout(OSTime);
 
 	/* Cancel Timer that would generate waking event. */
