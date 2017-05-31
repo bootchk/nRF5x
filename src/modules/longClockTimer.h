@@ -83,7 +83,12 @@ public:
 	 * If you require accurate timer, start a dummy timer before you start an accurate timer.
 	 */
 	static void init(Nvic*);
-	static void reset();
+
+	/*
+	 * Make high order bits zero.
+	 * Low order bits are whatever the HW counter is.
+	 */
+	static void resetToNearZero();
 
 	static LongTime nowTime();
 

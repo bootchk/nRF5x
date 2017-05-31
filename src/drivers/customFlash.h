@@ -44,6 +44,7 @@ enum FlagIndex {
 	LogFished,						// 16.
 	ListenHalf,
 	ListenFull,
+	LogMerge,
 	LineNumberFlagIndex				// line no of assert
 };
 

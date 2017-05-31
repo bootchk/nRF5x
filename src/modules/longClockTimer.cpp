@@ -147,7 +147,8 @@ RTC0_IRQHandler(void)
 
 void LongClockTimer::init(Nvic* nvic) {
 
-	reset();
+	resetToNearZero();
+	// Later, a user (say SleepSyncAgent) can reset again
 
 	// RTC requires LFC started
 	startXtalOscillator();
@@ -188,7 +189,7 @@ void LongClockTimer::init(Nvic* nvic) {
 }
 
 
-void LongClockTimer::reset(){
+void LongClockTimer::resetToNearZero(){
 	mostSignificantBits = 0;
 }
 
