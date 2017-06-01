@@ -30,6 +30,8 @@
  * Resolution:
  * - successive nowTime() calls may return the same value .
  * - successive nowTime() calls may return values whose difference is greater than one tick (no guarantee that this code is fast.)
+ * - back-to-back nowTime() calls should not return values differing by much
+ *   (but by how much depends on the cpu speed, certainly not greater than MaxTimeout)
  * - successive nowTime() calls spanning greater than (2**56-1)*30uSec  (about 68,000 years) will be incorrect due to 56-bit rollover.
  *
  * Monotonicity:
@@ -58,6 +60,9 @@
  * 24-bit RTC device counter underlies both LongClock and Timers.
  *
  * To insure monotonicity and correctness, uses Lamport's Rule to deal with for internal counter rollover.
+ * Failing to use Lamport's Rule or other means, could result:
+ * - not monitonic
+ * - consecutive results difference near MaxTimeout
  */
 
 

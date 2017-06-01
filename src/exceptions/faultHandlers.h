@@ -31,10 +31,13 @@ extern "C" {
 __attribute__((noreturn))
 void sleepForeverInLowPower();
 
+#ifdef NOT_USED
 void genericNMIHandler();    // Certain peripherals or SW. Non-maskable, only preempted by reset
 void genericSVCHandler();    // call to OS: SVC instruction executed
 void genericPendSVHandler(); // OS Context switching
 void genericSysTickHandler(); // OS clock
+#endif
+
 
 // M0 bus faults and other hw faults
 void genericHardFaultHandler();
@@ -49,7 +52,7 @@ void genericHardFaultHandler();
  * You must override _exit() defined in newlib nano to call this.
  * Apparently not easy to override from a library.
  */
-void genericExitFaultHandler();
+void genericExitHandler();
 
 /*
  * Assertion failed.

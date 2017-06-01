@@ -25,27 +25,28 @@
  * Events are specific to the application.
  */
 enum FlagIndex {
-	// index 0 not used
-	HardFaultFlagIndex = 1,			// hw fault
-	ExitFaultFlagIndex,				// assert() called
-	BootedEventFlagIndex,
-	NotUsed,                        //
+	HardFaultFlagIndex = 0,			// hw fault
+	ExitFlagIndex,					// undistinguished exit
 	ExcessPowerEventFlagIndex,		// Vcc above 3.6V
 	BrownoutPowerEventFlagIndex,	// Vcc below 2.1V
-	WorkEventFlagIndex,				// Worked e.g. flashed LED
-	NoPowerToFish,					// Vcc fell below 2.4V
+	WorkEventFlagIndex,				// 4. Worked e.g. flashed LED
+	NoPowerToFish,					// Vcc fell below 2.5V
 	NoPowerToStartSyncSlot,			// "
-	NoPowerToHalfSyncSlot,			// 10. "
-	UnexpectedWake,					// sleep ended but timer not expired
+	NoPowerToHalfSyncSlot,			// "
+	UnexpectedWake,					// 8. sleep ended but timer not expired
 	UnexpectedMsg,					// Radio IRQ while radio disabled?
 	UnexpectedWakeWhileListen,		// radio on but woken for unknown reason
 	StartSync,						// enough power to listen/send sync
-	PauseSync,						// not enough power to listen/send sync
-	LogFished,						// 16.
-	ListenHalf,
-	ListenFull,
-	LogMerge,
+	PauseSync,						// 12. not enough power to listen/send sync
+	Fished,						//
+	ListenHalf,						//
+	ListenFull,                     //
+	Merge,                          // 16.
+	SleepRemainder,
+	EndSyncPeriod,
 	LineNumberFlagIndex				// line no of assert
+
+	// No flag for assert() raised: it writes a filename string and line no
 };
 
 

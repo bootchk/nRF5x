@@ -118,21 +118,30 @@ void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
  */
 
 
-
+#ifdef NOT_USED
 void genericNMIHandler()  { resetOrHalt(); }
 void genericSVCHandler(void) { resetOrHalt(); }
 void genericPendSVHandler(void) { resetOrHalt(); }
 void genericSysTickHandler(void) { resetOrHalt(); }
+#endif
 
+/*
+ * Set distinct flag.
+ */
 __attribute__((noreturn))
 void genericHardFaultHandler(void) {
 	CustomFlash::writeZeroAtIndex(HardFaultFlagIndex);
 	resetOrHalt();
 }
 
+/*
+ * Catch all handler.
+ * Many faultHandlers or other code may call this.
+ * In that case, the set flag does not distinguish between the callers.
+ */
 __attribute__((noreturn))
-void genericExitFaultHandler(void) {
-	CustomFlash::writeZeroAtIndex(ExitFaultFlagIndex);
+void genericExitHandler(void) {
+	CustomFlash::writeZeroAtIndex(ExitFlagIndex);
 	resetOrHalt();
 }
 
