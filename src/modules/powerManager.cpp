@@ -85,10 +85,10 @@ bool PowerManager::isPowerExcess() {
 }
 
 // Implemented using POFCON
-bool PowerManager::isPowerForWork()    { return powerComparator.isVddGreaterThan2_7V();}
-bool PowerManager::isPowerForSync()    { return powerComparator.isVddGreaterThan2_5V();}
-bool PowerManager::isPowerForRadio()   { return powerComparator.isVddGreaterThan2_3V();}
-bool PowerManager::isPowerForIdle()    {return powerComparator.isVddGreaterThan2_1V();}
+bool PowerManager::isPowerAboveHigh()     { return powerComparator.isVddGreaterThan2_7V();}
+bool PowerManager::isPowerAboveMedium()   { return powerComparator.isVddGreaterThan2_5V();}
+bool PowerManager::isPowerAboveLow()      { return powerComparator.isVddGreaterThan2_3V();}
+bool PowerManager::isPowerAboveUltraLow() { return powerComparator.isVddGreaterThan2_1V();}
 
 
 VoltageRange PowerManager::getVoltageRange() {
@@ -99,16 +99,16 @@ VoltageRange PowerManager::getVoltageRange() {
 	if (isPowerExcess()) {
 		result = VoltageRange::AboveExcess;
 	}
-	else if (isPowerForSync()) {
+	else if (isPowerAboveHigh()) {
 			result = VoltageRange::HighToExcess;
 		}
-	else if (isPowerForWork()) {
+	else if (isPowerAboveMedium()) {
 		result = VoltageRange::MediumToHigh;
 	}
-	else if (isPowerForRadio()) {
+	else if (isPowerAboveLow()) {
 		result = VoltageRange::LowToMedium;
 	}
-	else if (isPowerForIdle()) {
+	else if (isPowerAboveUltraLow()) {
 		result = VoltageRange::UltraLowToLow;
 	}
 	else {
