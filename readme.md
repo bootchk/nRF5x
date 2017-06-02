@@ -1,6 +1,7 @@
 
 Sparse, object oriented (C++) library for nRF5x family embedded radios.
 
+This readme is stale.
 
 Provides
 -
