@@ -1,5 +1,6 @@
 
 
+#include <exceptions/debugHandler.h>
 #include <inttypes.h>
 
 #include "../drivers/mcu.h"
