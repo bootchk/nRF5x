@@ -7,10 +7,12 @@
 #include "nvic.h"
 #include "mcu.h"
 
+// See powerIRQ.cpp
+bool didHFXOStartedInterruptFlag = false;
+
 
 namespace {
 
-bool didInterruptStartingEvent = false;
 Nvic* nvic = nullptr;	// uses
 
 
@@ -34,32 +36,9 @@ void disableInterruptOnRunning() {
 }
 #endif
 
-
-
-extern "C" {
-
-/*
- * If started event triggered event, set flag that sleeping loop reads.
- *
- * C so overrides default
- */
-__attribute__ ((interrupt ("POWER_CLOCK_IRQ")))
-void
-POWER_CLOCK_IRQHandler() {
-	if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED)) {
-		didInterruptStartingEvent = true;
-		// Clear event so interrupt not triggered again.
-		nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
-	}
-	else {
-		//Unexpected wake up.  POFCON uses same IRQ vector, but we don't enable interrupt.
-		assert(false);
-	}
-}
-
-}	// extern C
-
 }  // namespace
+
+
 
 
 
@@ -138,7 +117,7 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 	assert(!nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED));
 
 	// assert interrupt is enabled
-	didInterruptStartingEvent = false;	// clear flag from ISR
+	didHFXOStartedInterruptFlag = false;	// clear flag from ISR
 	start();
 	/*
 	 * sleep until IRQ signals started event.
@@ -147,13 +126,14 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 	 * The max start time is 360uSec NRF52,
 	 * so there should be plenty of time to get asleep before interrupt occurs.
 	 */
-	while (! didInterruptStartingEvent) {
+	while (! didHFXOStartedInterruptFlag) {
 		/*
 		 * !!! Event must come, else infinite loop.
 		 * Ignore other events from clock and other sources
 		 * e.g. timers for flashing LED's (whose interrupts will occur, but returns to this thread.)
 		 */
 		MCU::sleep();
+		// XXX Do not use MCU::sleep() directly and assert against other wakes
 	}
 	// assert ISR cleared event.
 

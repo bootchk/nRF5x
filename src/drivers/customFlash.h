@@ -44,7 +44,7 @@ enum FlagIndex {
 	Merge,                          // 16.
 	SleepRemainder,
 	EndSyncPeriod,
-	LineNumberFlagIndex				// line no of assert
+	LineNumberFlagIndex				// line no of assert, or PC of exception
 
 	// No flag for assert() raised: it writes a filename string and line no
 };

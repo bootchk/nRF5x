@@ -4,6 +4,11 @@
 #include "../drivers/customFlash.h"
 
 
+/*
+ * This is .h file, but defines code that is not called except by handlers,
+ * and code that is to be cut and pasted into the main app (to get it to override weak handlers.)
+ * This is #include'd in the library.
+ */
 
 /*
  * Handler for debugging:
@@ -13,12 +18,14 @@
  * Use:
  * - with debugger
  * - without debugger, recording fault PC in flash
+ *
+ * Original code from Nordic Devzone: Back trace from hard fault handler with s110 flashed?
  */
 
 extern "C" {
 
-void HardFault_HandlerFlash(unsigned long *);
-void HardFault_HandlerC(unsigned long *);
+//void HardFault_HandlerFlash(unsigned long *);
+void ExceptionHandlerWritePCToFlash(unsigned long *);
 void DebugHandler(void);
 
 /*
@@ -31,6 +38,7 @@ void ExceptionHandlerWritePCToFlash(unsigned long *hardfault_args){
 
     volatile unsigned long stacked_pc;
 
+    // PC was pushed on stack and is 6 words above current SP (the frame)
     stacked_pc = ((unsigned long)hardfault_args[6]) ;
     CustomFlash::writeIntAtIndex(LineNumberFlagIndex, stacked_pc);
 
@@ -40,7 +48,8 @@ void ExceptionHandlerWritePCToFlash(unsigned long *hardfault_args){
      */
     __asm("BKPT #0\n") ; // Break into the debugger
     // What does this do if no debugger?
-    // TODO disable interrupts and WEV
+
+    while(true) {};
 }
 
 #ifdef NOT_USED
@@ -125,23 +134,29 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 __attribute__((naked))
 void DebugHandler(void){
 /*
- * Get stack pointer that depends on mode,
+ * Get stack pointer that depends on mode.
+ * (If RTOS in use, priveleged/user mode uses different stacks?
  * Pass SP to a C handler.
- * This function will never return
+ * This function will never return.
+ *
+ * Modifications from original code:
+ * - use bl instead of b which suffers link error "relocation truncated to fit"
+ * - remove trailing ".syntax divided\n") which causes link error "instruction not supported in Thumb16" ???
  */
 
 __asm(  ".syntax unified\n"
-        "MOVS   R0, #4  \n"
+        "MOVS   R0, #4  // test mode\n"
         "MOV    R1, LR  \n"
         "TST    R0, R1  \n"
         "BEQ    _MSP    \n"
-        "MRS    R0, PSP \n"
-        "B      HardFault_HandlerC      \n"
+        "MRS    R0, PSP // load r0 with MainSP\n"
+        "bl      ExceptionHandlerWritePCToFlash      \n"
         "_MSP:  \n"
-        "MRS    R0, MSP \n"
-        "B      ExceptionHandlerWritePCToFlash      \n"
-        ".syntax divided\n") ;
+        "MRS    R0, MSP // load r0 with ProcessSP\n"
+        "bl      ExceptionHandlerWritePCToFlash      \n"
+        );
 }
 
+// XXX use B __cpp(ExceptionHandlerWritePCToFlash) without extern C?
 
 }	// extern C
