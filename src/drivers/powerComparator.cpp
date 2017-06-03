@@ -10,6 +10,8 @@
  * Implementation notes:
  * Uses the power fail comparator, but using just an even, not an interrupt.
  *
+ * Does not use the SDK HAL since it smells unpolished.
+ *
  * Reads to flush ARM write cache must not be optimized out,
  * the write that must be flushed is a trigger to an external device
  * that must occur timely, i.e. when the write is made

@@ -10,6 +10,8 @@ namespace {
  * No instance of PowerComparator. All class methods
  */
 
+bool _brownoutDetectionState = false;
+
 /*
  * Return result of compare Vdd to threshold.
  * Leaves:
@@ -46,6 +48,26 @@ bool testVddGreaterThanThresholdThenDisable() {
 
 
 /*
+ * Enable brownoutDetection if enableBrownoutDetection() was called previously.
+ */
+void tryEnableBrownoutDetection() {
+	if (_brownoutDetectionState) {
+
+		// set lowest possible threshold the POFCON supports on family
+#ifdef NRF52
+		PowerComparator::setThresholdAndDisable(NRF_POWER_POFTHR_V17);
+#else
+		PowerComparator::setThresholdAndDisable(NRF_POWER_POFTHR_V21);
+#endif
+
+		// assert isEventClear()
+		PowerComparator::enableInterrupt();
+		PowerComparator::enable();
+	}
+}
+
+
+/*
  * This takes care to maintain the alternate use of POFCON: brownout detect.
  *
  * It temporarily disables brownout interrupt, then restores it.
@@ -60,15 +82,12 @@ bool isVddGreaterThanThreshold(nrf_power_pof_thr_t threshold) {
 	PowerComparator::setThresholdAndDisable(threshold);
 	result = testVddGreaterThanThresholdThenDisable();
 
-	// restore brownout detection on the lowest threshold
-	PowerComparator::setThresholdAndDisable(NRF_POWER_POFTHR_V17);
-	// assert isEventClear()
-	PowerComparator::enableInterrupt();
-	PowerComparator::enable();
+	tryEnableBrownoutDetection();
 
 	/*
 	 * Assert result valid.
-	 * Assert brownout detection enabled.
+	 * Assert brownout detection enabled if enableBrownoutDetection() was called previously
+	 * else POFCON disabled and threshold is indeterminate.
 	 */
 	return result;
 }
@@ -78,6 +97,8 @@ bool isVddGreaterThanThreshold(nrf_power_pof_thr_t threshold) {
 }  // namespace
 
 
+
+void PowerMonitor::enableBrownoutDetection() { _brownoutDetectionState = true; }
 
 
 bool PowerMonitor::isVddGreaterThan2_1V() { return isVddGreaterThanThreshold(NRF_POWER_POFTHR_V21); }

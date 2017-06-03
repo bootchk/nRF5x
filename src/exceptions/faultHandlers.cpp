@@ -8,6 +8,8 @@
 #include "../modules/radio.h"
 #include "../drivers/customFlash.h"
 
+
+// !!! This is definitions, not just declarations
 #include "faultHandlers.h"
 
 

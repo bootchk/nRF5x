@@ -16,10 +16,11 @@
  * - COMP
  * - LPCOMP
  *
- * This driver is probably not compatible with other uses of the PowerFailComparator device:
- * to interrupt when power is failing to give the OS time to gracefully shut down.
- * There you are interested  being asynchronously notified of falling edges.
- * Here we are interested in synchronously the condition: above a given level.
+ * This driver is compatible with multiple uses of the PowerFailComparator device:
+ * - to interrupt when power is failing (brownout) so you might gracefully shut down.
+ *   There you are interested  being asynchronously notified of falling edges.
+ * - to check Vcc.  Synchronously check the condition: Vcc above a given level.
+ * But you must coordinate those uses at a higher level.
  */
 
 #include <nrf_power.h>	// hal

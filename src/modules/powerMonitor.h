@@ -16,6 +16,10 @@
 
 class PowerMonitor {
 public:
+
+	static void enableBrownoutDetection();
+
+
 	/*
 	 * Simple tests of Vdd thresholds.
 	 *

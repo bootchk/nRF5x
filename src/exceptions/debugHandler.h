@@ -122,6 +122,12 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 }
 #endif
 
+
+
+#ifdef NOT_USED
+This is a template to be copied to calling app.
+DO NOT DELETE
+
 /**
 *
 * Handler to help debug the reason for a fault or IRQ.
@@ -166,5 +172,6 @@ __asm(  ".syntax unified\n"
 }
 
 // XXX use B __cpp(ExceptionHandlerWritePCToFlash) without extern C?
+#endif
 
 }	// extern C

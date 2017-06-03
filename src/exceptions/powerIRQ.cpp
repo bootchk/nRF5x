@@ -57,7 +57,7 @@ POWER_CLOCK_IRQHandler() {
 		 * So we can analyze later where in the app we brownout.
 		 *
 		 * !!! If the system repeatedly brownouts and reboots,
-		 * the PC written to flash is not reliable
+		 * the PC is only written to flash once
 		 * since a second write to flash garbles the first write.
 		 */
 		__asm(  ".syntax unified\n"
@@ -71,6 +71,7 @@ POWER_CLOCK_IRQHandler() {
 		        "MRS    R0, MSP // load r0 with ProcessSP\n"
 		        "bl      ExceptionHandlerWritePCToFlash      \n"
 		        );
+		// Never returns
 	}
 }
 
