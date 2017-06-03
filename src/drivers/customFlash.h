@@ -57,11 +57,12 @@ class CustomFlash {
 	 *
 	 * Customer UICR is 0x80 (128) bytes (32 words)
 	 * Reserve at least 20 words (80 bytes) for flags.
-	 * Reserve 4 words (16 bytes) for string.
 	 * Reserve 12 words (48 bytes) for string.
 	 */
 	static const int OffsetToString = 80;
-	static const unsigned int countWordsOfFlashString = 12;
+	static const unsigned int CountWordsOfFlashString = 12;
+	static const unsigned int UnwrittenValue = 0xFfFfFfFf;
+
 public:
 
 
@@ -70,6 +71,9 @@ public:
 
 	// Write int to word
 	static void writeIntAtIndex(FlagIndex, int);
+
+	// Did we already write to a word?
+	static bool isWrittenAtIndex(FlagIndex);
 
 	// To a fixed place in flash
 	static void copyStringPrefixToFlash(const char* functionName);

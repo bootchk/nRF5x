@@ -1,6 +1,7 @@
 
 /*
- * Driver for nrf5x family PowerFailureComparator (POFCON) device.
+ * Low-level driver for nrf5x family PowerFailureComparator (POFCON) device.
+ * See PowerMonitor for high-level interface.
  *
  * This is portable across nrf51 and nrf52 families.
  * (Unlike the SAADC.)
@@ -29,6 +30,7 @@ public:
 	static void disable();
 	static bool isDisabled();
 	static void disableInterrupt();
+	static void enableInterrupt();
 
 	/*
 	 * Did device generate event for the configured threshold?

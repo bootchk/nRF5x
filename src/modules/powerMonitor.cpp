@@ -1,19 +1,14 @@
 #include "powerMonitor.h"
 #include "../drivers/powerComparator.h"
 
-#include <inttypes.h>
 
 
 
-// TODO instance or all class methods
 namespace {
 
 /*
- * Owns single instance.
+ * No instance of PowerComparator. All class methods
  */
-PowerComparator powerComparator;
-
-
 
 /*
  * Return result of compare Vdd to threshold.
@@ -49,32 +44,45 @@ bool testVddGreaterThanThresholdThenDisable() {
 	return result;
 }
 
+
+/*
+ * This takes care to maintain the alternate use of POFCON: brownout detect.
+ *
+ * It temporarily disables brownout interrupt, then restores it.
+ */
+bool isVddGreaterThanThreshold(nrf_power_pof_thr_t threshold) {
+	bool result;
+
+	// disable brownout detection temporarily while we use device for other purpose
+	PowerComparator::disableInterrupt();
+
+	// get a new measurement on different threshold
+	PowerComparator::setThresholdAndDisable(threshold);
+	result = testVddGreaterThanThresholdThenDisable();
+
+	// restore brownout detection on the lowest threshold
+	PowerComparator::setThresholdAndDisable(NRF_POWER_POFTHR_V17);
+	// assert isEventClear()
+	PowerComparator::enableInterrupt();
+	PowerComparator::enable();
+
+	/*
+	 * Assert result valid.
+	 * Assert brownout detection enabled.
+	 */
+	return result;
+}
+
+
+
 }  // namespace
 
 
 
 
-bool PowerMonitor::isVddGreaterThan2_1V() {
+bool PowerMonitor::isVddGreaterThan2_1V() { return isVddGreaterThanThreshold(NRF_POWER_POFTHR_V21); }
+bool PowerMonitor::isVddGreaterThan2_3V() { return isVddGreaterThanThreshold(NRF_POWER_POFTHR_V23); }
+bool PowerMonitor::isVddGreaterThan2_5V() { return isVddGreaterThanThreshold(NRF_POWER_POFTHR_V25); }
+bool PowerMonitor::isVddGreaterThan2_7V() { return isVddGreaterThanThreshold(NRF_POWER_POFTHR_V27); }
 
-	// FUTURE Ensure our bit twiddling not generate interrupts
-	// disableInterrupt();
-	// Assume default state of interrupt not enabled.
-	// If caller has enabled interrupts, caller must handle them.
-
-	powerComparator.setThresholdAndDisable(NRF_POWER_POFTHR_V21);
-	return testVddGreaterThanThresholdThenDisable();
-}
-
-bool PowerMonitor::isVddGreaterThan2_3V(){
-	powerComparator.setThresholdAndDisable(NRF_POWER_POFTHR_V23);
-	return testVddGreaterThanThresholdThenDisable();
-}
-bool PowerMonitor::isVddGreaterThan2_5V(){
-	powerComparator.setThresholdAndDisable(NRF_POWER_POFTHR_V25);
-	return testVddGreaterThanThresholdThenDisable();
-}
-bool PowerMonitor::isVddGreaterThan2_7V(){
-	powerComparator.setThresholdAndDisable(NRF_POWER_POFTHR_V27);
-	return testVddGreaterThanThresholdThenDisable();
-}
 

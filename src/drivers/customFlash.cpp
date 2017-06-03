@@ -20,6 +20,11 @@ void CustomFlash::writeIntAtIndex(FlagIndex index, int value){
 	FlashController::disableWrite();
 }
 
+bool CustomFlash::isWrittenAtIndex(FlagIndex index) {
+	// Can read without enabling controller
+	return *(uint32_t *)(FlashController::UICRStartAddress + index*4) != CustomFlash::UnwrittenValue;
+}
+
 
 void CustomFlash::copyStringPrefixToFlash(const char* text){
 
@@ -36,7 +41,7 @@ void CustomFlash::copyStringPrefixToFlash(const char* text){
 	 * This assumes that text starts on a word boundary?
 	 * This assumes text is longer than 16 chars
 	 */
-	for (unsigned int word = 0; word<countWordsOfFlashString; word++ ) {
+	for (unsigned int word = 0; word<CountWordsOfFlashString; word++ ) {
 		*(uint32_t *)(FlashController::UICRStartAddress + OffsetToString + 4*word) = *(uint32_t*)(text + 4*word);
 	}
 

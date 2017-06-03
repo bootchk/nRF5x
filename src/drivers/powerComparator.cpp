@@ -69,9 +69,17 @@ PowerComparator::clearPOFEvent() {
 /*
  * !!! Implementation is correct even if other interrupts from same source are used.
  * In INTCLR, only a 1-bit clears an interrupt source, a 0-bit has no effect on interrupts.
+ *
+ * Some family members have interrupts for EVENTS_SLEEPENTER, etc.
+ *
+ * !!! Note this interrupt is handled by POWER_CLOCK_IRQHandler, shared with Clock device.
  */
 void PowerComparator::disableInterrupt() {
 	NRF_POWER->INTENCLR = 1 << POWER_INTENCLR_POFWARN_Pos;
+}
+
+void PowerComparator::enableInterrupt() {
+	NRF_POWER->INTENSET = 1 << POWER_INTENCLR_POFWARN_Pos;
 }
 
 

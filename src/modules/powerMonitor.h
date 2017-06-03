@@ -7,7 +7,11 @@
  * - monitoring for brownout
  *
  * The two purposes require coordination:
- * monitoring must be turned off while measuring power
+ * monitoring must be turned off while measuring power.
+ *
+ *
+ * !!! Brownout detection starts after the first call to isVddGreaterThan2_xV
+ * Can not disable brownout detection.
  */
 
 class PowerMonitor {

@@ -40,7 +40,15 @@ void ExceptionHandlerWritePCToFlash(unsigned long *hardfault_args){
 
     // PC was pushed on stack and is 6 words above current SP (the frame)
     stacked_pc = ((unsigned long)hardfault_args[6]) ;
-    CustomFlash::writeIntAtIndex(LineNumberFlagIndex, stacked_pc);
+
+    /*
+     * Since for some power supplies, the system may repeatedly brownout and POR,
+     * and since flash is not writeable more than once,
+     * only write PC if not written already.
+     */
+    if ( ! CustomFlash::isWrittenAtIndex(LineNumberFlagIndex)) {
+    	CustomFlash::writeIntAtIndex(LineNumberFlagIndex, stacked_pc);
+    }
 
     /*
      * Typically no further execution is possible (browning out)
