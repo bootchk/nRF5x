@@ -1,17 +1,18 @@
 
 #include "powerManager.h"
-#include "../drivers/powerComparator.h"
+#include "powerMonitor.h"
 #include "../drivers/adc.h"
 
 namespace {
 
 /*
- * Somewhat arbitrary choice to use this device: simpler and portable.
+ * Uses PowerMonitor and ADC, somewhat arbitrarily.
  *
- * You could use ADC or SAADC or nrf52 whose PowerComparator defines more levels.
- * Then you could define whatever levels you wish.
+ * You could use only the ADC (on nrf51) or SAADC (on nrf52), could define whatever levels you wish.
+ *
+ * On the nrf52 you could use only the PowerMonitor which defines more levels, possible as high as 3.6V needed for isPowerExcess.
  */
-PowerComparator powerComparator;
+PowerMonitor powerMonitor;
 
 #ifdef NRF51
 ADC adc;
@@ -33,7 +34,7 @@ ADC adc;
  * Need say 2.1V on capacitor to burst the radio without brownout.
  * Need say 2.3V on capacitor to burst the work without falling below 2.1V
  *
- * Also, these levels are somewhat arbitrary, convenient to implement using PowerComparator.
+ * Also, these levels are somewhat arbitrary, convenient to implement using PowerMonitor.
  *
  */
 
@@ -62,7 +63,7 @@ void PowerManager::init() {
 #ifdef NRF51
 	adc.init();
 #endif
-	// powerComparator need no init
+	// powerMonitor need no init
 }
 
 
@@ -72,7 +73,7 @@ bool PowerManager::isPowerExcess() {
 	// There is no adc device common to both families
 	bool result;
 #ifdef NRF52
-	return powerComparator.isVddGreaterThan2_7V();
+	return powerMonitor.isVddGreaterThan2_7V();
 #elif NRF51
 	ADCResult value = adc.getVccProportionTo255();
 	// Need to use value smaller than 0xFF? say 3.4V
@@ -84,11 +85,12 @@ bool PowerManager::isPowerExcess() {
 	return result;
 }
 
+
 // Implemented using POFCON
-bool PowerManager::isPowerAboveHigh()     { return powerComparator.isVddGreaterThan2_7V();}
-bool PowerManager::isPowerAboveMedium()   { return powerComparator.isVddGreaterThan2_5V();}
-bool PowerManager::isPowerAboveLow()      { return powerComparator.isVddGreaterThan2_3V();}
-bool PowerManager::isPowerAboveUltraLow() { return powerComparator.isVddGreaterThan2_1V();}
+bool PowerManager::isPowerAboveHigh()     { return powerMonitor.isVddGreaterThan2_7V();}
+bool PowerManager::isPowerAboveMedium()   { return powerMonitor.isVddGreaterThan2_5V();}
+bool PowerManager::isPowerAboveLow()      { return powerMonitor.isVddGreaterThan2_3V();}
+bool PowerManager::isPowerAboveUltraLow() { return powerMonitor.isVddGreaterThan2_1V();}
 
 
 VoltageRange PowerManager::getVoltageRange() {
@@ -123,20 +125,20 @@ VoltageRange PowerManager::getVoltageRange() {
 bool PowerManager::isVoltageExcess() { return ;}
 
 bool PowerManager::isVoltageHigh() {
-	return ! powerComparator.isVddGreaterThan2_7V()
-			& powerComparator.isVddGreaterThan2_5V();
+	return ! powerManager.isVddGreaterThan2_7V()
+			& powerManager.isVddGreaterThan2_5V();
 }
 bool PowerManager::isVoltageMedium() {
-	return ! powerComparator.isVddGreaterThan2_5V()
-			& powerComparator.isVddGreaterThan2_3V();
+	return ! powerManager.isVddGreaterThan2_5V()
+			& powerManager.isVddGreaterThan2_3V();
 }
 bool PowerManager::isVoltageLow() {
-	return ! powerComparator.isVddGreaterThan2_3V()
-			& powerComparator.isVddGreaterThan2_1V();
+	return ! powerManager.isVddGreaterThan2_3V()
+			& powerManager.isVddGreaterThan2_1V();
 }
 bool PowerManager::isVoltageUltraLow() {
 
-	return ! powerComparator.isVddGreaterThan2_1V();
+	return ! powerManager.isVddGreaterThan2_1V();
 }
 #endif
 

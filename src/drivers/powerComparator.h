@@ -1,3 +1,4 @@
+
 /*
  * Driver for nrf5x family PowerFailureComparator (POFCON) device.
  *
@@ -20,12 +21,10 @@
  * Here we are interested in synchronously the condition: above a given level.
  */
 
+#include <nrf_power.h>	// hal
+
 class PowerComparator {
 public:
-	/*
-	 * These should probably be more hidden.
-	 * For now, they are used only internally.
-	 */
 	static void enable();
 	static void disable();
 	static bool isDisabled();
@@ -38,18 +37,7 @@ public:
 	static bool isPOFEvent();
 	static void clearPOFEvent();
 
-public:
-	/*
-	 * Most useful API.
-	 *
-	 * Simple tests of Vdd thresholds.
-	 *
-	 * These have side effects on the PowerFailureComparator device resource:
-	 * they leave it disabled.
-	 */
-	// These are portable nrf51 and nrf52
-	static bool isVddGreaterThan2_1V();
-	static bool isVddGreaterThan2_3V();
-	static bool isVddGreaterThan2_5V();
-	static bool isVddGreaterThan2_7V();
+	static void setThresholdAndDisable(nrf_power_pof_thr_t threshold); 	// Use NRFSDK hal enum
+
+	static void delayForPOFEvent();
 };

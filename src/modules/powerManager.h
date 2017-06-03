@@ -31,8 +31,6 @@ public:
 	static bool isPowerAboveLow();
 	static bool isPowerAboveUltraLow();
 
-
-
 	/*
 	 * Ranges
 	 */
