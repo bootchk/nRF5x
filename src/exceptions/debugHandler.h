@@ -2,6 +2,7 @@
 #pragma once
 
 #include "../drivers/customFlash.h"
+#include "../drivers/powerComparator.h"
 
 
 /*
@@ -47,6 +48,14 @@ void ExceptionHandlerWritePCToFlash(unsigned long *hardfault_args){
      * only write PC if not written already.
      */
     if ( ! CustomFlash::isWrittenAtIndex(LineNumberFlagIndex)) {
+    	/*
+    	 * !!! First must counteract HW lock of flash during brownout.
+    	 * Disable comparator so it doesn't trigger again when we clear the event.
+    	 */
+    	PowerComparator::disable();
+    	PowerComparator::clearPOFEvent();
+    	// assert NVMC is not HW locked against writes
+
     	CustomFlash::writeIntAtIndex(LineNumberFlagIndex, stacked_pc);
     }
 

@@ -10,6 +10,7 @@
 // See powerIRQ.cpp
 bool didHFXOStartedInterruptFlag = false;
 
+#include "../exceptions/powerIRQ.h"
 
 namespace {
 

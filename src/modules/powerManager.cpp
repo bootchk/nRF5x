@@ -22,41 +22,28 @@ ADC adc;
 
 
 /*
- * Specific to my application:
+ * General discussion of a context.
+ * Assume power supply is a solar cell to a capacitor and not a battery.
+ * Capacitor has certain joules per delta V.
+ * Solar cell delivers about 10uA @2.4V (in 200 lux.)
+ * Solar cell can deliver 4.8V (in full sun) which is excess over Vmax of 3.6V
+ * Mcu Vbrownout (aka Vmin) is 1.9V but typically can work down to 1.7V.
  *
- * Given:
- *  - storage capacitor is certain joules.
- *  - power supply delivers about 10uA @2.4V (solar cell, in 200 lux.)
- *  - power supply can deliver 4.8V (solar cell in full sun)
- *  - mcu Vbrownout (aka Vmin) is 1.9V
- *  - mcu Vmax is 3.6V
+ * Voltage levels indicate power reserves on the capacitor.
  *
- * Need say 2.1V on capacitor to burst the radio without brownout.
- * Need say 2.3V on capacitor to burst the work without falling below 2.1V
+ * The caller is responsible for assigning meaning to the voltage levels,
+ * and managing power use.
+ * Need say 2.1V on capacitor to burst the radio without real brownout.
+ * Need say 2.3V on capacitor to burst the work without without real brownout.
  *
- * Also, these levels are somewhat arbitrary, convenient to implement using PowerMonitor.
- *
+ * An external voltage monitor chip may POR the mcu at 2.0V,
+ * but have a hysteresis so that it does not power off the mcu until say 1.8V.
  */
 
 /*
  * Levels
  *
- * Four of them, constrained by what device implements.
- *
- * Here we also attach meaning, used by SleepSync algorithm/application.
- *
- * You can swap the middle meanings.
- * Currently the firefly algorithm uses most current for work, so reserve is below that.
- *
- * Brownout is 1.8V.
- * External voltage monitor resets at 2.0V.
- * Boot requires a small reserve.
- * Radio requires about 0.2V on capacitor.
- * Radio must not brownout mcu.
- * Work requires > 0.2V on capacitor.
- * Work may dip voltage below that needed for radio.
- * Radio is required to keep sync.
- * Work may temporarily take Vcc below needed for radio.
+ * Constrained by what underlying device implements.
  */
 
 void PowerManager::init() {
@@ -64,6 +51,12 @@ void PowerManager::init() {
 	adc.init();
 #endif
 	// powerMonitor need no init
+}
+
+
+void PowerManager::enableBrownoutDetectMode() {
+	// PowerMonitor does it
+	powerMonitor.enableBrownoutDetectMode();
 }
 
 

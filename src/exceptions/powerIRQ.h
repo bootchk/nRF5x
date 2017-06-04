@@ -12,7 +12,11 @@
  */
 
 
-extern bool didHFXOStartedInterruptFlag;
+/*
+ * This is included into longClockTimer.cpp
+ * It doesn't seem to override the weak handler otherwise??
+ */
+//extern bool didHFXOStartedInterruptFlag;
 
 
 
@@ -27,7 +31,7 @@ void POWER_CLOCK_IRQHandler();
  *
  *
  */
-__attribute__ ((interrupt ("POWER_CLOCK_IRQ")))
+__attribute__ ((interrupt ("IRQ")))
 void
 POWER_CLOCK_IRQHandler() {
 
@@ -52,13 +56,18 @@ POWER_CLOCK_IRQHandler() {
 		nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
 	}
 	if (nrf_power_event_check(NRF_POWER_EVENT_POFWARN)) {
+		//
+
 		/*
-		 * Brownout, write PC to flash.
-		 * So we can analyze later where in the app we brownout.
+		 * Brownout
 		 *
-		 * !!! If the system repeatedly brownouts and reboots,
-		 * the PC is only written to flash once
-		 * since a second write to flash garbles the first write.
+		 * write PC to flash so we can analyze later where in the app we brownout.
+		 *
+		 * !!! The handler only try to write flash if not previously written.
+		 */
+
+		/*
+		 * Preamble that passes SP to exception handler
 		 */
 		__asm(  ".syntax unified\n"
 		        "MOVS   R0, #4  // test mode\n"
@@ -70,9 +79,15 @@ POWER_CLOCK_IRQHandler() {
 		        "_MSP:  \n"
 		        "MRS    R0, MSP // load r0 with ProcessSP\n"
 		        "bl      ExceptionHandlerWritePCToFlash      \n"
+#ifdef NRF51
+				".syntax divided \n"
+#endif
 		        );
 		// Never returns
 	}
+	/*
+	 * I don't understand the .syntax divided need
+	 */
 }
 
 }	// extern C

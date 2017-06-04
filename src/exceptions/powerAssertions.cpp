@@ -96,10 +96,10 @@ void assertUltraLowPower() {
 
 	assert(! HfCrystalClock::isRunning());
 
-	assert( PowerComparator::isDisabled());
-
-
 	/*
+	 * Not: assert( PowerComparator::isDisabled());
+	 * PowerComparator stays enabled for brownout detect.
+	 *
 	 * Not: assert( ADC::isDisabled());
 	 * The ADC stays enabled but uses no power when not converting.
 	 */

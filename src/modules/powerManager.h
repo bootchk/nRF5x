@@ -16,11 +16,19 @@ enum class VoltageRange { BelowUltraLow, UltraLowToLow, LowToMedium, MediumToHig
  *
  * Depends on some device that read system Vcc (Vdd).
  * Voltage levels on some charge storage (capacitor) indicates power level.
+ *
+ * Brownout is:
+ * - real
+ * - detected
+ * Detected brownout only means that the mcu will soon suffer real brownout (a reset, BOR.)
+ * Typically, the handler for detected brownout quits the app anyway.
  */
 class PowerManager {
 
 public:
 	static void init();
+
+	static void enableBrownoutDetectMode();
 
 	/*
 	 * Levels

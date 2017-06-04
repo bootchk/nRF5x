@@ -1,3 +1,7 @@
+#pragma once
+
+#include <nrf_power.h>	// hal, POF threshold constants
+
 
 /*
  * Adaptor to PowerComparator.
@@ -9,15 +13,35 @@
  * The two purposes require coordination:
  * monitoring must be turned off while measuring power.
  *
- *
- * !!! Brownout detection starts after the first call to isVddGreaterThan2_xV
+ * !!! Brownout detection starts with first call to enableBrownoutDetection
  * Can not disable brownout detection.
  */
 
 class PowerMonitor {
+
 public:
 
-	static void enableBrownoutDetection();
+	/*
+	 * NRF5x family constrains lowest possible threshold:
+	 * - nrf51: NRF_POWER_POFTHR_V21
+	 * - nrf52: NRF_POWER_POFTHR_V17
+	 * But you can change this to higher value.
+	 */
+#ifdef NRF52
+		static const nrf_power_pof_thr_t BrownoutThreshold = NRF_POWER_POFTHR_V17;
+#else
+		static const nrf_power_pof_thr_t BrownoutThreshold = NRF_POWER_POFTHR_V23;
+#endif
+
+
+	/*
+	 * Sets mode.
+	 * Brownout detection starts after first call so isVddGreater...
+	 *
+	 * Enables at lowest threshold that POFCON can detect.
+	 * Which may be lower/higher than you want.
+	 */
+	static void enableBrownoutDetectMode();
 
 
 	/*
