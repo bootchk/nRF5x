@@ -26,11 +26,13 @@ public:
 	 * - nrf51: NRF_POWER_POFTHR_V21
 	 * - nrf52: NRF_POWER_POFTHR_V17
 	 * But you can change this to higher value.
+	 *
+	 * For testing on NRF52DK, change to V23 since debugger needs higher voltage for comm to target.
 	 */
 #ifdef NRF52
 		static const nrf_power_pof_thr_t BrownoutThreshold = NRF_POWER_POFTHR_V17;
 #else
-		static const nrf_power_pof_thr_t BrownoutThreshold = NRF_POWER_POFTHR_V23;
+		static const nrf_power_pof_thr_t BrownoutThreshold = NRF_POWER_POFTHR_V21;
 #endif
 
 

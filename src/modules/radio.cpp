@@ -361,12 +361,15 @@ void Radio::transmitStaticSynchronously(){
 	// assert xmit is complete and device is disabled
 }
 
+
+// Private, called only above
 void Radio::transmitStatic(){
 	state = Transmitting;
 	setupFixedDMA();
 	startXmit();
 	// not assert xmit is complete, i.e. asynchronous and non-blocking
 }
+
 
 void Radio::receiveStatic() {
 	state = Receiving;
@@ -379,10 +382,15 @@ void Radio::receiveStatic() {
 bool Radio::isReceiveInProgress() {
 	return device.isReceiveInProgressEvent();
 }
+
+#ifdef FUTURE
+// When catching receive in progress at timeout time
 void Radio::spinUntilReceiveComplete() {
 	// Same as:
 	spinUntilXmitComplete();
 }
+#endif
+
 void Radio::clearReceiveInProgress() {
 	device.clearReceiveInProgressEvent();
 }
@@ -422,7 +430,10 @@ void Radio::startDisableTask() {
 	assert(!isEnabledInterruptForEndTransmit());
 	device.clearDisabledEvent();
 	device.startDisablingTask();
-	state = Idle;
+	/*
+	 * Disabling takes time.  Disabled event will come soon.
+	 * But it is not correct to set internalState = Idle until then.
+	 */
 }
 
 
@@ -518,22 +529,28 @@ void Radio::stopXmit() {
 	// FUTURE
 }
 
+/*
+ * This takes a few msec, depends on bit count and bit rate.
+ * Say 100 bits at 1Mbit/sec is 0.1mSec
+ *
+ * Alternatively, enable interrupt and sleep, but radio current dominates mcu current anyway?
+ *
+ * Nothing can prevent xmit from completing?  Even bad configuration or HFCLK not on?
+ */
+// FUTURE use interrupt on xmit.
 void Radio::spinUntilXmitComplete() {
-	// Spin mcu until xmit complete.
-	// Alternatively, sleep, but radio current dominates mcu current anyway?
-	// Xmit takes a few msec?
-
 	//assert isTransmitting
 
-	// Nothing can prevent xmit?  Even bad configuration or HFCLK not on?
-
-	// Radio state flows (via TXDISABLE) to DISABLED.
-	// Wait for DISABLED state (not the event.)
-	// Here, for xmit, we do not enable interrupt on DISABLED event.
-	// Since it we expect it to be quick.
-	// FUTURE use interrupt on xmit.
-
+	/*
+	 * Implementation:
+	 * Radio state flows (via TXDISABLE) to DISABLED.
+	 * Wait for DISABLED state (not the event.)
+	 * For xmit, we do not enable interrupt on EVENTS_DISABLED.
+	 */
 	spinUntilDisabled();	// Disabled state means xmit done because using shortcuts
+
+	// EVENTS_DISABLED is set, leave it set but clear it before enabling interrupt on it
+
 	state = Idle;
 }
 

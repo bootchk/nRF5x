@@ -13,14 +13,21 @@
  * - interrupt on POFCON detect brownout
  */
 
+/*
+ * Testing procedure for brownout detection/writing to flash:
+ * Use a NRF52DK with custom board connected by SW and having separate variable power supply.
+ * Set power supply to 3V.
+ * Start debugger and execute a main that harnesses this code.
+ * Lower the power supply to below 2.3V (or whatever you have set for brownout detection.)
+ * The debugger should stop at the BKPT below.
+ * Word 19 of UICR should contain the PC where the fault occurred.
+ * Use Eclipse memory view to view UICR at 0x10001080, use unsigned int rendering to view fault address in decimal.
+ */
 
 /*
- * This is included into longClockTimer.cpp
- * It doesn't seem to override the weak handler otherwise??
+ * This file is included into hfClock.cpp
+ * If the app uses hfClock, then the linker overwrites the weak handler with this one.
  */
-//extern bool didHFXOStartedInterruptFlag;
-
-
 
 
 // C so overrides weak handler

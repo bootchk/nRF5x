@@ -22,31 +22,34 @@
  *
  * Typically use word as a flag for certain exceptions and other events.
  * A flag is 'set' by writing all zeroes to it.
- * Events are specific to the application.
+ *
+ * Exceptions are handled generically, writing PC to flash.
+ * Flagged events are specific to the application.
  */
 enum FlagIndex {
-	HardFaultFlagIndex = 0,			// hw fault
+	// First three are Program Counters of exceptions or Line Number, not flags
+	HardFaultPCIndex = 0,			// hw fault PC
+	BrownoutPCIndex,				// brownout PC
+	LineNumberIndex, 				// line no of assert
+
+	// Flags
 	ExitFlagIndex,					// undistinguished exit
-	ExcessPowerEventFlagIndex,		// Vcc above 3.6V
-	BrownoutPowerEventFlagIndex,	// Vcc below 2.1V
-	WorkEventFlagIndex,				// 4. Worked e.g. flashed LED
+	ExcessPowerEventFlagIndex,		// 4. Vcc above 3.6V
+	WorkEventFlagIndex,				// Worked e.g. flashed LED
 	NoPowerToFish,					// Vcc fell below 2.5V
 	NoPowerToStartSyncSlot,			// "
-	NoPowerToHalfSyncSlot,			// "
-	UnexpectedWake,					// 8. sleep ended but timer not expired
+	NoPowerToHalfSyncSlot,			// 8. "
+	UnexpectedWake,					// sleep ended but timer not expired
 	UnexpectedMsg,					// Radio IRQ while radio disabled?
 	UnexpectedWakeWhileListen,		// radio on but woken for unknown reason
-	StartSync,						// enough power to listen/send sync
-	PauseSync,						// 12. not enough power to listen/send sync
-	Fished,						//
+	StartSync,						// 12. enough power to listen/send sync
+	PauseSync,						// not enough power to listen/send sync
+	Fished,						    //
 	ListenHalf,						//
-	ListenFull,                     //
-	Merge,                          // 16.
+	ListenFull,                     // 16.
+	Merge,                          //
 	SleepRemainder,
-	EndSyncPeriod,
-	LineNumberFlagIndex				// line no of assert, or PC of exception
-
-	// No flag for assert() raised: it writes a filename string and line no
+	EndSyncPeriod
 };
 
 
@@ -69,8 +72,8 @@ public:
 	// Write entire word to zero.
 	static void writeZeroAtIndex(FlagIndex);
 
-	// Write int to word
-	static void writeIntAtIndex(FlagIndex, int);
+	// Write int to word if not already written
+	static void tryWriteIntAtIndex(FlagIndex, unsigned int);
 
 	// Did we already write to a word?
 	static bool isWrittenAtIndex(FlagIndex);

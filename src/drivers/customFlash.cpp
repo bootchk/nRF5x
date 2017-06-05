@@ -3,13 +3,9 @@
 #include <drivers/flashController.h>
 #include "customFlash.h"
 
+namespace {
 
-void CustomFlash::writeZeroAtIndex(FlagIndex index){
-	writeIntAtIndex(index, 0);
-}
-
-void CustomFlash::writeIntAtIndex(FlagIndex index, int value){
-
+void writeIntAtIndex(FlagIndex index, unsigned int value){
 	// assert index >=0 and <= 31
 
 	FlashController::enableWrite();
@@ -18,6 +14,23 @@ void CustomFlash::writeIntAtIndex(FlagIndex index, int value){
 	*(uint32_t *)(FlashController::UICRStartAddress + index*4) = value ;
 
 	FlashController::disableWrite();
+}
+
+}
+
+
+
+
+void CustomFlash::writeZeroAtIndex(FlagIndex index){
+	// If already zero, it stays zero
+	writeIntAtIndex(index, 0);
+}
+
+
+void CustomFlash::tryWriteIntAtIndex(FlagIndex index, unsigned int value){
+	if (!isWrittenAtIndex(index)) {
+		writeIntAtIndex(index, value);
+	}
 }
 
 bool CustomFlash::isWrittenAtIndex(FlagIndex index) {

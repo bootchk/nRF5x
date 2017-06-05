@@ -2,6 +2,9 @@
 
 #include <inttypes.h>
 
+// XXX include only the deepest include file
+#include <nrf_power.h>	// get_MSP
+
 #include "../drivers/mcu.h"
 #include "../drivers/nvic.h"
 #include "../modules/radio.h"
@@ -118,6 +121,9 @@ void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
  */
 
 
+// HardFault capture PC
+
+
 #ifdef NOT_USED
 void genericNMIHandler()  { resetOrHalt(); }
 void genericSVCHandler(void) { resetOrHalt(); }
@@ -126,11 +132,21 @@ void genericSysTickHandler(void) { resetOrHalt(); }
 #endif
 
 /*
- * Set distinct flag.
+ * Write PC to distinct word.
+ *
+ * !!! The calling app must reference some symbol in this file to insure
+ * that this definition overwrites the weak def earlier at link time.
  */
-__attribute__((noreturn))
-void genericHardFaultHandler(void) {
-	CustomFlash::writeZeroAtIndex(HardFaultFlagIndex);
+__attribute__ ((interrupt ("IRQ")))
+void
+HardFault_Handler() {
+	// Get fault address.
+	// Specific to case where MSP is used (w/o RTOS)
+	uint32_t* stackPointer = (uint32_t*) __get_MSP();
+	uint32_t faultAddress = stackPointer[24/4]; // HW pushed PC onto stack 6 words into stack frame
+
+	// Only write it once, for first hard fault
+	CustomFlash::tryWriteIntAtIndex(HardFaultPCIndex, faultAddress);
 	resetOrHalt();
 }
 
@@ -146,9 +162,11 @@ void genericExitHandler(void) {
 }
 
 void genericAssertionFaultHandler(const char* locationText, int lineNumber){
-	CustomFlash::writeIntAtIndex(LineNumberFlagIndex, lineNumber);
+	// Write line no. in one word, and text in other locations in UICR
+	CustomFlash::tryWriteIntAtIndex(LineNumberIndex, lineNumber);
 	CustomFlash::copyStringPrefixToFlash(locationText);
 	resetOrHalt();
 }
+
 
 } // extern C

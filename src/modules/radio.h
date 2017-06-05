@@ -197,7 +197,6 @@ public:
 
 
 	// Static: buffer owned by radio, of fixed length
-	static void transmitStatic();
 	static void transmitStaticSynchronously();	// blocking
 	static void spinUntilXmitComplete();
 	static void stopXmit();
@@ -260,4 +259,6 @@ private:
 	static void enableInterruptForMsgReceived();
 	static void disableInterruptForMsgReceived();
 	static void disableInterruptForEndTransmit();
+
+	static void transmitStatic();
 };

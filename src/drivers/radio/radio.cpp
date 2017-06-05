@@ -57,6 +57,14 @@ void RadioDevice::startTXTask() {
 	NRF_RADIO->TASKS_TXEN = 1;
 }
 
+/*
+ * This is general purpose (to disable both TX and RX.)
+ * Note that interrupt can be enabled for EVENTS_DISABLED,
+ * which will be generated.
+ * Will EVENTS_DISABLED be set if already set?
+ * Delay till event when TX: 4-6uS.
+ * Delay till event when RX: 0uS.
+ */
 void RadioDevice::startDisablingTask(){
 	NRF_RADIO->TASKS_DISABLE = 1;
 }

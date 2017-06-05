@@ -10,21 +10,20 @@ void brownoutWritePCToFlash(uint32_t faultAddress) {
 	 * and since flash is not writeable more than once,
 	 * only write PC if not written already.
 	 */
-	if ( ! CustomFlash::isWrittenAtIndex(LineNumberFlagIndex)) {
-		/*
-		 * !!! First must counteract HW lock of flash during brownout.
-		 * Disable comparator so it doesn't trigger again when we clear the event.
-		 */
-		PowerComparator::disable();
-		PowerComparator::clearPOFEvent();
-		// assert NVMC is not HW locked against writes
 
-		/*
-		 * This takes power, and up to 300uSeconds.
-		 * It might not succeed in writing to flash, since power is failing
-		 */
-		CustomFlash::writeIntAtIndex(LineNumberFlagIndex, faultAddress);
-	}
+	/*
+	 * !!! First must counteract HW lock of flash during brownout.
+	 * Disable comparator so it doesn't trigger again when we clear the event.
+	 */
+	PowerComparator::disable();
+	PowerComparator::clearPOFEvent();
+	// assert NVMC is not HW locked against writes
+
+	/*
+	 * This takes power, and up to 300uSeconds.
+	 * It might not succeed in writing to flash, since power is failing
+	 */
+	CustomFlash::tryWriteIntAtIndex(BrownoutPCIndex, faultAddress);
 
 	/*
 	 * This is not designed rigorously for the continuation.
