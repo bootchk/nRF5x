@@ -10,15 +10,14 @@
 
 namespace {
 
+const TimerIndex SleepTimerIndex = First;	// Must not be used elsewhere
 
-MCU mcu;	// sleep()
 
 // !!! not own
 // Exclusive use of timer[SleepTimerIndex]
 LongClockTimer* timerService;
-TimerIndex SleepTimerIndex = First;	// Must not be used elsewhere
 
-OSTime maxSaneTimeout;
+OSTime maxSaneTimeout = LongClockTimer::MaxTimeout;	// defaults to max a Timer allows
 
 ReasonForWake reasonForWake = NotSetByIRQ;
 
@@ -127,7 +126,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 				SleepTimerIndex,
 				timeout,
 				timerIRQCallback);
-		mcu.sleep();
+		MCU::sleep();
 		/*
 		 * awakened by event: received msg or timeout or other event.
 		 * !!! Other timer expirations may wake us.

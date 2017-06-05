@@ -3,6 +3,8 @@
 #include <nrf_clock.h>	// HAL
 #include <nrf_power.h>	// HAL
 
+#include "brownoutHandler.h"
+
 /*
  * ISR for Power and Clock devices.
  *
@@ -47,6 +49,12 @@ POWER_CLOCK_IRQHandler() {
 	// XXX if ! ( EVENT_HFCLKSTARTED || EVENTS_POFWARN ) assert programming bug
 	// an event that we don't handle properly
 
+	// Get fault address.
+	// Specific to case where MSP is used (w/o RTOS)
+	uint32_t* stackPointer = (uint32_t*) __get_MSP();
+	uint32_t faultAddress = stackPointer[24/4]; // HW pushed PC onto stack 6 words into stack frame
+
+
 	if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED)) {
 
 		// Signal wake reason to sleep
@@ -56,38 +64,19 @@ POWER_CLOCK_IRQHandler() {
 		nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
 	}
 	if (nrf_power_event_check(NRF_POWER_EVENT_POFWARN)) {
-		//
+		/*
+		 * Brownout: write PC to flash so we can analyze later where in the app we brownout.
+		 */
+		brownoutWritePCToFlash(faultAddress);
 
 		/*
-		 * Brownout
-		 *
-		 * write PC to flash so we can analyze later where in the app we brownout.
-		 *
-		 * !!! The handler only try to write flash if not previously written.
+		 * Typically little further execution is possible (power is failing)
+		 * or we want to stop execution (at time of fault.)
 		 */
+		__asm("BKPT #0\n") ; // Break into the debugger, if it is running
 
-		/*
-		 * Preamble that passes SP to exception handler
-		 */
-		__asm(  ".syntax unified\n"
-		        "MOVS   R0, #4  // test mode\n"
-		        "MOV    R1, LR  \n"
-		        "TST    R0, R1  \n"
-		        "BEQ    _MSP    \n"
-		        "MRS    R0, PSP // load r0 with MainSP\n"
-		        "bl      ExceptionHandlerWritePCToFlash      \n"
-		        "_MSP:  \n"
-		        "MRS    R0, MSP // load r0 with ProcessSP\n"
-		        "bl      ExceptionHandlerWritePCToFlash      \n"
-#ifdef NRF51
-				".syntax divided \n"
-#endif
-		        );
-		// Never returns
+		while(true) {};
 	}
-	/*
-	 * I don't understand the .syntax divided need
-	 */
 }
 
 }	// extern C
