@@ -179,7 +179,14 @@ public:
 	static void shutdownDependencies();
 
 
-	// Make not xmitting or receiving.
+	/*
+	 * Abort: may come at any time.
+	 * Generally, when power is failing.
+	 *
+	 * Put radio in condition that it will use little power.
+	 * Make not xmitting or receiving.
+	 * Then the chip will unpower it automagically.
+	 */
 	static void abortUse();
 
 	/*

@@ -156,7 +156,10 @@ bool Radio::isEnabledInterruptForMsgReceived() {
 	return device.isEnabledInterruptForDisabledEvent();	// FUTURE && nvic.isEnabledRadioIRQ();
 }
 
-void Radio::disableInterruptForEndTransmit() { device.disableInterruptForDisabledEvent(); }
+/*
+ * Currently, semantics are same as for MsgReceived.
+ */
+void Radio::disableInterruptForEndTransmit() { disableInterruptForMsgReceived(); }
 
 bool Radio::isEnabledInterruptForEndTransmit() { return device.isEnabledInterruptForDisabledEvent(); }
 #endif
@@ -220,9 +223,18 @@ void Radio::setMsgReceivedCallback(void (*onRcvMsgCallback)()){
 
 
 void Radio::abortUse() {
+	// Disable interrupt required for startDisableTask()
+	disableInterruptForMsgReceived();
 	startDisableTask();
-	// May be a delay until radio is disabled i.e. ready for next task
+	/*
+	 * Might be a delay until radio is disabled.
+	 * Here, we don't wait.
+	 * EVENTS_DISABLED may get set soon.
+	 */
+	state == Idle;
 }
+
+
 bool Radio::isInUse() { return ! device.isDisabledState(); }
 
 void Radio::spinUntilDisabled() {
@@ -427,6 +439,9 @@ void Radio::startTXTask() {
 }
 
 void Radio::startDisableTask() {
+	/*
+	 * !!! Require caller to disable interrupt.
+	 */
 	assert(!isEnabledInterruptForEndTransmit());
 	device.clearDisabledEvent();
 	device.startDisablingTask();
