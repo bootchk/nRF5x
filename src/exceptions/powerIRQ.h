@@ -1,9 +1,9 @@
 
+#include <exceptions/brownoutManager.h>
 #include <cassert>
 #include <nrf_clock.h>	// HAL
 #include <nrf_power.h>	// HAL
 
-#include "brownoutHandler.h"
 
 /*
  * ISR for Power and Clock devices.
@@ -28,6 +28,10 @@
  * This file is included into hfClock.cpp
  * If the app uses hfClock, then the linker overwrites the weak handler with this one.
  */
+
+extern BrownoutManager brownoutManager;
+
+
 
 
 // C so overrides weak handler
@@ -74,7 +78,7 @@ POWER_CLOCK_IRQHandler() {
 		/*
 		 * Brownout: write PC to flash so we can analyze later where in the app we brownout.
 		 */
-		brownoutWritePCToFlash(faultAddress);
+		brownoutManager.recordToFlash(faultAddress);
 
 		/*
 		 * Typically little further execution is possible (power is failing)

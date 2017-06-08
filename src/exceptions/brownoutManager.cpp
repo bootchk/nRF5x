@@ -1,10 +1,21 @@
 
-#include "brownoutHandler.h"
-
+#include <exceptions/brownoutManager.h>
 #include "../drivers/customFlash.h"
 #include "../drivers/powerComparator.h"
 
-void brownoutWritePCToFlash(uint32_t faultAddress) {
+
+namespace {
+
+BrownoutCallback callback = nullptr;
+
+}
+
+
+void BrownoutManager::registerCallback(BrownoutCallback aCallback) {
+	callback = aCallback;
+}
+
+void BrownoutManager::recordToFlash(uint32_t faultAddress) {
 	/*
 	 * Since for some power supplies, the system may repeatedly brownout and POR,
 	 * and since flash is not writeable more than once,
@@ -23,7 +34,14 @@ void brownoutWritePCToFlash(uint32_t faultAddress) {
 	 * This takes power, and up to 300uSeconds.
 	 * It might not succeed in writing to flash, since power is failing
 	 */
-	CustomFlash::tryWriteIntAtIndex(BrownoutPCIndex, faultAddress);
+
+	if (callback != nullptr) {
+		// Record what callback returns
+		CustomFlash::tryWriteIntAtIndex(BrownoutPCIndex, callback());
+	}
+	else {
+		CustomFlash::tryWriteIntAtIndex(BrownoutPCIndex, faultAddress);
+	}
 
 	/*
 	 * This is not designed rigorously for the continuation.

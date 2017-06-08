@@ -20,6 +20,7 @@
 #include "exceptions/faultHandlers.h"
 #include "exceptions/powerAssertions.h"
 #include "exceptions/resetAssertions.h"
+#include "exceptions/brownoutManager.h"
 
 // Expose certain  drivers not wrapped in modules yet
 // TODO module instead of function
