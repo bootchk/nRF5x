@@ -24,10 +24,11 @@
 
 
 typedef enum {
-	NotSetByIRQ = 2,	//
+	Cleared = 2,	//
 	MsgReceived,
 	SleepTimerExpired,
-	CounterOverflowOrOtherTimerExpired
+	CounterOverflowOrOtherTimerExpired,
+	Unknown
 } ReasonForWake;
 
 

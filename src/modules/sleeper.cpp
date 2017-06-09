@@ -19,7 +19,7 @@ LongClockTimer* timerService;
 
 OSTime maxSaneTimeout = LongClockTimer::MaxTimeout;	// defaults to max a Timer allows
 
-ReasonForWake reasonForWake = NotSetByIRQ;
+ReasonForWake reasonForWake = Cleared;
 
 
 
@@ -43,7 +43,8 @@ void timerIRQCallback(TimerInterruptReason reason) {
 	switch(reason) {
 	case SleepTimerCompare:
 		switch(reasonForWake) {
-		case NotSetByIRQ:
+		case Cleared:
+		case Unknown:
 		case CounterOverflowOrOtherTimerExpired:
 			// Higher priority reason
 			reasonForWake = SleepTimerExpired;
@@ -66,9 +67,10 @@ void timerIRQCallback(TimerInterruptReason reason) {
 		 * XXX simpler to use separate peripheral for other timers.
 		 */
 		switch(reasonForWake) {
-		case NotSetByIRQ:
+		case Cleared:
 			reasonForWake = CounterOverflowOrOtherTimerExpired;
 			break;
+		case Unknown:
 		case MsgReceived:
 		case SleepTimerExpired:
 		case CounterOverflowOrOtherTimerExpired:
@@ -76,7 +78,7 @@ void timerIRQCallback(TimerInterruptReason reason) {
 			break;
 		}
 	}
-	// assert reasonForWake is not NotSetByIRQ
+	// assert reasonForWake is not Cleared
 }
 
 } // namespace
@@ -183,5 +185,5 @@ ReasonForWake Sleeper::getReasonForWake() {
 }
 
 
-void Sleeper::clearReasonForWake() { reasonForWake = NotSetByIRQ; }
+void Sleeper::clearReasonForWake() { reasonForWake = Cleared; }
 
