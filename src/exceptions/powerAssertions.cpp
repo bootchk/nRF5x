@@ -60,9 +60,6 @@ void assertNeverUsedDevicesOff() {
 	// GPIO's inputs and disconnected
 	// TODO only the ones we don't use
 
-	// DCDC power regulator disabled
-	assert(NRF_POWER->DCDCEN == 0);
-
 	// Pending flags prevent sleep even if interrupts disabled
 	//NVIC_ClearPendingIRQ(FPU_IRQn);
 	assert( ! NVIC_GetPendingIRQ(RADIO_IRQn));
@@ -105,6 +102,9 @@ void assertUltraLowPower() {
 	 */
 
 	assert( FlashController::isDisabled());
+
+	// DCDC power regulator disabled
+	assert(NRF_POWER->DCDCEN == 0);
 
 	// TODO for nrf52 can assert not in debug mode
 }
