@@ -137,13 +137,13 @@ void genericSysTickHandler(void) { resetOrHalt(); }
  * !!! The calling app must reference some symbol in this file to insure
  * that this definition overwrites the weak def earlier at link time.
  */
-__attribute__ ((interrupt ("IRQ")))
+//__attribute__ ((interrupt ("IRQ")))
 void
 HardFault_Handler() {
 	// Get fault address.
 	// Specific to case where MSP is used (w/o RTOS)
 	uint32_t* stackPointer = (uint32_t*) __get_MSP();
-	uint32_t faultAddress = stackPointer[24/4]; // HW pushed PC onto stack 6 words into stack frame
+	uint32_t faultAddress = stackPointer[12]; // HW pushed PC onto stack 6 words into stack frame
 
 	// Only write it once, for first hard fault
 	CustomFlash::tryWriteIntAtIndex(HardFaultPCIndex, faultAddress);

@@ -30,26 +30,27 @@ enum FlagIndex {
 	// First three are Program Counters of exceptions or Line Number, not flags
 	HardFaultPCIndex = 0,			// hw fault PC
 	BrownoutPCIndex,				// brownout PC
+	BrownoutCallbackIndex,			// brownout phase of algorithm
 	LineNumberIndex, 				// line no of assert
 
-	// Flags
-	ExitFlagIndex,					// undistinguished exit
-	ExcessPowerEventFlagIndex,		// 4. Vcc above 3.6V
-	WorkEventFlagIndex,				// Worked e.g. flashed LED
-	NoPowerToFish,					// Vcc fell below 2.5V
-	NoPowerToStartSyncSlot,			// "
-	NoPowerToHalfSyncSlot,			// 8. "
+	// Flags. Normal algorithm stepping is captured in Phase.
+	/*
+	 * Bugs caught by code for robustness.
+	 */
+	ExitFlagIndex,					// 4. undistinguished exit
 	UnexpectedWake,					// sleep ended but timer not expired
 	UnexpectedMsg,					// Radio IRQ while radio disabled?
 	UnexpectedWakeWhileListen,		// radio on but woken for unknown reason
-	StartSync,						// 12. enough power to listen/send sync
-	PauseSync,						// not enough power to listen/send sync
-	Fished,						    //
-	ListenHalf,						//
-	ListenFull,                     // 16.
-	Merge,                          //
-	SleepRemainder,
-	EndSyncPeriod
+	OverSlept,						// 8.
+	/*
+	 * Rare but expected events.
+	 */
+	ExcessPowerEventFlagIndex,		// Vcc above 3.6V
+	WorkEventFlagIndex,				// Worked e.g. flashed LED
+	NoPowerToFish,					// Vcc fell below 2.5V
+	NoPowerToStartSyncSlot,			// 12. "
+	NoPowerToHalfSyncSlot,			//  "
+	PauseSync,					    // not enough power to listen/send sync
 };
 
 

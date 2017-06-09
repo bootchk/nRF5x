@@ -36,12 +36,13 @@ void BrownoutManager::recordToFlash(uint32_t faultAddress) {
 	 */
 
 	if (callback != nullptr) {
-		// Record what callback returns
-		CustomFlash::tryWriteIntAtIndex(BrownoutPCIndex, callback());
+		// Record what callback returns e.g. Phase of algorithm
+		CustomFlash::tryWriteIntAtIndex(BrownoutCallbackIndex, callback());
 	}
-	else {
-		CustomFlash::tryWriteIntAtIndex(BrownoutPCIndex, faultAddress);
-	}
+
+	// Also record faultAddress (another indication of location in algorithm
+	CustomFlash::tryWriteIntAtIndex(BrownoutPCIndex, faultAddress);
+
 
 	/*
 	 * This is not designed rigorously for the continuation.

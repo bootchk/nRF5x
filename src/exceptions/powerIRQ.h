@@ -63,7 +63,7 @@ POWER_CLOCK_IRQHandler() {
 	// Get fault address.
 	// Specific to case where MSP is used (w/o RTOS)
 	uint32_t* stackPointer = (uint32_t*) __get_MSP();
-	uint32_t faultAddress = stackPointer[24/4]; // HW pushed PC onto stack 6 words into stack frame
+	uint32_t faultAddress = stackPointer[12]; // HW pushed PC onto stack 6 words into stack frame
 
 
 	if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED)) {

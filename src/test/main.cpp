@@ -12,15 +12,12 @@
  */
 
 
-
 #include <modules/longClockTimer.h>
 #include "modules/radio.h"
-
 
 #include "drivers/nvic.h"
 #include "drivers/powerSupply.h"
 #include "drivers/hfClock.h"
-#include "drivers/customFlash.h"
 
 #include "services/logger.h"
 
@@ -47,8 +44,6 @@ int main() {
 
 
 	longClockTimer.init(&nvic);
-
-	CustomFlash::writeZeroAtIndex( StartSync );
 
 	radio.init(
 			&nvic,
