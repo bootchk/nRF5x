@@ -26,6 +26,6 @@ public:
 	/*
 	 * Register function that returns important information at time of brownout.
 	 */
-	void registerCallbacks(BrownoutCallback, BrownoutCallback);
+	void registerCallbacks(BrownoutCallback, BrownoutCallback, BrownoutCallback);
 };
 

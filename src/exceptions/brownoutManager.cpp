@@ -8,13 +8,18 @@ namespace {
 
 BrownoutCallback callback1 = nullptr;
 BrownoutCallback callback2 = nullptr;
+BrownoutCallback callback3 = nullptr;
 
 }
 
 
-void BrownoutManager::registerCallbacks(BrownoutCallback aCallback, BrownoutCallback bCallback) {
+void BrownoutManager::registerCallbacks(
+		BrownoutCallback aCallback,
+		BrownoutCallback bCallback,
+		BrownoutCallback cCallback) {
 	callback1 = aCallback;
 	callback2 = bCallback;
+	callback3 = bCallback;
 }
 
 
@@ -44,6 +49,9 @@ void BrownoutManager::recordToFlash(uint32_t faultAddress) {
 	}
 	if (callback2 != nullptr) {
 		CustomFlash::tryWriteIntAtIndex(BrownoutCallback2Index, callback2());
+	}
+	if (callback2 != nullptr) {
+		CustomFlash::tryWriteIntAtIndex(BrownoutCallback3Index, callback2());
 	}
 
 	// Also record faultAddress (another indication of location in algorithm

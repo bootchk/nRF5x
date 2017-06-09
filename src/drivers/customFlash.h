@@ -53,6 +53,7 @@ enum FlagIndex {
 	PauseSync,					    // not enough power to listen/send sync
 
 	BrownoutCallback2Index,			// reason for wake
+	BrownoutCallback3Index,			// time of sleep
 };
 
 
