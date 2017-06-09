@@ -15,8 +15,8 @@ BrownoutCallback callback2 = nullptr;
 void BrownoutManager::registerCallbacks(BrownoutCallback aCallback, BrownoutCallback bCallback) {
 	callback1 = aCallback;
 	callback2 = bCallback;
-
 }
+
 
 void BrownoutManager::recordToFlash(uint32_t faultAddress) {
 	/*

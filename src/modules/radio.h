@@ -96,7 +96,12 @@ class Radio {
 
 public:
 
-	static RadioDevice device;	// Radio owns instance of RadioDevice
+	// Radio owns instance of RadioDevice
+	static RadioDevice device;
+
+	// Radio knows and exposes to others
+	static HfCrystalClock* hfCrystalClock;
+	static DCDCPowerSupply* dcdcPowerSupply;
 
 	// Define protocol lengths
 
@@ -139,9 +144,6 @@ public:
 	static const uint8_t FrequencyIndex = 80;
 
 
-	// Radio knows and exposes to others
-	static HfCrystalClock* hfCrystalClock;
-
 
 	static void receivedEventHandler();
 
@@ -151,7 +153,7 @@ public:
 	static void init(
 			// Used devices
 			Nvic*,
-			PowerSupply*,
+			DCDCPowerSupply*,
 			HfCrystalClock*
 			);
 

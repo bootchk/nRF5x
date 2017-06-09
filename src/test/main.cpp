@@ -28,7 +28,7 @@ Nvic nvic;
 
 
 HfCrystalClock hfClock;
-PowerSupply powerSupply;
+DCDCPowerSupply powerSupply;
 Radio radio;
 
 void msgReceivedCallback();

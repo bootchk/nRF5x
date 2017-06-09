@@ -38,7 +38,6 @@ namespace {
 
 // protocol module uses but doesn't own
 Nvic* nvic;
-PowerSupply* powerSupply;
 
 
 void (*aRcvMsgCallback)() = nullptr;
@@ -71,10 +70,11 @@ RADIO_IRQHandler()  {
 
 
 
-
+// Class data
+RadioDevice Radio::device;
 
 HfCrystalClock* Radio::hfCrystalClock;
-RadioDevice Radio::device;
+DCDCPowerSupply* Radio::dcdcPowerSupply;
 
 
 
@@ -190,20 +190,15 @@ void Radio::dispatchPacketCallback() {
 
 void Radio::init(
 		Nvic* aNvic,
-		PowerSupply* aPowerSupply,
+		DCDCPowerSupply* aPowerSupply,
 		HfCrystalClock* aHfClock
 		)
 {
 	nvic = aNvic;
-	powerSupply = aPowerSupply;
+	dcdcPowerSupply = aPowerSupply;
 	hfCrystalClock = aHfClock;
 
 	// Not require radio device power on
-
-	// See Nordic docs: this saves power for certain high Vcc and large currents (e.g. radio)
-	// The radio manages its use automatically?
-	// There is a startup time before transmission can subsequently be started.
-	powerSupply->enableDCDCPower();	// Radio device wants this enabled.
 
 	// assert radio is configured to device reset defaults, which is non-functional.
 	configurePhysicalProtocol();
