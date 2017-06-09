@@ -39,6 +39,14 @@ void powerOffPeripherals() {
 
 
 
+} // namespace
+
+
+
+
+
+extern "C" {
+
 /*
  * Conditionally compile:
  * - Release mode: reset and keep trying to function
@@ -55,14 +63,6 @@ void resetOrHalt() {
     sleepForeverInLowPower();
 #endif // DEBUG
 }
-
-} // namespace
-
-
-
-
-
-extern "C" {
 
 /*
  * A fault has occurred.

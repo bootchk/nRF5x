@@ -1,8 +1,11 @@
 
-#include <exceptions/brownoutManager.h>
+
 #include <cassert>
 #include <nrf_clock.h>	// HAL
 #include <nrf_power.h>	// HAL
+
+#include "brownoutManager.h"
+#include "faultHandlers.h"
 
 
 /*
@@ -30,7 +33,6 @@
  */
 
 extern BrownoutManager brownoutManager;
-extern void resetOrHalt();
 
 
 
@@ -84,14 +86,13 @@ POWER_CLOCK_IRQHandler() {
 		 * Typically little further execution is possible (power is failing)
 		 * or we want to stop execution (at time of fault.)
 		 */
-		resetOrHalt();
 		/*
-		 * This causes an additional hard fault on Cortext M0
+		 * BKPT causes an additional hard fault on Cortext M0
 		 * __asm("BKPT #0\n") ; // Break into the debugger, if it is running
 		 */
 
+		resetOrHalt();
 
-		while(true) {};
 	}
 }
 
