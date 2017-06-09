@@ -6,13 +6,16 @@
 
 namespace {
 
-BrownoutCallback callback = nullptr;
+BrownoutCallback callback1 = nullptr;
+BrownoutCallback callback2 = nullptr;
 
 }
 
 
-void BrownoutManager::registerCallback(BrownoutCallback aCallback) {
-	callback = aCallback;
+void BrownoutManager::registerCallbacks(BrownoutCallback aCallback, BrownoutCallback bCallback) {
+	callback1 = aCallback;
+	callback2 = bCallback;
+
 }
 
 void BrownoutManager::recordToFlash(uint32_t faultAddress) {
@@ -35,9 +38,12 @@ void BrownoutManager::recordToFlash(uint32_t faultAddress) {
 	 * It might not succeed in writing to flash, since power is failing
 	 */
 
-	if (callback != nullptr) {
-		// Record what callback returns e.g. Phase of algorithm
-		CustomFlash::tryWriteIntAtIndex(BrownoutCallbackIndex, callback());
+	// Record what callback returns e.g. Phase of algorithm
+	if (callback1 != nullptr) {
+		CustomFlash::tryWriteIntAtIndex(BrownoutCallbackIndex, callback1());
+	}
+	if (callback2 != nullptr) {
+		CustomFlash::tryWriteIntAtIndex(BrownoutCallback2Index, callback2());
 	}
 
 	// Also record faultAddress (another indication of location in algorithm

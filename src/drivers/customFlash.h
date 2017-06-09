@@ -30,7 +30,7 @@ enum FlagIndex {
 	// First three are Program Counters of exceptions or Line Number, not flags
 	HardFaultPCIndex = 0,			// hw fault PC
 	BrownoutPCIndex,				// brownout PC
-	BrownoutCallbackIndex,			// brownout phase of algorithm
+	BrownoutCallbackIndex,			// phase of algorithm
 	LineNumberIndex, 				// line no of assert
 
 	// Flags. Normal algorithm stepping is captured in Phase.
@@ -51,6 +51,8 @@ enum FlagIndex {
 	NoPowerToStartSyncSlot,			// 12. "
 	NoPowerToHalfSyncSlot,			//  "
 	PauseSync,					    // not enough power to listen/send sync
+
+	BrownoutCallback2Index,			// reason for wake
 };
 
 
