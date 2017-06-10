@@ -7,7 +7,7 @@
 
 #include "../drivers/mcu.h"
 #include "../drivers/nvic.h"
-#include "../modules/radio.h"
+#include "../radio/radio.h"
 #include "../drivers/customFlash.h"
 
 #include "faultHandlers.h"

@@ -3,7 +3,7 @@
 #include "nrf.h"
 #include "nrf_clock.h"
 
-#include "../modules/radio.h"
+#include "../radio/radio.h"
 #include "../drivers/adc.h"
 #include "../drivers/powerComparator.h"
 #include "../drivers/flashController.h"
