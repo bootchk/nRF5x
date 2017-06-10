@@ -12,9 +12,10 @@
 #include "services/logger.h"
 #include "services/ledFlasher.h"
 
+#include "radio/radio.h"
+
 #include "modules/powerManager.h"
 #include "modules/sleeper.h"
-#include "modules/radio.h"
 #include "modules/ledService.h"
 
 #include "exceptions/faultHandlers.h"

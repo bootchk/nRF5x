@@ -89,7 +89,8 @@ void assertUltraLowPower() {
 
 	assertNeverUsedDevicesOff();
 
-	assert(!Radio::isInUse());
+	//assert(!Radio::isInUse());
+	assert(!Radio::isPowerOn());
 
 	assert(! HfCrystalClock::isRunning());
 

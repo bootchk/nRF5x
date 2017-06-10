@@ -22,6 +22,27 @@
  * Per Nordic document "Migrating nrf51 to nrf52", you must read event register after clearing to flush ARM write buffer.
  */
 
+// TODO
+/*
+ * If Nordic chip really manages power for radio without this,
+ * another implementation is required which does nothing but set and return a local state.
+ * Also, if POWER is not toggled, configuration need only be done once in the calling app.
+ * And the implementation of configurePhys..() could do it only on the first call?
+ *
+ * For now,
+ * not sure that both nrf51 and nrf52 really power down radio correctly.
+ * Even if they do, it could be going to an idle state (whose power is undefined by Nordic docs)
+ * and this might save more power?
+ */
+void RadioDevice::powerOn() { NRF_RADIO->POWER = 1; MCU::flushWriteCache(); }
+void RadioDevice::powerOff() { NRF_RADIO->POWER = 0; MCU::flushWriteCache(); }
+/*
+ * Reset condition is power on.
+ * !!! Radio registers are undefined while powered off.
+ * !!! Configuration is lost when powered off.
+ */
+bool RadioDevice::isPowerOn() { return NRF_RADIO->POWER; }
+
 
 // FUTURE inline
 

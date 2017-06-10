@@ -165,6 +165,16 @@ public:
 
 
 	/*
+	 * These are generic.
+	 * They might be impotent on some platforms.
+	 * Might not be necessary on Nordic.
+	 */
+	static void powerOn();
+	static void powerOff();
+	static bool isPowerOn();
+
+
+	/*
 	 * Configure parameters of physical protocol: freq, addr, CRC, bitrate, etc
 	 */
 	static bool isConfigured();

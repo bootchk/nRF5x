@@ -226,7 +226,7 @@ void Radio::abortUse() {
 	 * Here, we don't wait.
 	 * EVENTS_DISABLED may get set soon.
 	 */
-	state == Idle;
+	state = Idle;
 }
 
 

@@ -60,6 +60,16 @@ public:
 	static bool isCRCValid();
 	static uint8_t receivedLogicalAddress();
 
+	/*
+	 * ??? Might not be necessary for Nordic.
+	 * Anyway, Radio module requires this.
+	 * Nordic: NRF_RADIO->POWER is just for reset and does not actually power off/on the radio.
+	 * The PowerManager powers on the radio automatically as necessary (when the radio is InUse.)
+	 */
+	static void powerOn();
+	static void powerOff();
+	static bool isPowerOn();
+
 	// Tasks and events
 	static void startRXTask();
 	static void startTXTask();
@@ -99,10 +109,4 @@ public:
 #endif
 
 	static void setShortcutsAvoidSomeEvents();
-
-/*
- * There is no API for power to the radio.
- * Nordic: NRF_RADIO->POWER is just for reset and does not actually power off/on the radio.
- * The PowerManager powers on the radio automatically as necessary (when the radio is InUse.)
- */
 };
