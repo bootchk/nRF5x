@@ -14,12 +14,12 @@ BrownoutCallback callback3 = nullptr;
 
 
 void BrownoutManager::registerCallbacks(
-		BrownoutCallback aCallback,
-		BrownoutCallback bCallback,
-		BrownoutCallback cCallback) {
-	callback1 = aCallback;
-	callback2 = bCallback;
-	callback3 = bCallback;
+		BrownoutCallback a,
+		BrownoutCallback b,
+		BrownoutCallback c) {
+	callback1 = a;
+	callback2 = b;
+	callback3 = c;
 }
 
 
@@ -50,8 +50,8 @@ void BrownoutManager::recordToFlash(uint32_t faultAddress) {
 	if (callback2 != nullptr) {
 		CustomFlash::tryWriteIntAtIndex(BrownoutCallback2Index, callback2());
 	}
-	if (callback2 != nullptr) {
-		CustomFlash::tryWriteIntAtIndex(BrownoutCallback3Index, callback2());
+	if (callback3 != nullptr) {
+		CustomFlash::tryWriteIntAtIndex(BrownoutCallback3Index, callback3());
 	}
 
 	// Also record faultAddress (another indication of location in algorithm
