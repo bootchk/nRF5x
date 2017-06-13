@@ -41,7 +41,7 @@ void RadioDevice::powerOff() { NRF_RADIO->POWER = 0; MCU::flushWriteCache(); }
  * !!! Radio registers are undefined while powered off.
  * !!! Configuration is lost when powered off.
  */
-bool RadioDevice::isPowerOn() { return NRF_RADIO->POWER; }
+bool RadioDevice::isPowerOn() { return NRF_RADIO->POWER == 1; }
 
 
 // FUTURE inline
