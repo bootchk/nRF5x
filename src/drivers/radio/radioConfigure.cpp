@@ -112,21 +112,31 @@ void RadioDevice::configureStaticPayloadFormat(const uint8_t payloadCount, const
 
 
 
-
-void RadioDevice::configurePacketAddress(BufferPointer data){
+/*
+ *  Give radio pointer to buffer (for packet) in memory.
+ *  Pointer must fit in 4 byte register.
+ *
+ *  Buffer must be in "DATA RAM" i.e. writable memory,
+ *  else per datasheet, "may result" in Hardfault (why not "shall").
+ *
+ *  Buffer is volatile: both RADIO (receive) and mcu (xmit) may write it.
+ *
+ *  Implementation is portable until platform (ARM) pointers exceed 32-bit.
+ *  Cast a pointer as ordinary 32-bit int required by register.
+ */
+void RadioDevice::configurePacketAddress(const BufferPointer bufferPtr){
 	/*
-	 *  point to packet in memory, pointer must fit in 4 byte register
+	 * Radio must be powered on.
 	 *
-	 *  Address pointed to must be in "DATA RAM" i.e. writable memory,
-	 *  else per datasheet, "may result" in Hardfault (why not "shall").
-	 *
-	 *  Address pointed to is volatile: both RADIO and mcu may write it.
-	 *
-	 *  Implementation is portable until platform (ARM) pointers exceed 32-bit.
-	 *  Cast a pointer as ordinary 32-bit int required by register.
+	 * Radio must be in certain states:
+	 * - DISABLED
+	 * - END
+	 * See discussion on forum.
 	 */
-	NRF_RADIO->PACKETPTR = (uint32_t) data;
-	assert((uint8_t *) (NRF_RADIO->PACKETPTR) ==  data);
+	assert(isPowerOn());
+	assert(isDisabledState());
+	NRF_RADIO->PACKETPTR = reinterpret_cast<uint32_t>( bufferPtr);
+	assert(reinterpret_cast<BufferPointer>(NRF_RADIO->PACKETPTR) ==  bufferPtr);
 }
 
 
