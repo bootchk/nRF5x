@@ -42,9 +42,11 @@ ReasonForWake reasonForWake = Cleared;
 void timerIRQCallback(TimerInterruptReason reason) {
 	switch(reason) {
 	case SleepTimerCompare:
+		// Prioritize reasonForWake
 		switch(reasonForWake) {
 		case Cleared:
 		case Unknown:
+		case BrownoutWarning:
 		case CounterOverflowOrOtherTimerExpired:
 			// Higher priority reason
 			reasonForWake = SleepTimerExpired;
@@ -70,6 +72,8 @@ void timerIRQCallback(TimerInterruptReason reason) {
 		case Cleared:
 			reasonForWake = CounterOverflowOrOtherTimerExpired;
 			break;
+
+		case BrownoutWarning:
 		case Unknown:
 		case MsgReceived:
 		case SleepTimerExpired:

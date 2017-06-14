@@ -42,6 +42,9 @@ void genericSysTickHandler(); // OS clock
 #endif
 
 
+void HardFault_Handler();
+
+
 // M0 bus faults and other hw faults
 void genericHardFaultHandler();
 

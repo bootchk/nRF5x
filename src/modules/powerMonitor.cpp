@@ -2,7 +2,11 @@
 #include "../drivers/powerComparator.h"
 
 
-
+/*
+ * Much of the complexity of implementation is:
+ * multiplexing simple Vcc measurement with brownout detection.
+ * Might be easier to use ADC for simple Vcc measurement.
+ */
 
 namespace {
 
@@ -65,22 +69,42 @@ void tryEnableBrownoutDetection() {
 }
 
 
+
 /*
- * This takes care to maintain the alternate use of POFCON: brownout detect.
- *
- * It temporarily disables brownout interrupt, then restores it.
+ * Agnostic of brownout detection.
+ * Requires PowerComparator to be not in use for brownout detection.
  */
 bool isVddGreaterThanThreshold(nrf_power_pof_thr_t threshold) {
 	bool result;
-
-	// disable brownout detection temporarily while we use device for other purpose
-	PowerComparator::disableInterrupt();
 
 	// get a new measurement on different threshold
 	PowerComparator::setThresholdAndDisable(threshold);
 	result = testVddGreaterThanThresholdThenDisable();
 
-	tryEnableBrownoutDetection();
+	return result;
+}
+
+/*
+ * This takes care to maintain the alternate use of POFCON: brownout detect.
+ *
+ * It temporarily disables brownout interrupt, then restores it.
+ */
+bool isVddGreaterThanThresholdWithBrownoutDetection(nrf_power_pof_thr_t threshold) {
+	bool result;
+
+	// disable brownout detection temporarily while we use device for other purpose
+	PowerComparator::disableInterrupt();
+
+	// get result to be returned
+	result = isVddGreaterThanThreshold(threshold);
+
+	/*
+	 * After every call, restore PowerComparator to brownout detect if Vcc > brownout threshold.
+	 * We don't want an interrupt immediately if Vcc < brownout threshold.
+	 */
+	if (isVddGreaterThanThreshold(PowerMonitor::BrownoutThreshold)) {
+		tryEnableBrownoutDetection();
+	}
 
 	/*
 	 * Assert result valid.
@@ -91,20 +115,28 @@ bool isVddGreaterThanThreshold(nrf_power_pof_thr_t threshold) {
 }
 
 
-
 }  // namespace
 
 
 
 void PowerMonitor::enableBrownoutDetectMode() {
 	_brownoutDetectionMode = true;
-	// Detection not if effect until first call to
+	// Detection not effected until first call to isVddGreaterThan2xxx
 }
 
 
-bool PowerMonitor::isVddGreaterThan2_1V() { return isVddGreaterThanThreshold(NRF_POWER_POFTHR_V21); }
-bool PowerMonitor::isVddGreaterThan2_3V() { return isVddGreaterThanThreshold(NRF_POWER_POFTHR_V23); }
-bool PowerMonitor::isVddGreaterThan2_5V() { return isVddGreaterThanThreshold(NRF_POWER_POFTHR_V25); }
-bool PowerMonitor::isVddGreaterThan2_7V() { return isVddGreaterThanThreshold(NRF_POWER_POFTHR_V27); }
+void PowerMonitor::disableBrownoutDetection() {
+	PowerComparator::disableInterrupt();
+	PowerComparator::disable();
+	_brownoutDetectionMode = true;
+}
+
+/*
+ * !!! Side effect: enable brownout detection.
+ */
+bool PowerMonitor::isVddGreaterThan2_1V() { return isVddGreaterThanThresholdWithBrownoutDetection(NRF_POWER_POFTHR_V21); }
+bool PowerMonitor::isVddGreaterThan2_3V() { return isVddGreaterThanThresholdWithBrownoutDetection(NRF_POWER_POFTHR_V23); }
+bool PowerMonitor::isVddGreaterThan2_5V() { return isVddGreaterThanThresholdWithBrownoutDetection(NRF_POWER_POFTHR_V25); }
+bool PowerMonitor::isVddGreaterThan2_7V() { return isVddGreaterThanThresholdWithBrownoutDetection(NRF_POWER_POFTHR_V27); }
 
 

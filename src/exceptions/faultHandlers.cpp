@@ -137,7 +137,7 @@ void genericSysTickHandler(void) { resetOrHalt(); }
  * !!! The calling app must reference some symbol in this file to insure
  * that this definition overwrites the weak def earlier at link time.
  */
-//__attribute__ ((interrupt ("IRQ")))
+__attribute__ ((interrupt ("IRQ")))
 void
 HardFault_Handler() {
 	// Get fault address.

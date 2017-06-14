@@ -102,7 +102,7 @@ void Radio::receivedEventHandler(void)
     {
         /*
          * Probable programming error.
-         * We were awakened by an event other than the only enabled interrupt 'MsgReceived'
+         * We were awakened by a radio event other than the only enabled interrupt 'MsgReceived'
          * (which on some platforms is radio DISABLED)
          * Brownout and bus faults (DMA?) could come while mcu is sleeping.
 		 * Invalid op code faults can not come while mcu is sleeping.

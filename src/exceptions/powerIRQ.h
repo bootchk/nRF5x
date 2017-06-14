@@ -6,6 +6,8 @@
 
 #include "brownoutManager.h"
 #include "faultHandlers.h"
+#include "../modules/powerMonitor.h"
+#include "../modules/sleeper.h"
 
 
 /*
@@ -41,11 +43,7 @@ extern "C" {
 
 void POWER_CLOCK_IRQHandler();
 
-/*
- * If started event triggered event, set flag that sleeping loop reads.
- *
- *
- */
+
 __attribute__ ((interrupt ("IRQ")))
 void
 POWER_CLOCK_IRQHandler() {
@@ -69,8 +67,11 @@ POWER_CLOCK_IRQHandler() {
 
 
 	if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED)) {
-
+		// TODO use wakeReason for this
 		// Signal wake reason to sleep
+		/*
+		 * If started event triggered event, set flag that sleeping loop reads.
+		 */
 		didHFXOStartedInterruptFlag = true;
 
 		// Clear event so interrupt not triggered again.
@@ -83,16 +84,29 @@ POWER_CLOCK_IRQHandler() {
 		brownoutManager.recordToFlash(faultAddress);
 
 		/*
-		 * Typically little further execution is possible (power is failing)
-		 * or we want to stop execution (at time of fault.)
-		 */
-		/*
-		 * BKPT causes an additional hard fault on Cortext M0
+		 * Typically little further execution is possible (power is failing).
+		 *
+		 * Alternatives:
+		 * 1) stop execution (at time of fault.)
+		 * 2) continue, signal to others BrownoutWarning, and wait for actual BOR
+		 *
+		 * 1) BKPT causes an additional hard fault on Cortext M0
 		 * __asm("BKPT #0\n") ; // Break into the debugger, if it is running
+		 * 1) resetOrHalt();
+		 *   will enter infinite loop
 		 */
 
-		resetOrHalt();
+		/*
+		 *  2) Proceed and wait for actual BOR
+		 */
+		// Signal
+		Sleeper::setReasonForWake(BrownoutWarning);
 
+		// Disable further POFWARN events
+		nrf_power_event_clear(NRF_POWER_EVENT_POFWARN);
+		PowerMonitor::disableBrownoutDetection();
+
+		// return from interrupt
 	}
 }
 

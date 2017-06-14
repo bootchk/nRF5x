@@ -28,6 +28,7 @@ typedef enum {
 	MsgReceived,
 	SleepTimerExpired,
 	CounterOverflowOrOtherTimerExpired,
+	BrownoutWarning,
 	Unknown
 } ReasonForWake;
 
@@ -58,6 +59,7 @@ public:
 	static void cancelTimeout();
 
 	// Not in-lined, used by external libraries
+	static void setReasonForWake(ReasonForWake);	// not always used, internally
 	static ReasonForWake getReasonForWake();
 	static void clearReasonForWake();
 };

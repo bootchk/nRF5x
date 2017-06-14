@@ -42,9 +42,18 @@ public:
 	 *
 	 * Enables at lowest threshold that POFCON can detect.
 	 * Which may be lower/higher than you want.
+	 *
+	 * Current design: never disable the mode
 	 */
 	static void enableBrownoutDetectMode();
 
+	/*
+	 * No matter what the mode, disable brownout detection.
+	 *
+	 * Not change the mode, and brownout detection might be enabled later
+	 * (as soon as a call to isVddGreaterxxx determines that Vcc is above 2.1 again.
+	 */
+	static void disableBrownoutDetection();
 
 	/*
 	 * Simple tests of Vdd thresholds.
