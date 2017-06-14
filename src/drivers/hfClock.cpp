@@ -8,7 +8,7 @@
 #include "mcu.h"
 
 // See powerIRQ.cpp
-bool didHFXOStartedInterruptFlag = false;
+//bool didHFXOStartedInterruptFlag = false;
 
 // Include this source code so it always is linked in
 #include "../exceptions/powerIRQ.h"
@@ -119,24 +119,18 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 	assert(!nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED));
 
 	// assert interrupt is enabled
-	didHFXOStartedInterruptFlag = false;	// clear flag from ISR
-	start();
+
 	/*
-	 * sleep until IRQ signals started event.
-	 * !!! Other interrupts (clock overflow, led Timer 2 etc. may wake the sleep.)
-	 * Other interrupts may increase time between start() and sleep().
-	 * The max start time is 360uSec NRF52,
-	 * so there should be plenty of time to get asleep before interrupt occurs.
+	 * We should not be sleeping, but other low-priority reasons such as BrownoutWarning etc.
+	 * could be set and lost by this clear.
 	 */
-	while (! didHFXOStartedInterruptFlag) {
-		/*
-		 * !!! Event must come, else infinite loop.
-		 * Ignore other events from clock and other sources
-		 * e.g. timers for flashing LED's (whose interrupts will occur, but returns to this thread.)
-		 */
-		MCU::sleep();
-		// XXX Do not use MCU::sleep() directly and assert against other wakes
-	}
+	Sleeper::clearReasonForWake();
+	start();
+	// Event may have come already, but there is not a race
+
+	// Blocking
+	Sleeper::sleepUntilEvent(ReasonForWake::HFClockStarted);
+
 	// assert ISR cleared event.
 
 	// Do not disable interrupt.

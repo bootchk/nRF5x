@@ -67,12 +67,8 @@ POWER_CLOCK_IRQHandler() {
 
 
 	if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED)) {
-		// TODO use wakeReason for this
 		// Signal wake reason to sleep
-		/*
-		 * If started event triggered event, set flag that sleeping loop reads.
-		 */
-		didHFXOStartedInterruptFlag = true;
+		Sleeper::setReasonForWake(ReasonForWake::HFClockStarted);
 
 		// Clear event so interrupt not triggered again.
 		nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
@@ -100,7 +96,7 @@ POWER_CLOCK_IRQHandler() {
 		 *  2) Proceed and wait for actual BOR
 		 */
 		// Signal
-		Sleeper::setReasonForWake(BrownoutWarning);
+		Sleeper::setReasonForWake(ReasonForWake::BrownoutWarning);
 
 		// Disable further POFWARN events
 		nrf_power_event_clear(NRF_POWER_EVENT_POFWARN);

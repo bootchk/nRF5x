@@ -14,23 +14,26 @@
  *
  * Uses a Clock/Timer.
  *
- * Specific other event that wakes: radio receives msg.
- *
  * Sleeping puts mcu to idle, low-power mode.
  * Note much power management is automatic by nrf52.
  * E.G. when sleep, all unused peripherals are powered off automatically.
  */
 
 
-
-typedef enum {
-	Cleared = 2,	//
+/*
+ * Reasons mcu woke.
+ * Interrupts wake the mcu, and ISR's set these.
+ * TODO make this exhaustive (there are a few other sleeps implemented.)
+ */
+enum class ReasonForWake{
+	Cleared = 2,	// The null state, not set by any ISR
 	MsgReceived,
 	SleepTimerExpired,
 	CounterOverflowOrOtherTimerExpired,
 	BrownoutWarning,
+	HFClockStarted,
 	Unknown
-} ReasonForWake;
+} ;
 
 
 
@@ -51,12 +54,18 @@ public:
 	 * Sleep until any system event, and set a Timer that generates a waking event after timeout ticks.
 	 * That is, sleep no more than timeout.
 	 * Could sleep less if any event wakes us.
-	 * Also sets ReasonForWake.
+	 * ISR's set ReasonForWake.
+	 * This may override ReasonForWake with higher priority reasons.
 	 */
 	static void sleepUntilEventWithTimeout(OSTime);
 
 	/* Cancel Timer that would generate waking event. */
 	static void cancelTimeout();
+
+	/*
+	 * Sleep until one specific event, ignoring all other events.
+	 */
+	static void sleepUntilEvent(ReasonForWake);
 
 	// Not in-lined, used by external libraries
 	static void setReasonForWake(ReasonForWake);	// not always used, internally

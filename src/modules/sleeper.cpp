@@ -19,7 +19,7 @@ LongClockTimer* timerService;
 
 OSTime maxSaneTimeout = LongClockTimer::MaxTimeout;	// defaults to max a Timer allows
 
-ReasonForWake reasonForWake = Cleared;
+ReasonForWake reasonForWake = ReasonForWake::Cleared;
 
 
 
@@ -44,19 +44,21 @@ void timerIRQCallback(TimerInterruptReason reason) {
 	case SleepTimerCompare:
 		// Prioritize reasonForWake
 		switch(reasonForWake) {
-		case Cleared:
-		case Unknown:
-		case BrownoutWarning:
-		case CounterOverflowOrOtherTimerExpired:
+		case ReasonForWake::Cleared:
+		case ReasonForWake::Unknown:
+		case ReasonForWake::BrownoutWarning:
+		case ReasonForWake::CounterOverflowOrOtherTimerExpired:
 			// Higher priority reason
-			reasonForWake = SleepTimerExpired;
+			reasonForWake = ReasonForWake::SleepTimerExpired;
 			// TODO assert that Timer current Count - Timer starting count == timeout
 			break;
-		case MsgReceived:
+		case ReasonForWake::MsgReceived:
 			// Do not overwrite highest priority: MsgReceived
 			break;
-		case SleepTimerExpired:
+		case ReasonForWake::SleepTimerExpired:
+		case ReasonForWake::HFClockStarted:
 			assert(false);	// Timer was started again before handling/clearing previous expiration.
+			// Or unexpected HFClockStart
 		}
 		break;
 
@@ -69,17 +71,19 @@ void timerIRQCallback(TimerInterruptReason reason) {
 		 * XXX simpler to use separate peripheral for other timers.
 		 */
 		switch(reasonForWake) {
-		case Cleared:
-			reasonForWake = CounterOverflowOrOtherTimerExpired;
+		case ReasonForWake::Cleared:
+			reasonForWake = ReasonForWake::CounterOverflowOrOtherTimerExpired;
 			break;
 
-		case BrownoutWarning:
-		case Unknown:
-		case MsgReceived:
-		case SleepTimerExpired:
-		case CounterOverflowOrOtherTimerExpired:
+		case ReasonForWake::BrownoutWarning:
+		case ReasonForWake::Unknown:
+		case ReasonForWake::MsgReceived:
+		case ReasonForWake::SleepTimerExpired:
+		case ReasonForWake::CounterOverflowOrOtherTimerExpired:
 			// Reason is already higher priority
 			break;
+		case ReasonForWake::HFClockStarted:
+			assert(false);	// Design does not user timer while HF clock is starting
 		}
 	}
 	// assert reasonForWake is not Cleared
@@ -114,7 +118,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		 * Don't sleep, but set reason for waking.
 		 * I.E. simulate a sleep.
 		 */
-		reasonForWake = SleepTimerExpired;
+		reasonForWake = ReasonForWake::SleepTimerExpired;
 	}
 	else { // timeout >= the min that clock supports
 
@@ -167,6 +171,29 @@ void Sleeper::cancelTimeout(){
 }
 
 
+
+void Sleeper::sleepUntilEvent(ReasonForWake reason){
+	/*
+	 * sleep until IRQ signals started event.
+	 * !!! Other interrupts (brownout, clock overflow, led Timer 2 etc. may wake the sleep.)
+	 * Other interrupts may increase time between start() and sleep().
+	 * The max start time is 360uSec NRF52,
+	 * so there should be plenty of time to get asleep before interrupt occurs.
+	 */
+
+	while (Sleeper::getReasonForWake() != reason) {
+		/*
+		 * !!! Event must come, else infinite loop.
+		 * Ignore other events from clock and other sources
+		 * e.g. timers for flashing LED's (whose interrupts will occur, but returns to this thread.)
+		 */
+		MCU::sleep();
+		// TODO examine other reasons here and log abnormal ones such as brownout
+	}
+}
+
+
+
 /*
  * Called by RadioIRQ.
  * Not assert packet is valid.
@@ -179,7 +206,7 @@ void Sleeper::msgReceivedCallback() {
 	 * If msg arrives immediately after a timeout but before main has read reasonForWake,
 	 * the msg will be handled instead of the timeout.
 	 */
-	reasonForWake = MsgReceived;
+	reasonForWake = ReasonForWake::MsgReceived;
 }
 
 
@@ -189,5 +216,5 @@ ReasonForWake Sleeper::getReasonForWake() {
 }
 
 
-void Sleeper::clearReasonForWake() { reasonForWake = Cleared; }
+void Sleeper::clearReasonForWake() { reasonForWake = ReasonForWake::Cleared; }
 
