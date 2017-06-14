@@ -210,10 +210,13 @@ void Sleeper::msgReceivedCallback() {
 }
 
 
-ReasonForWake Sleeper::getReasonForWake() {
-	// Is an enum and compile time checked valid
-	return reasonForWake;
-}
+/*
+ * reasonForWake  is an enum class and compile time checked valid
+ */
+ReasonForWake Sleeper::getReasonForWake() { return reasonForWake; }
+void Sleeper::setReasonForWake(ReasonForWake reason) { reasonForWake = reason; }
+
+
 
 
 void Sleeper::clearReasonForWake() { reasonForWake = ReasonForWake::Cleared; }

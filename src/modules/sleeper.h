@@ -24,6 +24,8 @@
  * Reasons mcu woke.
  * Interrupts wake the mcu, and ISR's set these.
  * TODO make this exhaustive (there are a few other sleeps implemented.)
+ *
+ * Every sleeper must handle each of these reasons.  (enum class gives warning if not.)
  */
 enum class ReasonForWake{
 	Cleared = 2,	// The null state, not set by any ISR
