@@ -125,7 +125,10 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 	 */
 	Sleeper::clearReasonForWake();
 	start();
-	// Event may have come already, but there is not a race
+	/*
+	 * Event may have come already, but there is not a race to clear reason.
+	 * sleepUntilEvent does NOT clearReasonForWake.
+	 */
 
 	// Blocking
 	Sleeper::sleepUntilEvent(ReasonForWake::HFClockStarted);

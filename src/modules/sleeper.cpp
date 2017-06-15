@@ -215,9 +215,64 @@ void Sleeper::msgReceivedCallback() {
  */
 ReasonForWake Sleeper::getReasonForWake() { return reasonForWake; }
 void Sleeper::setReasonForWake(ReasonForWake reason) { reasonForWake = reason; }
-
-
-
-
 void Sleeper::clearReasonForWake() { reasonForWake = ReasonForWake::Cleared; }
+
+
+bool Sleeper::isWakeForTimerExpired() {
+	/*
+	 * assert woken from a sleep w/o radio
+	 * not assert that timer went off: it may yet set a new reason at any moment.
+	 * We don't clear reasonForWake just because an IRQ could set it at any moment.
+	 */
+	bool result = false;
+
+	// Expect wake by timeout, not by msg or other event
+	switch( getReasonForWake() ) {
+	case ReasonForWake::SleepTimerExpired:
+		result = true;
+		// assert time specified by timeoutFunc has elapsed.
+		break;
+
+	case ReasonForWake::CounterOverflowOrOtherTimerExpired:
+		/*
+		 * Normal
+		 * But do not end sleep.
+		 */
+		break;
+
+	case ReasonForWake::MsgReceived:
+		/*
+		 * Abnormal: Radio should be off.
+		 * But do not end sleep.
+		 */
+		//LogMessage::logUnexpectedMsg();
+		break;
+
+	case ReasonForWake::Unknown:
+		/*
+		 * Unexpected, probably a bug.
+		 * Radio is not in use can't receive
+		 * Woken by some interrupt (event?) not in the design.
+		 * But do not end sleep.
+		 */
+		//LogMessage::logUnexpectedWakeReason();
+		break;
+	case ReasonForWake::Cleared:
+		// Impossible, woken w/o any ISR setting reasonForWake
+		assert(false);
+		break;
+	case ReasonForWake::HFClockStarted:
+		// Impossible, not starting clock now
+		assert(false);
+		break;
+	case ReasonForWake::BrownoutWarning:
+		/*
+		 * Possible.  But we are already sleeping in lowest power.
+		 * Nothing more we can do but keep sleeping and check power before the next sync step.
+		 */
+		break;
+	}
+	return result;
+	// Returns whether timeout time has elapsed i.e. whether to stop sleeping loop
+}
 

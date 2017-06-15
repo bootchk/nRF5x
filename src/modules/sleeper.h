@@ -73,6 +73,11 @@ public:
 	static void setReasonForWake(ReasonForWake);	// not always used, internally
 	static ReasonForWake getReasonForWake();
 	static void clearReasonForWake();
+
+	/*
+	 * Specific to SyncSleeping: when sleeping without radio and not expecting any other events e.g. HFClockStarted
+	 */
+	static bool isWakeForTimerExpired();
 };
 
 
