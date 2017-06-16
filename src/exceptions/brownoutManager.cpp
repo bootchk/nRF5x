@@ -45,7 +45,7 @@ void BrownoutManager::recordToFlash(uint32_t faultAddress) {
 
 	// Record what callback returns e.g. Phase of algorithm
 	if (callback1 != nullptr) {
-		CustomFlash::tryWriteIntAtIndex(BrownoutCallbackIndex, callback1());
+		CustomFlash::tryWriteIntAtIndex(PhaseIndex, callback1());
 	}
 	if (callback2 != nullptr) {
 		CustomFlash::tryWriteIntAtIndex(BrownoutCallback2Index, callback2());
