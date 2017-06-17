@@ -19,7 +19,12 @@ LongClockTimer* timerService;
 
 OSTime maxSaneTimeout = LongClockTimer::MaxTimeout;	// defaults to max a Timer allows
 
-ReasonForWake reasonForWake = ReasonForWake::Cleared;
+/*
+ * Volatile because ISR's set it.
+ * However, ARM is atomic on 32-bit words
+ * so we don't need a critical section.
+ */
+volatile ReasonForWake reasonForWake = ReasonForWake::Cleared;
 
 
 
