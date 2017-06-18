@@ -66,7 +66,8 @@ bool PowerManager::isPowerExcess() {
 	// There is no adc device common to both families
 	bool result;
 #ifdef NRF52
-	return powerMonitor.isVddGreaterThan2_7V();
+	// By returning false, disable all app logic to shed power and prevent Vcc>Vmax
+	return false;	// powerMonitor.isVddGreaterThan2_7V();
 #elif NRF51
 	ADCResult value = adc.getVccProportionTo255();
 	// Need to use value smaller than 0xFF? say 3.4V
@@ -78,6 +79,16 @@ bool PowerManager::isPowerExcess() {
 	return result;
 }
 
+bool PowerManager::isPowerAboveUltraHigh(){
+	bool result;
+#ifdef NRF52
+	result = powerMonitor.isVddGreaterThan2_V();
+#elif NRF51
+	ADCResult value = adc.getVccProportionTo255();
+	result = (value >= ADC::Result3_2V);
+#endif
+	return result;
+}
 
 // Implemented using POFCON
 bool PowerManager::isPowerAboveHigh()     { return powerMonitor.isVddGreaterThan2_7V();}

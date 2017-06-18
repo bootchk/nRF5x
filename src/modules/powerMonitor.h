@@ -66,4 +66,8 @@ public:
 	static bool isVddGreaterThan2_3V();
 	static bool isVddGreaterThan2_5V();
 	static bool isVddGreaterThan2_7V();
+#ifdef NRF52
+	// This is the highest one that NRF52 supports (it has more granularity, but not much more range.)
+	static bool isVddGreaterThan2_8V();
+#endif
 };
