@@ -138,5 +138,8 @@ bool PowerMonitor::isVddGreaterThan2_1V() { return isVddGreaterThanThresholdWith
 bool PowerMonitor::isVddGreaterThan2_3V() { return isVddGreaterThanThresholdWithBrownoutDetection(NRF_POWER_POFTHR_V23); }
 bool PowerMonitor::isVddGreaterThan2_5V() { return isVddGreaterThanThresholdWithBrownoutDetection(NRF_POWER_POFTHR_V25); }
 bool PowerMonitor::isVddGreaterThan2_7V() { return isVddGreaterThanThresholdWithBrownoutDetection(NRF_POWER_POFTHR_V27); }
+#ifdef NRF52
+bool PowerMonitor::isVddGreaterThan2_8V() { return isVddGreaterThanThresholdWithBrownoutDetection(NRF_POWER_POFTHR_V28); }
+#endif
 
 
