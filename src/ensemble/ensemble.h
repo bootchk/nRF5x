@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../radio/radio.h"	// BufferPointer
+
+
 /*
  * Layer atop radio.
  *
@@ -40,11 +43,14 @@
  */
 // XXX make ensemble own radio.  Currently, other code calls radio methods.
 
+typedef void (*MsgReceivedCallback)();
+
+
 class Ensemble {
 public:
 	// In order generally called
 
-	static void init();
+	static void init(MsgReceivedCallback);
 
 	// Ensure ensemble devices ready
 	static void startup();
@@ -54,6 +60,9 @@ public:
 
 	// Non-blocking, but lag (deadtime) for rampup until can hear
 	static void startReceiving();
+
+	static bool isPacketCRCValid();
+	static BufferPointer getBufferAddress();
 
 	static void stopReceiving();
 

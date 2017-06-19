@@ -10,10 +10,11 @@
 
 
 
-void Ensemble::init() {
+void Ensemble::init(MsgReceivedCallback aCallback) {
 	// Only need configure radio.
 	// On some platforms, it stays configured.
 	Radio::configurePhysicalProtocol();
+	Radio::setMsgReceivedCallback(aCallback);
 }
 
 bool Ensemble::isConfigured(){
@@ -29,9 +30,14 @@ bool Ensemble::isLowPower() {
 #endif
 }
 
-bool Ensemble::isRadioInUse() {
-	return Radio::isInUse();
-}
+/*
+ * Methods simply to the Radio.
+ */
+bool Ensemble::isRadioInUse() 			   { return Radio::isInUse(); }
+BufferPointer Ensemble::getBufferAddress() { return Radio::getBufferAddress(); }
+bool Ensemble::isPacketCRCValid()          { return Radio::isPacketCRCValid(); }
+
+
 
 /*
  * Startup must be called before StartReceiving or Transmit
@@ -92,6 +98,7 @@ void Ensemble::startReceiving() {
 	 * We almost always will sleep before the radio is able to receive.
 	 */
 }
+
 
 
 void Ensemble::stopReceiving() {
