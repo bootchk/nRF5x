@@ -43,7 +43,7 @@ int main() {
 
 
 
-	longClockTimer.init(&nvic);
+	longClockTimer.start(&nvic);
 
 	radio.init(
 			&nvic,

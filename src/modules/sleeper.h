@@ -47,8 +47,6 @@ public:
 	static void msgReceivedCallback();
 
 
-	static void init();
-
 	/* maxSaneTimeout: max timeout a sane app should ask for. */
 	static void setSaneTimeout(OSTime maxSaneTimeout);
 

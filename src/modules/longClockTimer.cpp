@@ -151,7 +151,7 @@ RTC0_IRQHandler(void)
 }	// extern "C"
 
 
-void LongClockTimer::init(Nvic* nvic) {
+void LongClockTimer::start(Nvic* nvic) {
 
 	resetToNearZero();
 	// Later, a user (say SleepSyncAgent) can reset again

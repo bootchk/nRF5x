@@ -102,11 +102,6 @@ void timerIRQCallback(TimerInterruptReason reason) {
 
 
 
-// TODO not necessary
-void Sleeper::init() {
-	assert(LongClockTimer::isOSClockRunning());
-}
-
 void Sleeper::setSaneTimeout(OSTime maxAppTimeout) {
 	maxSaneTimeout = maxAppTimeout;
 }
