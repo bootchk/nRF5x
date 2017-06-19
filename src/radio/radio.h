@@ -9,14 +9,19 @@
 
 #include "../drivers/radio/types.h"	// BufferPointer
 
-
+// XXX enum class
 typedef enum {
 	Receiving,
 	Transmitting,
 	Idle,
 	PowerOff
-} RadioState;
+}RadioState;
 
+
+enum class RadioPowerState {
+	On,
+	Off
+};
 
 /*
  * High level driver for radio peripheral
@@ -166,7 +171,7 @@ public:
 
 	/*
 	 * These are generic.
-	 * They might be impotent on some platforms.
+	 * They might be impotent (mocked) on some platforms.
 	 * Might not be necessary on Nordic.
 	 */
 	static void powerOn();

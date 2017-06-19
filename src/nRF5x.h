@@ -12,6 +12,7 @@
 #include "services/logger.h"
 #include "services/ledFlasher.h"
 
+#include "ensemble/ensemble.h"
 #include "radio/radio.h"
 
 #include "modules/powerManager.h"

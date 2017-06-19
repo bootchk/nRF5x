@@ -1,9 +1,10 @@
+
 #include <cassert>
 
 #include "nrf.h"
 #include "nrf_clock.h"
 
-#include "../radio/radio.h"
+#include "../ensemble/ensemble.h"
 #include "../drivers/adc.h"
 #include "../drivers/powerComparator.h"
 #include "../drivers/flashController.h"
@@ -89,10 +90,7 @@ void assertUltraLowPower() {
 
 	assertNeverUsedDevicesOff();
 
-	//assert(!Radio::isInUse());
-	assert(!Radio::isPowerOn());
-
-	assert(! HfCrystalClock::isRunning());
+	assert(Ensemble::isLowPower());
 
 	/*
 	 * Not: assert( PowerComparator::isDisabled());
