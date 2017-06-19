@@ -4,12 +4,11 @@
 #include "ledFlasher.h"
 
 #include "../modules/ledService.h"
-#include "../modules/longClockTimer.h"
+// implementation uses pure class LongClockTimer already included by header
 
 
 namespace {
 
-LongClockTimer* timerService;
 LEDService* ledService;
 
 /*
@@ -30,11 +29,11 @@ void ledOffCallback(TimerInterruptReason reason) {
 
 
 
-void LEDFlasher::init(LongClockTimer* aTimerService, LEDService* aLedService) {
-	// require TimerService started
+void LEDFlasher::init(LEDService* aLedService) {
+	// require
+	LongClockTimer::isOSClockRunning();
 	// require LedLogger initialized
 
-	timerService = aTimerService;
 	ledService = aLedService;
 }
 
@@ -49,7 +48,7 @@ void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 	// assert LEDService initialized
 	// assert TimerService initialized
 	assert(amount>=MinAmountToFlash);
-	if (timerService->isTimerStarted(Second)) {
+	if (LongClockTimer::isTimerStarted(Second)) {
 		// Led already flashing.
 		// Illegal to startTimer already started.
 		return;
@@ -67,7 +66,7 @@ void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 	OSTime timeout = amount * MinVisibleTicksPerFlash;
 
 	// start timer to turn LED off
-	timerService->startTimer(
+	LongClockTimer::startTimer(
 			Second,
 			timeout,
 			ledOffCallback

@@ -13,9 +13,10 @@ namespace {
 const TimerIndex SleepTimerIndex = First;	// Must not be used elsewhere
 
 
-// !!! not own
-// Exclusive use of timer[SleepTimerIndex]
-LongClockTimer* timerService;
+/*
+ * Shared user of LongClockTimer
+ * Exclusive use of timer[SleepTimerIndex]
+ */
 
 OSTime maxSaneTimeout = LongClockTimer::MaxTimeout;	// defaults to max a Timer allows
 
@@ -101,11 +102,9 @@ void timerIRQCallback(TimerInterruptReason reason) {
 
 
 
-
-void Sleeper::init(LongClockTimer* aLCT) {
-	// assert a TimerService exists and is initialized (creating a Timer depends on it.)
-	timerService = aLCT;	//receiveTimer.create(rcvTimeoutTimerCallback);
-	// assert(receiveTimerService.isOSClockRunning());
+// TODO not necessary
+void Sleeper::init() {
+	assert(LongClockTimer::isOSClockRunning());
 }
 
 void Sleeper::setSaneTimeout(OSTime maxAppTimeout) {
@@ -137,7 +136,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		 * oneshot timer must not trigger before we sleep, else sleep forever.
 		 * Not using WDT to guard against that.
 		 */
-		timerService->startTimer(
+		LongClockTimer::startTimer(
 				SleepTimerIndex,
 				timeout,
 				timerIRQCallback);
@@ -154,7 +153,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		 * Note that for our timer semantics, it is safe to stop a timer that it not started,
 		 * but not safe to start a timer that is already started.
 		 */
-		timerService->cancelTimer(SleepTimerIndex);
+		LongClockTimer::cancelTimer(SleepTimerIndex);
 	}
 	/*
 	 * Cases:
@@ -172,7 +171,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 
 
 void Sleeper::cancelTimeout(){
-	timerService->cancelTimer(SleepTimerIndex);
+	LongClockTimer::cancelTimer(SleepTimerIndex);
 }
 
 

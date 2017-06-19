@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../modules/longClockTimer.h"
+#include "../modules/longClockTimer.h"	// MaxTimeout
 #include "../modules/ledService.h"
 
 
@@ -50,7 +50,7 @@ public:
 
 
 
-	static void init(LongClockTimer*, LEDService*);
+	static void init(LEDService*);
 
 	/*
 	 * No effect if ordinal out of range defined by boards.h

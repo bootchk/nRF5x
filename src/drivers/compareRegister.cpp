@@ -1,4 +1,6 @@
 
+#include <cassert>
+
 #include "compareRegister.h"
 
 // Use HAL
@@ -67,7 +69,9 @@ void CompareRegister::set(unsigned int timeout){
 	 * value is computed in 32-bit math but writing to the register masks with 0xFFFFFF,
 	 */
 	nrf_rtc_cc_set(NRF_RTC0, selfIndex, currentCount + timeout);
-	// assert nrf_rtc_cc_get() = (currentCount + timeout) % 0xFFFFFF
+
+	// Ensures
+	assert (nrf_rtc_cc_get(NRF_RTC0, selfIndex) == (currentCount + timeout) % 0xFFFFFF);
 }
 
 
