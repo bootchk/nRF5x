@@ -1,10 +1,10 @@
 
 
+#include <exceptions/brownoutRecorder.h>
 #include <cassert>
 #include <nrf_clock.h>	// HAL
 #include <nrf_power.h>	// HAL
 
-#include "brownoutManager.h"
 #include "faultHandlers.h"
 #include "../modules/powerMonitor.h"
 #include "../modules/sleeper.h"
@@ -33,8 +33,6 @@
  * This file is included into hfClock.cpp
  * If the app uses hfClock, then the linker overwrites the weak handler with this one.
  */
-
-extern BrownoutManager brownoutManager;
 
 
 
@@ -77,7 +75,7 @@ POWER_CLOCK_IRQHandler() {
 		/*
 		 * Brownout: write PC to flash so we can analyze later where in the app we brownout.
 		 */
-		brownoutManager.recordToFlash(faultAddress);
+		BrownoutRecorder::recordToFlash(faultAddress);
 
 		/*
 		 * Typically little further execution is possible (power is failing).
@@ -98,7 +96,12 @@ POWER_CLOCK_IRQHandler() {
 		// Signal
 		Sleeper::setReasonForWake(ReasonForWake::BrownoutWarning);
 
-		// Disable further POFWARN events
+		/*
+		 * Disable further POFWARN events, at least temporarily/
+		 * The app may enable them again later.
+		 * Only here do we understand how to clear EVENT.
+		 * PowerMonitor only understands disabling.
+		 */
 		nrf_power_event_clear(NRF_POWER_EVENT_POFWARN);
 		PowerMonitor::disableBrownoutDetection();
 

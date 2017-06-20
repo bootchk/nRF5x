@@ -2,7 +2,7 @@
 #pragma once
 
 /*
- * Four levels gives five ranges.
+ * Levels.  The count of ranges is one more.
  */
 enum class VoltageRange { BelowUltraLow, UltraLowToLow, LowToMedium, MediumToHigh, HighToExcess, AboveExcess};
 
@@ -19,16 +19,23 @@ enum class VoltageRange { BelowUltraLow, UltraLowToLow, LowToMedium, MediumToHig
  *
  * Brownout is:
  * - real
- * - detected
+ * - OR detected
  * Detected brownout only means that the mcu will soon suffer real brownout (a reset, BOR.)
- * Typically, the handler for detected brownout quits the app anyway.
+ * Typically, the handler for detected brownout:
+ * - quits app (if power supply is a simple battery w/o harvested charging)
+ * - OR alters the app behaviour to use less power (if power supply is harvested and may return to higher voltage.)
  */
 class PowerManager {
 
 public:
 	static void init();
 
-	static void enableBrownoutDetectMode();
+	/*
+	 * Simple enter a mode.
+	 * Does not actually start detection until after a call to one of the isPower...() functions.
+	 */
+	static void enterBrownoutDetectMode();
+	// leaveBrownoutDetecMode not implemented
 
 	/*
 	 * Levels
@@ -41,7 +48,9 @@ public:
 	static bool isPowerAboveUltraLow();
 
 	/*
-	 * Ranges
+	 * Ranges.
+	 *
+	 * Expensive since it calls a sequence of the isPower...() functions
 	 */
 	static VoltageRange getVoltageRange();
 };

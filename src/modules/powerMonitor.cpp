@@ -3,15 +3,22 @@
 
 
 /*
- * Much of the complexity of implementation is:
- * multiplexing simple Vcc measurement with brownout detection.
+ * Implementation notes.  See header for API notes.
+ *
+ * Much of the complexity of implementation is multiplexing:
+ * There is only one PowerComparator, so we have to alternate (multiplex) its use between:
+ * - simple Vcc measurement
+ * - brownout detection.
  * Might be easier to use ADC for simple Vcc measurement.
+ *
+ * !!! Note interrupts handled in POWER_CLOCK_IRQHandler() see elsewhere.
+ * It is hardwired to call BrownoutRecorder and call PowerMonitor::disableBrownoutDetection
  */
 
 namespace {
 
 /*
- * No instance of PowerComparator. All class methods
+ * No instance of PowerComparator. Pure class, all class methods
  */
 
 bool _brownoutDetectionMode = false;
@@ -52,7 +59,7 @@ bool testVddGreaterThanThresholdThenDisable() {
 
 
 /*
- * Enable brownoutDetection if enableBrownoutDetection() was called previously.
+ * Enable brownoutDetection if enableBrownoutDetection() was called previously (i.e. entered mode.)
  */
 void tryEnableBrownoutDetection() {
 	// not require not detecting already, this may be superfluous
@@ -99,10 +106,13 @@ bool isVddGreaterThanThresholdWithBrownoutDetection(nrf_power_pof_thr_t threshol
 	result = isVddGreaterThanThreshold(threshold);
 
 	/*
-	 * After every call, restore PowerComparator to brownout detect if Vcc > brownout threshold.
-	 * We don't want an interrupt immediately if Vcc < brownout threshold.
+	 * Restore PowerComparator to brownout detect if result is true.
+	 * Here we assume  BrownoutThreshold is the lowest possible threshold,
+	 * so that result == true means Vcc is above BrownoutThreshold.
+	 * OW (result == false) leave detection off so we don't continually issue BrownoutWarning.
 	 */
-	if (isVddGreaterThanThreshold(PowerMonitor::BrownoutThreshold)) {
+	// !!! not isVddGreaterThanThreshold(PowerMonitor::BrownoutThreshold) because it is time consuming
+	if (result) {
 		tryEnableBrownoutDetection();
 	}
 
@@ -119,7 +129,7 @@ bool isVddGreaterThanThresholdWithBrownoutDetection(nrf_power_pof_thr_t threshol
 
 
 
-void PowerMonitor::enableBrownoutDetectMode() {
+void PowerMonitor::enterBrownoutDetectMode() {
 	_brownoutDetectionMode = true;
 	// Detection not effected until first call to isVddGreaterThan2xxx
 }
@@ -128,7 +138,7 @@ void PowerMonitor::enableBrownoutDetectMode() {
 void PowerMonitor::disableBrownoutDetection() {
 	PowerComparator::disableInterrupt();
 	PowerComparator::disable();
-	_brownoutDetectionMode = true;
+	// !!! Not affect the mode:  _brownoutDetectionMode = false;
 }
 
 /*

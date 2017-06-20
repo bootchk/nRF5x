@@ -13,8 +13,24 @@
  * The two purposes require coordination:
  * monitoring must be turned off while measuring power.
  *
- * !!! Brownout detection starts with first call to enableBrownoutDetection
- * Can not disable brownout detection.
+ * !!! Modal.
+ * enterBrownoutDetectionMode() enters the mode.
+ * Currently no way to leave the mode.
+ *
+ * BrownoutDetection gives a BrownoutWarning.
+ *
+ * BrownoutWarning is distinct from actual BOR (BrownoutReset).
+ * BOR comes at an even lower voltage than BrownoutThreshold.
+ * BOR IS a reset, i.e. execution stops and restarts.
+ * The voltage level of BOR is about 1.7V, but varies a little among chip instances.
+ *
+ * BrownoutWarning has a hysteresis:
+ * once the event occurs, it does not occur again until after voltage has climbed back above BrownoutThreshold
+ * AND you have called a voltage getting function (which restarts detection.)
+ *
+ * It is possible to get many BrownoutWarning's without an actual BOR.
+ *
+ * See BrownoutRecorder.
  */
 
 class PowerMonitor {
@@ -38,14 +54,15 @@ public:
 
 	/*
 	 * Sets mode.
-	 * Brownout detection starts after first call so isVddGreater...
+	 *
+	 * Actual brownout detection does not start until after first call to isVddGreater...
 	 *
 	 * Enables at lowest threshold that POFCON can detect.
 	 * Which may be lower/higher than you want.
 	 *
-	 * Current design: never disable the mode
+	 * Current design: never leave the mode.
 	 */
-	static void enableBrownoutDetectMode();
+	static void enterBrownoutDetectMode();
 
 	/*
 	 * No matter what the mode, disable brownout detection.

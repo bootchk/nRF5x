@@ -54,9 +54,9 @@ void PowerManager::init() {
 }
 
 
-void PowerManager::enableBrownoutDetectMode() {
+void PowerManager::enterBrownoutDetectMode() {
 	// PowerMonitor does it
-	powerMonitor.enableBrownoutDetectMode();
+	powerMonitor.enterBrownoutDetectMode();
 }
 
 

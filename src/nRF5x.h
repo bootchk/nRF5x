@@ -6,6 +6,7 @@
  */
 
 // For now, just the ones I use
+#include <exceptions/brownoutRecorder.h>
 #include <modules/ledService.h>
 #include <modules/longClockTimer.h>
 #include "services/mailbox.h"
@@ -22,10 +23,6 @@
 #include "exceptions/faultHandlers.h"
 #include "exceptions/powerAssertions.h"
 #include "exceptions/resetAssertions.h"
-#include "exceptions/brownoutManager.h"
-
-// Expose certain  drivers not wrapped in modules yet
-// TODO module instead of function
 #include "drivers/uniqueID.h"
 #include "drivers/mcu.h"
 #include "drivers/customFlash.h"

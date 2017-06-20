@@ -8,11 +8,13 @@ typedef uint32_t (*BrownoutCallback)();
 /*
  * Knows how to write important info to flash when brownout happens.
  *
- * App is required to define one, since an IRQ definitely calls it.
+ * Pure class, no instances.
+ *
+ * An IRQ might call it.
  */
 
 
-class BrownoutManager {
+class BrownoutRecorder {
 public:
 	/*
 	 * Write to flash if not already written:
@@ -21,11 +23,11 @@ public:
 	 *
 	 * Called in a brownout state (EVENTS_POFWARN is set)
 	 */
-	void recordToFlash(uint32_t faultAddress);
+	static void recordToFlash(uint32_t faultAddress);
 
 	/*
 	 * Register function that returns important information at time of brownout.
 	 */
-	void registerCallbacks(BrownoutCallback, BrownoutCallback, BrownoutCallback);
+	static void registerCallbacks(BrownoutCallback, BrownoutCallback, BrownoutCallback);
 };
 
