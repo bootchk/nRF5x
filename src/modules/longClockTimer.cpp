@@ -275,7 +275,8 @@ void LongClockTimer::startTimer(
 	 * else counter exceeds compare already, and no interrupt till much later after counter rolls over.
 	 */
 	compareRegisters[index].set(timeout);
-	// interrupt from compare not enabled yet
+	// Compare match must not have happened yet, else no interrupt.
+	// Since interrupt from compare not enabled yet.
 	compareRegisters[index].enableInterrupt();
 	/*
 	 * The interval between setting the compare register and returning must be kept short,

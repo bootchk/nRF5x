@@ -113,9 +113,8 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	clearReasonForWake();
 	if (timeout < LongClockTimer::MinTimeout) {
 		/*
-		 * Less than minimum required by restartInTicks() of app_timer library.
+		 * Less than minimum required by Timer implementation.
 		 * Don't sleep, but set reason for waking.
-		 * I.E. simulate a sleep.
 		 */
 		reasonForWake = ReasonForWake::SleepTimerExpired;
 	}
@@ -128,13 +127,16 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 		assert(timeout <= maxSaneTimeout );
 
 		/*
-		 * oneshot timer must not trigger before we sleep, else sleep forever.
-		 * Not using WDT to guard against that.
+		 * oneshot timer CAN trigger before the startTimer() returns.
+		 *
+		 * Timer implementation must not oversleep, since we are not using WDT.
 		 */
 		LongClockTimer::startTimer(
 				SleepTimerIndex,
 				timeout,
 				timerIRQCallback);
+
+		// Timer may already have expired, and then EventRegister is set, and this will not sleep.
 		MCU::sleep();
 		/*
 		 * awakened by event: received msg or timeout or other event.

@@ -60,18 +60,37 @@ void CompareRegister::set(unsigned int timeout){
 	/*
 	 * require timeout in range (checked earlier)
 	 *
-	 * Timeout might fail if you set compare to less than current count + 2
+	 * HW might not generate event if you set compare to less than current count + 2
 	 */
 	// require event disabled?
 	unsigned int currentCount = nrf_rtc_counter_get(NRF_RTC0);
 	/*
-	 * Modulo 24-bit math:
-	 * value is computed in 32-bit math but writing to the register masks with 0xFFFFFF,
+	 * Interrupts are not disabled.
+	 * The counter may continue running while servicing interrupts.
+	 * Thus currentCount can get stale, and we must
 	 */
-	nrf_rtc_cc_set(NRF_RTC0, selfIndex, currentCount + timeout);
+	/*
+	 * RTC0 is 24-bit timer.
+	 * Value is computed in 32-bit math.
+	 * We don't need need modulo 24-bit math (mask with 0xFFFFFF)
+	 * because the HW of the comparator only reads the lower 24-bits (effectively masks with 0xFFFFFF).
+	 * But the values set and get might have ones in upper 8-bits.
+	 * Can only assert(nrf_rtc_cc_get() == newCompareValue);
+	 */
+	unsigned int newCounterValue = currentCount + timeout;
+	nrf_rtc_cc_set(NRF_RTC0, selfIndex, newCounterValue);
 
-	// Ensures
-	assert (nrf_rtc_cc_get(NRF_RTC0, selfIndex) == (currentCount + timeout) % 0xFFFFFF);
+
+
+
+	TODO generate interrupt if we missed it.
+	/*
+	 * Ensures:
+	 * Not just that the compare register is some value.
+	 * If the counter value when we return is greater than the counter value when called + timeout,
+	 * an event was generated.
+	 * And a subsequent interrupt enable will generate an interrupt.
+	 */
 }
 
 

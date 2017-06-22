@@ -46,6 +46,11 @@ void assertNeverUsedDevicesOff() {
 
 	// MWU disabled
 	assert(NRF_MWU->REGIONEN == 0);
+
+	// Not in debug mode
+	// ??? not defined in SDK: DHCSR
+	// Only use this if solar power
+    //assert (DWT->CYCCNT == 0);
 #endif
 
 	// Peripherals in reset condition
@@ -69,6 +74,9 @@ void assertNeverUsedDevicesOff() {
 	assert( ! NVIC_GetPendingIRQ(ADC_IRQn));
 
 	// TODO other, unused IRQ such as WDT, MemCU
+
+	// No exceptions mcu
+	assert( ! (__get_IPSR() & IPSR_ISR_Msk) );
 
 
 	// Not reset for unexpected reason
