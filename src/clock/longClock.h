@@ -78,7 +78,7 @@ typedef uint64_t LongTime;
 
 
 
-class LongClockTimer {
+class LongClock {
 	static const int OSClockCountBits = 24;
 
 public:

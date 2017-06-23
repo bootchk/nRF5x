@@ -1,11 +1,10 @@
+#include <clock/longClock.h>	// TODO LongClock
 #include <cassert>
 
 #include "timer.h"
 
 
 // Implementation
-#include "longClockTimer.h"	// TODO LongClock
-
 #include "../drivers/nvic.h"
 #include "../drivers/compareRegister.h"
 
@@ -58,7 +57,7 @@ const CompareRegister compareRegisters[2] = {
 void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 	// require event disabled?
 
-	OSTime beforeCounter = LongClockTimer::osClockNowTime();
+	OSTime beforeCounter = LongClock::osClockNowTime();
 	/*
 	 * Interrupts are not disabled.
 	 * The counter may continue running while servicing interrupts.
@@ -80,7 +79,7 @@ void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 	 */
 	compareRegisters[index].set(newCounterValue);
 
-	OSTime afterCounter = LongClockTimer::osClockNowTime();
+	OSTime afterCounter = LongClock::osClockNowTime();
 
 	/*
 	 * If newCounterValue is not far in the future, CompareRegister will not generate event (or interrupt)
@@ -88,7 +87,7 @@ void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 	 *
 	 * Compare to NRF_SDK app_timer.c
 	 */
-	if (((afterCounter - beforeCounter) + LongClockTimer::MinTimeout ) > timeout) {
+	if (((afterCounter - beforeCounter) + LongClock::MinTimeout ) > timeout) {
 		/*
 		 * CompareRegister might not generate event.
 		 * It might (and then this will be repeated/superfluous, but not undone.)

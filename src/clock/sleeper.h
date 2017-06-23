@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <clock/longClockTimer.h>
+#include <clock/longClock.h>
 
 
 /*

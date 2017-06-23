@@ -27,7 +27,7 @@ namespace {
 void powerOffPeripherals() {
 
 	// TODO turn off RTC
-	// LongClockTimer::stop();
+	// LongClock::stop();
 
 	// TODO turn off GPIO's (e.g. LED)
 

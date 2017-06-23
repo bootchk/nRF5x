@@ -12,7 +12,7 @@
  */
 
 
-#include <clock/longClockTimer.h>
+#include <clock/longClock.h>
 #include "radio/radio.h"
 
 #include "drivers/nvic.h"
@@ -41,7 +41,7 @@ void msgReceivedCallback() {
 int main() {
 	// assert embedded system startup is done and calls main.
 
-	LongClockTimer::start();
+	LongClock::start();
 
 	radio.init(
 			&nvic,
@@ -54,8 +54,8 @@ int main() {
 
 	while (true) {
 		// delay
-		logLongLong( LongClockTimer::nowTime() );
-		// longClockTimer.timer1.start(100);
+		logLongLong( LongClock::nowTime() );
+		// longClock.timer1.start(100);
 	}
 
 	return 0;

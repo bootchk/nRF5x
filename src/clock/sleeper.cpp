@@ -14,7 +14,7 @@ const TimerIndex SleepTimerIndex = First;	// Must not be used elsewhere
 
 
 /*
- * Shared user of LongClockTimer
+ * Shared user of LongClock
  * Exclusive use of timer[SleepTimerIndex]
  */
 

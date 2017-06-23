@@ -1,8 +1,8 @@
 
+#include <clock/longClock.h>
 #include <cassert>
 #include <inttypes.h>
 
-#include "longClockTimer.h"
 #include "timer.h"
 
 #include "../drivers/lowFrequencyClock.h"
@@ -94,7 +94,7 @@ RTC0_IRQHandler(void)
 
 
 
-void LongClockTimer::start() {
+void LongClock::start() {
 
 	resetToNearZero();
 	// Later, a user (say SleepSyncAgent) can reset again
@@ -138,12 +138,12 @@ void LongClockTimer::start() {
 }
 
 
-void LongClockTimer::resetToNearZero(){
+void LongClock::resetToNearZero(){
 	mostSignificantBits = 0;
 }
 
 
-LongTime LongClockTimer::nowTime() {
+LongTime LongClock::nowTime() {
 
 	/*
 	 * Implementation: use Lamport's Rule.
@@ -185,11 +185,11 @@ LongTime LongClockTimer::nowTime() {
 }
 
 
-OSTime LongClockTimer::osClockNowTime() {
+OSTime LongClock::osClockNowTime() {
 	return counter.ticks();
 }
 
 
-bool LongClockTimer::isOSClockRunning(){
+bool LongClock::isOSClockRunning(){
 	return lowFrequencyClock.isRunning();
 }

@@ -34,7 +34,7 @@ void ledOffCallback(TimerInterruptReason reason) {
 
 void LEDFlasher::init(LEDService* aLedService) {
 	// TODO require Timer is init
-	// assert(LongClockTimer::isOSClockRunning());
+	// assert(LongClock::isOSClockRunning());
 	// require LedLogger initialized
 
 	ledService = aLedService;
