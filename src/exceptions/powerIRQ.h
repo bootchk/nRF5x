@@ -7,7 +7,7 @@
 
 #include "faultHandlers.h"
 #include "../modules/powerMonitor.h"
-#include "../modules/sleeper.h"
+#include "../clock/sleeper.h"
 
 
 /*

@@ -23,4 +23,6 @@ public:
 
 	// Trigger reset via software
 	static void softResetSystem();
+
+	static void pendRTC0Interrupt();
 };

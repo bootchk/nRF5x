@@ -7,8 +7,11 @@
 
 // For now, just the ones I use
 #include <exceptions/brownoutRecorder.h>
-#include <modules/ledService.h>
-#include <modules/longClockTimer.h>
+//#include <modules/ledService.h>
+
+#include <clock/longClockTimer.h>
+#include <clock/sleeper.h>
+
 #include "services/mailbox.h"
 #include "services/logger.h"
 #include "services/ledFlasher.h"
@@ -17,7 +20,7 @@
 #include "radio/radio.h"
 
 #include "modules/powerManager.h"
-#include "modules/sleeper.h"
+
 #include "modules/ledService.h"
 
 #include "exceptions/faultHandlers.h"

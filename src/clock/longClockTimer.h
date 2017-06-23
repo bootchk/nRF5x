@@ -145,19 +145,31 @@ public:
 	static void resetToNearZero();
 
 	static LongTime nowTime();
+	static OSTime osClockNowTime();	// LSB
 
 
 	/*
 	 * Timer methods.
 	 */
+
+	static void timerISR();
+private:
+	static void initTimers();
+
+public:
 	static void startTimer(
 			TimerIndex index,	// [0:2]
 			OSTime timeout, // [0:0xffffff]
 			TimerCallback onTimeoutCallback);
-
+	static void cancelTimer(TimerIndex index);
 	static bool isTimerStarted(TimerIndex index);
 
-	static void cancelTimer(TimerIndex index);
+
+	static void expire(TimerIndex index);
+	static void unexpire(TimerIndex index);
+	static bool isExpired(TimerIndex index);
+	static void handleExpiration(TimerIndex index);
+
 
 	static bool isOSClockRunning();
 };

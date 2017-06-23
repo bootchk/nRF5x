@@ -1,7 +1,8 @@
 
-#include <modules/longClockTimer.h>
+
 #include <cassert>
 
+#include <clock/longClockTimer.h>
 #include "sleeper.h"
 
 // implementation needs

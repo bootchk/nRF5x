@@ -12,7 +12,7 @@
  */
 
 
-#include <modules/longClockTimer.h>
+#include <clock/longClockTimer.h>
 #include "radio/radio.h"
 
 #include "drivers/nvic.h"
