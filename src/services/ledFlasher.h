@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../clock/longClockTimer.h"	// MaxTimeout
+#include "../clock/timer.h"	// MaxTimeout
 #include "../modules/ledService.h"
 
 
@@ -46,7 +46,7 @@ public:
 	 * Timer may be 32-bit, i.e. 16M
 	 * Which yields (16M/20)*0.0006 = 50s
 	 */
-	static const unsigned int MaxFlashAmount = LongClockTimer::MaxTimeout / MinVisibleTicksPerFlash;
+	static const unsigned int MaxFlashAmount = Timer::MaxTimeout / MinVisibleTicksPerFlash;
 
 
 

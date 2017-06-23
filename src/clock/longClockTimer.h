@@ -14,8 +14,9 @@
  *
  * Provides:
  * - LongClock 56-bit counter. At resolution of 30uSec, overflows in 67,000 years.
- * - Three Timers, 24-bit, one-shot. At resolution of 30uSec, max timeout is 5 seconds.
- * !!! Timers are shorter than the LongClock.
+ * - base Counter for Timers (LongClock must be running to use Timer)
+ *
+ *
  *
  * Units (precision) is ticks of 30uSec (from the crystal LF clock.)
  *
@@ -73,26 +74,6 @@
 typedef uint64_t LongTime;
 
 
-/*
- * Enum Timer instances.
- */
-// Future: better class with + operator and use it for iterating
-enum TimerIndex {
-	First =0,
-	Second
-};
-
-/*
- * Reason for interrupt.
- * Users of Timer that sleep on interrupt (WFI) may want to know when wake but timer not expired.
- */
-enum TimerInterruptReason {
-	OverflowOrOtherTimerCompare,
-	SleepTimerCompare
-};
-
-// Type of function called back when there is an interrupt from RTC
-typedef void (*TimerCallback)(TimerInterruptReason);
 
 
 
@@ -101,22 +82,13 @@ class LongClockTimer {
 	static const int OSClockCountBits = 24;
 
 public:
-	// Not support timeouts longer than compare register
-	static const unsigned int MaxTimeout = 0xFFFFFF;
 
+	// TODO revisit this, not enforced
 	// Device won't reliably cause event for timeouts < 2
 	// Some authors use 3 ???
 	// TODO revisit Product Spec
 	// app_timer used 5, because it had other delays?
 	static const unsigned int MinTimeout = 2;
-
-	/*
-	 * How many Timers this device supports (with compare registers).
-	 * Depends on device, here 3 is compatible with nRF51 and nRF52, certain revisions?
-	 */
-	static const unsigned int CountTimerInstances = 2;
-
-
 
 
 	/*
@@ -140,30 +112,6 @@ public:
 
 	static LongTime nowTime();
 	static OSTime osClockNowTime();	// LSB
-
-
-	/*
-	 * Timer methods.
-	 */
-
-	static void timerISR();
-private:
-	static void initTimers();
-
-public:
-	static void startTimer(
-			TimerIndex index,	// [0:2]
-			OSTime timeout, // [0:0xffffff]
-			TimerCallback onTimeoutCallback);
-	static void cancelTimer(TimerIndex index);
-	static bool isTimerStarted(TimerIndex index);
-
-
-	static void expire(TimerIndex index);
-	static void unexpire(TimerIndex index);
-	static bool isExpired(TimerIndex index);
-	static void handleExpiration(TimerIndex index);
-
 
 	static bool isOSClockRunning();
 };

@@ -1,6 +1,10 @@
 #include <cassert>
 
-#include "longClockTimer.h"
+#include "timer.h"
+
+
+// Implementation
+#include "longClockTimer.h"	// TODO LongClock
 
 #include "../drivers/nvic.h"
 #include "../drivers/compareRegister.h"
@@ -28,6 +32,11 @@ bool _expired[2];
  * !!!! CompareRegisters are constant (the facade is constant, the HW registers are of course writeable.)
  *
  * Parameters of compareRegisters are fixed by hw design of platform (defined by macros.)
+ *
+ * No need to init CompareRegister, they are constructed const.
+ *
+ * This does not guarantee the state of the hw compare registers
+ * (but typically, all are in POR reset state i.e. disabled.)
  */
 const CompareRegister compareRegisters[2] = {
 		CompareRegister(NRF_RTC_EVENT_COMPARE_0, NRF_RTC_INT_COMPARE0_MASK, 0),
@@ -35,24 +44,8 @@ const CompareRegister compareRegisters[2] = {
 };
 
 
-// TODO this could be done as initializers, not at runtime and would then be in ROM?
-/*
- * Init the facades to the RTCTimers, i.e. the addresses and masks of each compare register.
- *
- * This does not guarantee the state of the hw compare registers
- * (but typically, all are in POR reset state i.e. disabled.)
- */
-void initCompareRegs() {
-	// This is expanded because the hw constants are defined by unparameterized macros
-
-	timerCallback[0] = nullptr;
-	timerCallback[1] = nullptr;
 
 
-	_expired[0] = false;
-	_expired[1] = false;
-
-}
 
 /*
  * A Timer is built upon a CompareRegister.
@@ -101,7 +94,7 @@ void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 		 * It might (and then this will be repeated/superfluous, but not undone.)
 		 */
 		// Mark the timer expired already (the small timeout is already over.)
-		LongClockTimer::expire(index);
+		Timer::expire(index);
 		// Generate an interrupt so that the ISR will run, see the expired timer, and handle it.
 		Nvic::pendRTC0Interrupt();
 	}
@@ -140,7 +133,7 @@ void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 
 
 
-void LongClockTimer::timerISR() {
+void Timer::timerISR() {
 	// Source events are "compare register matched counter"
 
 
@@ -165,7 +158,7 @@ void LongClockTimer::timerISR() {
 		 * If it is active, it will have woken by whatever event generate this interrupt.
 		 * Pass the callback the reason for wake, so it can sleep again.
 		 */
-		if ( LongClockTimer::isTimerStarted(First) ) {
+		if ( Timer::isStarted(First) ) {
 			timerCallback[First](OverflowOrOtherTimerCompare);
 		}
 	}
@@ -175,16 +168,20 @@ void LongClockTimer::timerISR() {
 }
 
 
-void LongClockTimer::initTimers() {
-	initCompareRegs();
+void Timer::initTimers() {
+	timerCallback[0] = nullptr;
+	timerCallback[1] = nullptr;
+
+	_expired[0] = false;
+	_expired[1] = false;
 }
 
 /*
- * This should be kept short.
+ * This should be kept short, any delay here adds to imprecision.
  * The timeout could be as little as 0 ticks (no reqt on parameter passed in.)
  * A timeout of 3 ticks @30uSec/tick takes 90uSec, which allows about 1440 instructions.
  */
-void LongClockTimer::startTimer(
+void Timer::start(
 		TimerIndex index,
 		OSTime timeout,
 		TimerCallback aTimeoutCallback){
@@ -199,7 +196,7 @@ void LongClockTimer::startTimer(
 	// assert RTC0_IRQ enabled (enabled earlier for Counter, and stays enabled.
 
 	// Not legal to start Timer already started and not timed out or canceled.
-	if (isTimerStarted(index)) {
+	if (isStarted(index)) {
 		assert(false);
 		return;	// No error result, must be tested with assertions enabled.
 	}
@@ -211,25 +208,25 @@ void LongClockTimer::startTimer(
 	// Timer may already be expired, interrupt generated, and callback called
 }
 
-bool LongClockTimer::isTimerStarted(TimerIndex index) {
+bool Timer::isStarted(TimerIndex index) {
 	return ! (timerCallback[index] == nullptr);
 }
 
 
 
-void LongClockTimer::expire(TimerIndex index) { _expired[index] = true; }
-void LongClockTimer::unexpire(TimerIndex index) { _expired[index] = false; }
-bool LongClockTimer::isExpired(TimerIndex index) { return _expired[index]; }
-void LongClockTimer::handleExpiration(TimerIndex index) {
+void Timer::expire(TimerIndex index) { _expired[index] = true; }
+void Timer::unexpire(TimerIndex index) { _expired[index] = false; }
+bool Timer::isExpired(TimerIndex index) { return _expired[index]; }
+void Timer::handleExpiration(TimerIndex index) {
 	// Callback with reason: TimerExpired
 	// TODO not the correct reason
 	timerCallback[index](SleepTimerCompare);	// call callback
-	LongClockTimer::cancelTimer(index);
+	Timer::cancel(index);
 }
 
 
 
-void LongClockTimer::cancelTimer(TimerIndex index){
+void Timer::cancel(TimerIndex index){
 	/*
 	 * Legal to cancel Timer that has not been started.
 	 * Legal to call from IRQ or main thread.

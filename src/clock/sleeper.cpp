@@ -1,11 +1,10 @@
 
-
 #include <cassert>
 
-#include <clock/longClockTimer.h>
 #include "sleeper.h"
 
-// implementation needs
+// implementation
+#include <clock/timer.h>
 #include "../drivers/mcu.h"
 
 
@@ -19,7 +18,7 @@ const TimerIndex SleepTimerIndex = First;	// Must not be used elsewhere
  * Exclusive use of timer[SleepTimerIndex]
  */
 
-OSTime maxSaneTimeout = LongClockTimer::MaxTimeout;	// defaults to max a Timer allows
+OSTime maxSaneTimeout = Timer::MaxTimeout;	// defaults to max a Timer allows
 
 /*
  * Volatile because ISR's set it.
@@ -132,7 +131,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	 *
 	 * Timer implementation must not oversleep, since we are not using WDT.
 	 */
-	LongClockTimer::startTimer(
+	Timer::start(
 			SleepTimerIndex,
 			timeout,
 			timerIRQCallback);
@@ -151,7 +150,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 	 * Note that for our timer semantics, it is safe to stop a timer that it not started,
 	 * but not safe to start a timer that is already started.
 	 */
-	LongClockTimer::cancelTimer(SleepTimerIndex);
+	Timer::cancel(SleepTimerIndex);
 
 	/*
 	 * Cases:
@@ -169,7 +168,7 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 
 
 void Sleeper::cancelTimeout(){
-	LongClockTimer::cancelTimer(SleepTimerIndex);
+	Timer::cancel(SleepTimerIndex);
 }
 
 

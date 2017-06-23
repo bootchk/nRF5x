@@ -4,7 +4,9 @@
 #include "ledFlasher.h"
 
 #include "../modules/ledService.h"
-// implementation uses pure class LongClockTimer already included by header
+// implementation uses pure class LongClock already included by header
+#include "../clock/timer.h"
+
 
 
 namespace {
@@ -17,6 +19,7 @@ LEDService* ledService;
  */
 void ledOffCallback(TimerInterruptReason reason) {
 	// We don't callback for Overflow or other timers
+	// TODO SleepTimerExpired?
 	assert(reason == OverflowOrOtherTimerCompare);
 
 	// TODO we should turn off led that is on, here assume it is first LED, ordinal 1
@@ -30,8 +33,8 @@ void ledOffCallback(TimerInterruptReason reason) {
 
 
 void LEDFlasher::init(LEDService* aLedService) {
-	// require
-	LongClockTimer::isOSClockRunning();
+	// TODO require Timer is init
+	// assert(LongClockTimer::isOSClockRunning());
 	// require LedLogger initialized
 
 	ledService = aLedService;
@@ -48,9 +51,9 @@ void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 	// assert LEDService initialized
 	// assert TimerService initialized
 	assert(amount>=MinAmountToFlash);
-	if (LongClockTimer::isTimerStarted(Second)) {
+	if (Timer::isStarted(Second)) {
 		// Led already flashing.
-		// Illegal to startTimer already started.
+		// Illegal to start Timer already started.
 		return;
 	}
 
@@ -66,7 +69,7 @@ void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 	OSTime timeout = amount * MinVisibleTicksPerFlash;
 
 	// start timer to turn LED off
-	LongClockTimer::startTimer(
+	Timer::start(
 			Second,
 			timeout,
 			ledOffCallback

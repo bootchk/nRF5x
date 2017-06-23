@@ -3,6 +3,8 @@
 #include <inttypes.h>
 
 #include "longClockTimer.h"
+#include "timer.h"
+
 #include "../drivers/lowFrequencyClock.h"
 #include "../drivers/counter.h"
 
@@ -16,6 +18,7 @@ extern "C" { void RTC0_IRQHandler(void); }
  */
 namespace {
 
+// TODO use pure classes
 LowFrequencyClock lowFrequencyClock;
 Counter counter;
 
@@ -29,8 +32,6 @@ Counter counter;
 volatile uint32_t mostSignificantBits;
 
 
-
-
 /*
  * !!! Does not guarantee oscillator is running.
  */
@@ -41,8 +42,6 @@ void startXtalOscillator() {
 	lowFrequencyClock.start();
 	// not assert(lowFrequencyClock.isRunning());
 }
-
-
 
 
 } // namespace
@@ -71,6 +70,7 @@ RTC0_IRQHandler(void)
 	 * !!! The interrupt can come with no events, since SW can pend the interrupt in the NVIC
 	 */
 
+	// TODO call counterISR
 	// Source event is overflow
 	if ( counter.isOverflowEvent() ) {
 		mostSignificantBits++;
@@ -80,7 +80,7 @@ RTC0_IRQHandler(void)
 	}
 
 
-	LongClockTimer::timerISR();
+	Timer::timerISR();
 
 
 
@@ -92,16 +92,18 @@ RTC0_IRQHandler(void)
 }	// extern "C"
 
 
+
+
 void LongClockTimer::start() {
 
 	resetToNearZero();
 	// Later, a user (say SleepSyncAgent) can reset again
 
-	// RTC requires LFC started
+	// RTC requires some LFC started, here use LFXO
 	startXtalOscillator();
 	/*
 	 * Oscillator might not be running (startup time.)
-	 * Oscillator source might temporarily be RC instead of XTAL.
+	 * Oscillator source might temporarily be LFRC instead of LFXO.
 	 */
 
 	// Product anomaly 20 on nRF52 says do this
@@ -117,7 +119,9 @@ void LongClockTimer::start() {
 
 	counter.start();
 
-	initTimers();
+	// This could be done elsewhere
+	Timer::initTimers();
+	// assert compareRegisters are configured by default to disabled interrupt w/ nullptr callbacks
 
 
 	/*
@@ -129,7 +133,6 @@ void LongClockTimer::start() {
 	 */
 	// assert counter is started.
 	// assert interrupt enabled for overflow
-	// assert compareRegisters are configured by default to disabled interrupt w/ nullptr callbacks
 
 	// nrf51 anomaly 72 irrelevant: LFCLK is running, permanently
 }
