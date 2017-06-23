@@ -2,6 +2,7 @@
 
 #include "longClockTimer.h"
 
+#include "../drivers/nvic.h"
 #include "../drivers/compareRegister.h"
 
 
@@ -20,9 +21,18 @@ namespace {
  * This class owns a facade on the counter registers, and a knows a callback for each's interrupt.
  * Callback is also used as a flag for 'started'
  */
-TimerCallback timerCallback[3];
-bool _expired[3];
-CompareRegister compareRegisters[3];
+TimerCallback timerCallback[2];
+bool _expired[2];
+
+/*
+ * !!!! CompareRegisters are constant (the facade is constant, the HW registers are of course writeable.)
+ *
+ * Parameters of compareRegisters are fixed by hw design of platform (defined by macros.)
+ */
+const CompareRegister compareRegisters[2] = {
+		CompareRegister(NRF_RTC_EVENT_COMPARE_0, NRF_RTC_INT_COMPARE0_MASK, 0),
+		CompareRegister(NRF_RTC_EVENT_COMPARE_1, NRF_RTC_INT_COMPARE1_MASK, 1)
+};
 
 
 // TODO this could be done as initializers, not at runtime and would then be in ROM?
@@ -34,33 +44,14 @@ CompareRegister compareRegisters[3];
  */
 void initCompareRegs() {
 	// This is expanded because the hw constants are defined by unparameterized macros
-	// Parameters of compareRegisters are fixed by hw design
-	compareRegisters[0].init(
-			NRF_RTC_EVENT_COMPARE_0,
-			//RTC_EVTEN_COMPARE0_Msk,
-			NRF_RTC_INT_COMPARE0_MASK,
-			0	// index
-	);
-	compareRegisters[1].init(
-			NRF_RTC_EVENT_COMPARE_1,
-			//RTC_EVTEN_COMPARE1_Msk,
-			NRF_RTC_INT_COMPARE1_MASK,
-			1	// index
-	);
-	compareRegisters[2].init(
-			NRF_RTC_EVENT_COMPARE_2,
-			//RTC_EVTEN_COMPARE2_Msk,
-			NRF_RTC_INT_COMPARE2_MASK,
-			2	// index
-	);
 
 	timerCallback[0] = nullptr;
 	timerCallback[1] = nullptr;
-	timerCallback[2] = nullptr;
+
 
 	_expired[0] = false;
 	_expired[1] = false;
-	_expired[2] = false;
+
 }
 
 /*
@@ -104,7 +95,7 @@ void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 	 *
 	 * Compare to NRF_SDK app_timer.c
 	 */
-	if (((afterCounter - beforeCounter) +LongClockTimer::MinTimeout ) > timeout) {
+	if (((afterCounter - beforeCounter) + LongClockTimer::MinTimeout ) > timeout) {
 		/*
 		 * CompareRegister might not generate event.
 		 * It might (and then this will be repeated/superfluous, but not undone.)
@@ -189,8 +180,9 @@ void LongClockTimer::initTimers() {
 }
 
 /*
- * This must be kept short.
- * The timeout could be as little as 3 ticks, or 3*30 = 90uSec, which allows about 1440 instructions.
+ * This should be kept short.
+ * The timeout could be as little as 0 ticks (no reqt on parameter passed in.)
+ * A timeout of 3 ticks @30uSec/tick takes 90uSec, which allows about 1440 instructions.
  */
 void LongClockTimer::startTimer(
 		TimerIndex index,
@@ -203,7 +195,6 @@ void LongClockTimer::startTimer(
 	 * after the time for which the timeout was calculated.
 	 */
 	assert(timeout < MaxTimeout);
-	assert(timeout >= MinTimeout);
 	assert(index < CountTimerInstances);
 	// assert RTC0_IRQ enabled (enabled earlier for Counter, and stays enabled.
 

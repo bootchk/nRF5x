@@ -23,7 +23,7 @@
 
 
 
-LongClockTimer longClockTimer;
+// TODO no instance needed
 Nvic nvic;
 
 
@@ -41,9 +41,7 @@ void msgReceivedCallback() {
 int main() {
 	// assert embedded system startup is done and calls main.
 
-
-
-	longClockTimer.start(&nvic);
+	LongClockTimer::start();
 
 	radio.init(
 			&nvic,
@@ -56,7 +54,7 @@ int main() {
 
 	while (true) {
 		// delay
-		logLongLong( longClockTimer.nowTime() );
+		logLongLong( LongClockTimer::nowTime() );
 		// longClockTimer.timer1.start(100);
 	}
 

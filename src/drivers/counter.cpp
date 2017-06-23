@@ -1,20 +1,11 @@
 
 #include "counter.h"
 
-// Use HAL
-#include "nrf_rtc.h"
-
-namespace {
-
-// Counter knows nvic
-Nvic* nvic;
-
-}
+// Implementation:
+#include "nrf_rtc.h"	// HAL
+#include "nvic.h"
 
 
-void Counter::init(Nvic* aNvic) {
-	nvic = aNvic;
-}
 
 void Counter::start(){
 	// Start (power on)
@@ -53,7 +44,7 @@ void Counter::configureOverflowInterrupt(){
 	// Writes 1 to bit of INTENSET reg.  Does not affect other enabled interrupts.
 	nrf_rtc_int_enable(NRF_RTC0, NRF_RTC_INT_OVERFLOW_MASK);
 
-	nvic->enableRTC0IRQ();
+	Nvic::enableRTC0IRQ();
 
 	// Interrupt can come at any time.
 	// Usually, this is called shortly after starting Counter, so interrupt will come after period of Counter

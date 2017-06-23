@@ -2,7 +2,8 @@
 #pragma once
 
 #include <inttypes.h>
-#include "../drivers/nvic.h"
+
+#include "../drivers/counter.h"	// OSTime
 
 
 /*
@@ -71,12 +72,6 @@
  */
 typedef uint64_t LongTime;
 
-/*
- * Type that holds the largest timeout for Timers.
- */
-typedef uint32_t OSTime;
-
-
 
 /*
  * Enum Timer instances.
@@ -84,8 +79,7 @@ typedef uint32_t OSTime;
 // Future: better class with + operator and use it for iterating
 enum TimerIndex {
 	First =0,
-	Second,
-	Third
+	Second
 };
 
 /*
@@ -120,7 +114,7 @@ public:
 	 * How many Timers this device supports (with compare registers).
 	 * Depends on device, here 3 is compatible with nRF51 and nRF52, certain revisions?
 	 */
-	static const unsigned int CountTimerInstances = 3;
+	static const unsigned int CountTimerInstances = 2;
 
 
 
@@ -135,7 +129,7 @@ public:
 	 *
 	 * If you require accurate timer, start a dummy timer before you start an accurate timer.
 	 */
-	static void start(Nvic*);
+	static void start();
 
 	/*
 	 * AKA Reset the clock, but not to zero.

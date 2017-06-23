@@ -112,51 +112,51 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 
 	// TODO should we be clearing, or asserting (rely on caller to clear, because of races?)
 	clearReasonForWake();
-	if (timeout < LongClockTimer::MinTimeout) {
-		/*
-		 * Less than minimum required by Timer implementation.
-		 * Don't sleep, but set reason for waking.
-		 */
-		reasonForWake = ReasonForWake::SleepTimerExpired;
-	}
-	else { // timeout >= the min that clock supports
 
-		/*
-		 * Sanity of SleepSync: never sleeps longer than two SyncPeriodDuration
-		 */
-		// TODO this should be a clamp, or throw
-		assert(timeout <= maxSaneTimeout );
+	/*
+	 * OLD design: if less than minimum required by Timer implementation. Don't sleep, but set reason for waking.
+	 * reasonForWake = ReasonForWake::SleepTimerExpired;
+	 *
+	 * NOW: if timeout is small, event and interrupt will still occur (forced by implementation.)
+	 */
 
-		/*
-		 * oneshot timer CAN trigger before the startTimer() returns.
-		 *
-		 * Timer implementation must not oversleep, since we are not using WDT.
-		 */
-		LongClockTimer::startTimer(
-				SleepTimerIndex,
-				timeout,
-				timerIRQCallback);
 
-		// Timer may already have expired, and then EventRegister is set, and this will not sleep.
-		MCU::sleep();
-		/*
-		 * awakened by event: received msg or timeout or other event.
-		 * !!! Other timer expirations may wake us.
-		 * But other timer expirations won't call self's callback.
-		 */
+	/*
+	 * Sanity of SleepSync: never sleeps longer than two SyncPeriodDuration
+	 */
+	// TODO this should be a clamp, or throw
+	assert(timeout <= maxSaneTimeout );
 
-		/*
-		 * If timer expired, timer is already stopped.
-		 * Else, stop it to ensure consistent state.
-		 * Note that for our timer semantics, it is safe to stop a timer that it not started,
-		 * but not safe to start a timer that is already started.
-		 */
-		LongClockTimer::cancelTimer(SleepTimerIndex);
-	}
+	/*
+	 * oneshot timer CAN trigger before the startTimer() returns.
+	 *
+	 * Timer implementation must not oversleep, since we are not using WDT.
+	 */
+	LongClockTimer::startTimer(
+			SleepTimerIndex,
+			timeout,
+			timerIRQCallback);
+
+	// Timer may already have expired, and then EventRegister is set, and this will not sleep.
+	MCU::sleep();
+	/*
+	 * awakened by event: received msg or timeout or other event.
+	 * !!! Other timer expirations may wake us.
+	 * But other timer expirations won't call self's callback.
+	 */
+
+	/*
+	 * If timer expired, timer is already stopped.
+	 * Else, stop it to ensure consistent state.
+	 * Note that for our timer semantics, it is safe to stop a timer that it not started,
+	 * but not safe to start a timer that is already started.
+	 */
+	LongClockTimer::cancelTimer(SleepTimerIndex);
+
 	/*
 	 * Cases:
-	 * - never slept and simulated reasonForWake == Timeout
-	 * - OR slept then woke and:
+	 * - never slept OR slept then woke and:
+	 * -- RTC IRQ set reasonForWake to SleepTimerExpired
 	 * -- RTC or RADIO IRQ handler set reasonForWake in [Timeout, MsgReceived)
 	 * -- RTC IRQ for another Timer and reasonForWake is still none
 	 * -- unexpected event woke us and reasonForWake is still None

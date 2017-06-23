@@ -1,6 +1,8 @@
+#pragma once
 
 #include <inttypes.h>
-#include "nvic.h"
+
+// Uses Nvic class
 
 
 /*
@@ -8,22 +10,21 @@
  */
 typedef uint32_t OSTime;
 
+
+
 class Counter {
 public:
-	static void init(Nvic*);
+
+	/*
+	 * Has no init()
+	 * Initialization of the source clock to Counter is done by LongClock.
+	 */
 	static void start();
 	static void stop();
 
 	static void configureOverflowInterrupt();
 	static void clearOverflowEvent();
 	static bool isOverflowEvent();
-#ifdef OLD
-	static void enableCompareReg0Interrupt();
-	static void clearCompareReg0Event();
-	static bool isCompareReg0Event();
 
-	static void setCompareReg0(unsigned int);
-	static void disableCompareReg0Interrupt();
-#endif
 	static OSTime ticks();
 };

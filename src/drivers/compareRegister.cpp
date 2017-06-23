@@ -14,23 +14,9 @@
  * An event is a separate address.
  */
 
-void CompareRegister::init(
-		nrf_rtc_event_t aEvent,
-		//unsigned int aEventMask,
-		nrf_rtc_int_t   aInterruptMask,
-		unsigned int aIndex
-		){
-	/*
-	 * Parameterize this instance with device addresses and masks.
-	 */
-	eventAddress = aEvent;
-	//eventMask = aEventMask;
-	interruptMask = aInterruptMask;
-	selfIndex = aIndex;
-}
 
 
-void CompareRegister::enableInterrupt(){
+void CompareRegister::enableInterrupt() const {
 	// Clear event so we don't interrupt immediately
 	clearEvent();
 
@@ -40,39 +26,36 @@ void CompareRegister::enableInterrupt(){
 }
 
 
-void CompareRegister::disableInterrupt(){
+void CompareRegister::disableInterrupt() const{
 	// Not needed: nrf_rtc_event_disable(NRF_RTC0, eventMask);
 	nrf_rtc_int_disable(NRF_RTC0, interruptMask);
 	// not ensure nvic disabled
 }
 
 
-void CompareRegister::clearEvent(){
+void CompareRegister::clearEvent() const{
 	nrf_rtc_event_clear(NRF_RTC0, eventAddress);
 }
 
 
-bool CompareRegister::isEvent(){
+bool CompareRegister::isEvent() const {
 	return nrf_rtc_event_pending(NRF_RTC0, eventAddress);
 }
 
-void CompareRegister::set(unsigned int newCounterValue){
+void CompareRegister::set(const OSTime newCompareValue) const {
 	/*
-	 * require newCounterValue in range (checked earlier)
+	 * require newCompareValue in range (checked earlier)
 	 *
 	 * HW might not generate event if you set compare to less than current count + 2
-	 * But that is a concern above.
-	 * Here we just put it in the HW register
+	 * But that is a concern above, here we just put it in the HW register
 	 */
 
-	nrf_rtc_cc_set(NRF_RTC0, selfIndex, newCounterValue);
+	nrf_rtc_cc_set(NRF_RTC0, selfIndex, newCompareValue);
 
 	/*
 	 * Ensures:
 	 * Only that the compare register is some value.
-	 * If the counter value when we return is greater than the counter value when called + timeout,
-	 * an event was generated.
-	 * And a subsequent interrupt enable will generate an interrupt.
+	 * The HW does NOT guarantee that an event will be generated, when counter is already near the newCompareValue
 	 */
 }
 

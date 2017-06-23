@@ -92,7 +92,7 @@ RTC0_IRQHandler(void)
 }	// extern "C"
 
 
-void LongClockTimer::start(Nvic* nvic) {
+void LongClockTimer::start() {
 
 	resetToNearZero();
 	// Later, a user (say SleepSyncAgent) can reset again
@@ -115,8 +115,6 @@ void LongClockTimer::start(Nvic* nvic) {
 
 	// assert prescaler is default of 0, i.e. 30uSec tick
 
-	// Counter knows nvic
-	counter.init(nvic);
 	counter.start();
 
 	initTimers();
