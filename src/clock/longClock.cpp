@@ -20,8 +20,8 @@ namespace {
 
 // TODO use pure classes
 LowFrequencyClock lowFrequencyClock;
-Counter counter;
 
+LongTime priorNow = 0;	// for assertion
 
 
 /*
@@ -72,9 +72,9 @@ RTC0_IRQHandler(void)
 
 	// TODO call counterISR
 	// Source event is overflow
-	if ( counter.isOverflowEvent() ) {
+	if ( Counter::isOverflowEvent() ) {
 		mostSignificantBits++;
-		counter.clearOverflowEvent();
+		Counter::clearOverflowEvent();
 		// assert interrupt still enabled
 		// assert counter is near zero (it rolled over just before the interrupt)
 	}
@@ -107,17 +107,17 @@ void LongClock::start() {
 	 */
 
 	// Product anomaly 20 on nRF52 says do this
-	counter.stop();
+	Counter::stop();
 
 	// Docs don't say this can't be done while counter is running
-	counter.configureOverflowInterrupt();
+	Counter::configureOverflowInterrupt();
 	// assert overflow interrupt is enabled in device
 	// assert RTC0_IRQ is enabled (for counter and timers)
 	// mostSignificantBits will increment on overflow
 
 	// assert prescaler is default of 0, i.e. 30uSec tick
 
-	counter.start();
+	Counter::start();
 
 	// This could be done elsewhere
 	Timer::initTimers();
@@ -157,8 +157,9 @@ LongTime LongClock::nowTime() {
 	uint32_t firstMSBRead, secondMSBRead;
 	OSTime LSBRead;
 	do {
+		// Since mostSignficantBits is volatile, optimization does not optimize away the "consecutive" reads.
 		firstMSBRead = mostSignificantBits;
-		LSBRead = counter.ticks();
+		LSBRead = Counter::ticks();
 		secondMSBRead = mostSignificantBits;
 	}
 	while (firstMSBRead != secondMSBRead);
@@ -173,20 +174,19 @@ LongTime LongClock::nowTime() {
 	 * Assert !(LSBRead & 0xFF000000) i.e. high order 8-bits are zeroes
 	 */
 	result = result | LSBRead;
-	return result;
 
-	// XXX Monotonicity by design, but add an assertion here
 	/*
-	 * i.e.
-	 * priorResult initially 0
-	 * assert(thisResult > priorResult)
-	 * priorResult = thisResult
+	 * Monotonicity by design, but assert here
 	 */
+	assert(result >= priorNow);
+	priorNow = result;
+
+	return result;
 }
 
 
 OSTime LongClock::osClockNowTime() {
-	return counter.ticks();
+	return Counter::ticks();
 }
 
 
