@@ -58,7 +58,7 @@ private:
 	static void unexpire(TimerIndex index);
 	static bool isExpired(TimerIndex index);
 
-	static void Timer::configureCompareRegisterForTimer(TimerIndex index, OSTime timeout);
+	static void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout);
 
 
 

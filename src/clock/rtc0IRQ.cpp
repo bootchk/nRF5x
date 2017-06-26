@@ -20,6 +20,8 @@
 
 extern "C" {
 
+void RTC0_IRQHandler();
+
 __attribute__ ((interrupt ("RTC_IRQ")))
 void
 RTC0_IRQHandler(void)

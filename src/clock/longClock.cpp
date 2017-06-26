@@ -3,22 +3,24 @@
 #include <cassert>
 #include <inttypes.h>
 
-#include <clock/longClock.h>
+#include "longClock.h"
 
 #include "timer.h"
 #include "../drivers/lowFrequencyClock.h"
 #include "../drivers/counter.h"
 
-
+/*
+ * !!! Include RTC0_IRQHandler here so that it overrides default handler.
+ * If you just leave it as a separate file,
+ * it doesn't resolve any symbols and so linker does not link it in
+ */
+#include "rtc0IRQ.cpp"
 
 /*
  * Private data.
  * If you use the underlying peripherals elsewhere, you must coordinate.
  */
 namespace {
-
-// TODO use pure classes
-LowFrequencyClock lowFrequencyClock;
 
 LongTime priorNow = 0;	// for assertion
 
@@ -35,11 +37,11 @@ volatile uint32_t mostSignificantBits;
  * !!! Does not guarantee oscillator is running.
  */
 void startXtalOscillator() {
-	lowFrequencyClock.configureXtalSource();
+	LowFrequencyClock::configureXtalSource();
 	// assert source is LFXO
 
-	lowFrequencyClock.start();
-	// not assert(lowFrequencyClock.isRunning());
+	LowFrequencyClock::start();
+	// not assert(LowFrequencyClock::isRunning());
 }
 
 
@@ -138,11 +140,13 @@ LongTime LongClock::nowTime() {
 	 */
 	result = result | LSBRead;
 
+#ifndef NDEBUG
 	/*
 	 * Monotonicity by design, but assert here
 	 */
 	assert(result >= priorNow);
 	priorNow = result;
+#endif
 
 	return result;
 }
@@ -154,5 +158,5 @@ OSTime LongClock::osClockNowTime() {
 
 
 bool LongClock::isOSClockRunning(){
-	return lowFrequencyClock.isRunning();
+	return LowFrequencyClock::isRunning();
 }

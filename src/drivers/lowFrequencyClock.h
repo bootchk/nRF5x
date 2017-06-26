@@ -20,6 +20,9 @@
  *
  *
  */
+
+// XXX methods const (no data members to write)
+
 class LowFrequencyClock {
 public:
 	static void configureXtalSource();
