@@ -150,6 +150,7 @@ HardFault_Handler() {
 	resetOrHalt();
 }
 
+
 /*
  * Catch all handler.
  * Many faultHandlers or other code may call this.
@@ -160,6 +161,7 @@ void genericExitHandler(void) {
 	CustomFlash::writeZeroAtIndex(ExitFlagIndex);
 	resetOrHalt();
 }
+
 
 void genericAssertionFaultHandler(const char* locationText, int lineNumber){
 	// Write line no. in one word, and text in other locations in UICR

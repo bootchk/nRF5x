@@ -28,8 +28,8 @@ void recordTraceToFlashAtIndex(FlagIndex index)  {
  * Record trace at first unwritten location, or not at all.
  */
 void recordTraceToFlash() {
-	if (! CustomFlash::isWrittenAtIndex(BrownoutTrace1Index))  recordTraceToFlashAtIndex(BrownoutTrace1Index);
-	else if (! CustomFlash::isWrittenAtIndex(BrownoutTrace2Index)) recordTraceToFlashAtIndex(BrownoutTrace2Index);
+	if (! CustomFlash::isWrittenAtIndex(CustomFlash::BrownoutTrace1Index))  recordTraceToFlashAtIndex(CustomFlash::BrownoutTrace1Index);
+	else if (! CustomFlash::isWrittenAtIndex(CustomFlash::BrownoutTrace2Index)) recordTraceToFlashAtIndex(CustomFlash::BrownoutTrace2Index);
 }
 
 }	// namespace
@@ -70,7 +70,7 @@ void BrownoutRecorder::recordToFlash(uint32_t faultAddress) {
 
 	// Also record faultAddress (another indication of location in algorithm
 	// Not much info, usually just the WFE i.e. usually brownout in sleep
-	CustomFlash::tryWriteIntAtIndex(BrownoutPCIndex, faultAddress);
+	// CustomFlash::tryWriteIntAtIndex(BrownoutPCIndex, faultAddress);
 
 
 	/*

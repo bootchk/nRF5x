@@ -1,6 +1,10 @@
 #pragma once
 
 
+// Index of words in UICR
+typedef unsigned int FlagIndex;
+
+
 /*
  * Custom non-volatile data.
  * This knows how to write data to flash (persists, non-volatile.)
@@ -18,60 +22,36 @@
  */
 
 /*
- * Index of words in UICR.
- *
- * Typically use word as a flag for certain exceptions and other events.
- * A flag is 'set' by writing all zeroes to it.
- *
- * Exceptions are handled generically, writing PC to flash.
- * Flagged events are specific to the application.
+ * UICR flags that this library's exception routines write
  */
-enum FlagIndex {
+enum FaultIndex {
 	// First three are Program Counters of exceptions or Line Number, not flags
 	HardFaultPCIndex = 0,			// hw fault PC
-	BrownoutPCIndex,				// brownout PC
-	PhaseIndex,						// phase of algorithm
+	ExitFlagIndex,					// other unexpected handler called
 	LineNumberIndex, 				// line no of assert
-
-	// Flags. Normal algorithm stepping is captured in Phase.
-	/*
-	 * Bugs caught by code for robustness.
-	 */
-	ExitFlagIndex,					// 4. undistinguished exit
-	UnexpectedWake,					// sleep ended but timer not expired
-	UnexpectedMsg,					// Radio IRQ while radio disabled?
-	UnexpectedWakeWhileListen,		// radio on but woken for unknown reason
-	OverSlept,						// 8.
-	/*
-	 * Rare but expected events.
-	 */
-	ExcessPowerEventFlagIndex,		// Vcc above 3.6V
-	WorkEventFlagIndex,				// Worked e.g. flashed LED
-	NoPowerToFish,					// Vcc fell below 2.5V
-	NoPowerToStartSyncSlot,			// 12. "
-	NoPowerToHalfSyncSlot,			//  "
-	PauseSync,					    // not enough power to listen/send sync
-	IntendedSleepDuration,
-	OversleptDuration,			    // 16. overslept sleep time
-
-	BrownoutTrace1Index,			// Trace for first brownout
-	BrownoutTrace2Index = BrownoutTrace1Index + 3		// Trace for second brownout
-
 };
-
+	//PhaseIndex,						// phase of algorithm
 
 
 class CustomFlash {
 	/*
-	 * Offset in bytes to address in UICR we write a string. e.g. address 0x10000840
+	 * Offset from start of UICR to reserved partitions in bytes
+	 * E.G. to address in UICR we write a string. e.g. address 0x10000840
 	 *
 	 * Customer UICR is 0x80 (128) bytes (32 words)
-	 * Reserve at least 20 words (80 bytes) for flags.
-	 * Reserve 12 words (48 bytes) for string.
+	 * Reserve at least 16 words (64 bytes) for flags defined by app.
+	 * Reserve 6 words for brownout traces
+	 * Reserve 10 words (40 bytes) for string.
 	 */
-	static const int OffsetToString = 80;
-	static const unsigned int CountWordsOfFlashString = 12;
+
+	// static const int OffsetToBrownoutTraces = 64;
+
+	static const unsigned int OffsetToString = 88;
+	static const unsigned int CountWordsOfFlashString = 10;
 	static const unsigned int UnwrittenValue = 0xFfFfFfFf;
+public:	// Used by BrownoutRecorder
+	static const unsigned int BrownoutTrace1Index = 16;
+	static const unsigned int BrownoutTrace2Index = 19;
 
 public:
 
