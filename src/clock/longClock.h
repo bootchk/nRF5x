@@ -90,6 +90,10 @@ public:
 	// app_timer used 5, because it had other delays?
 	static const unsigned int MinTimeout = 2;
 
+	/*
+	 * Called in IRQHandler, with interrupts disabled.
+	 */
+	static void longClockISR();
 
 	/*
 	 * Clock methods.

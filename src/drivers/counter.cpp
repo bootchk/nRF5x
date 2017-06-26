@@ -51,7 +51,8 @@ void Counter::configureOverflowInterrupt(){
 }
 
 
-void Counter::clearOverflowEvent(){
+void Counter::clearOverflowEventAndWaitUntilClear(){
+	// HAL ensures that event is clear by reading the register after writing it (on Cortext M4)
 	nrf_rtc_event_clear(NRF_RTC0, NRF_RTC_EVENT_OVERFLOW);
 }
 

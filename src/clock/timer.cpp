@@ -1,20 +1,13 @@
-#include <clock/longClock.h>	// TODO LongClock
+
 #include <cassert>
 
 #include "timer.h"
 
-
 // Implementation
+#include <clock/longClock.h>
 #include "../drivers/nvic.h"
 #include "../drivers/compareRegister.h"
 
-
-
-/*
- * Timer
- *
- *
- */
 
 
 namespace {
@@ -42,7 +35,7 @@ const CompareRegister compareRegisters[2] = {
 		CompareRegister(NRF_RTC_EVENT_COMPARE_1, NRF_RTC_INT_COMPARE1_MASK, 1)
 };
 
-
+} // namespace
 
 
 
@@ -54,7 +47,7 @@ const CompareRegister compareRegisters[2] = {
  *
  * Should be no references to platform here.
  */
-void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
+void Timer::configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 	// require event disabled?
 
 	OSTime beforeCounter = LongClock::osClockNowTime();
@@ -94,7 +87,11 @@ void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 		 */
 		// Mark the timer expired already (the small timeout is already over.)
 		Timer::expire(index);
-		// Generate an interrupt so that the ISR will run, see the expired timer, and handle it.
+		/*
+		 * Pend interrupt.
+		 * Since the RTC0_IRQ is always enabled, this will generate immediate jump to ISR.
+		 * ISR will see the expired timer, and handle it, even though no event from compare register.
+		 */
 		Nvic::pendRTC0Interrupt();
 	}
 	else {
@@ -103,10 +100,11 @@ void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 		 */
 	}
 
-	// TODO where does this go?????????
-
-	// Compare match must not have happened yet, else no interrupt.
-	// Since interrupt from compare not enabled yet.
+	/*
+	 * Compare match event might already have happened.
+	 * When we enableInterrupt, CompareRegister will generate interrupt
+	 * when compare match event happens, or if already set.
+	 */
 	compareRegisters[index].enableInterrupt();
 
 
@@ -120,11 +118,10 @@ void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 	 * There is no race to return here.
 	 * The caller's continuation is often: sleep until interrupt.
 	 * The interrupt can occur at any time here.
-	 * The caller must sleep by first WFE (without clearing EventRegister), and since the event might already be set, won't sleep.
+	 * The caller must sleep by first WFE (without clearing EventRegister),
+	 * and since MCU EventRegister might already be set, won't sleep.
 	 * The interrupt typically COULD come in as little as 3 ticks, or 3*30 = 90uSec, which allows about 1440 instructions.
 	 */
-}
-
 }
 
 
@@ -133,20 +130,25 @@ void configureCompareRegisterForTimer(TimerIndex index, OSTime timeout){
 
 
 void Timer::timerISR() {
-	// Source events are "compare register matched counter"
 
-
-	// Handle all compare regs: 0-1
+	/*
+	 * Source events are "compare register matched counter"
+	 * First just determine which Timers are expired because their CompareRegister fired.
+	 */
 	if ( compareRegisters[First].isEvent() ) {
+		compareRegisters[First].disableInterruptAndClearEvent();	//  early
 		expire(First);
 	}
 	if ( compareRegisters[Second].isEvent() ) {
+		compareRegisters[Second].disableInterruptAndClearEvent();
 		expire(Second);
 	}
 
 
-	// TODO ???? Check for interrupt without events,
-	// i.e. isTimerExpired(index) for short timeout
+	/*
+	 * Second handle all expired Timers.
+	 * Some may have expired without their CompareRegister firing (for short timeout, via an interrupt pended i.e. forced.)
+	 */
 
 	if (isExpired(First)) {
 		handleExpiration(First);
@@ -174,6 +176,7 @@ void Timer::initTimers() {
 	_expired[0] = false;
 	_expired[1] = false;
 }
+
 
 /*
  * This should be kept short, any delay here adds to imprecision.
@@ -211,16 +214,33 @@ bool Timer::isStarted(TimerIndex index) {
 	return ! (timerCallback[index] == nullptr);
 }
 
+void Timer::stop(TimerIndex index) {
+	timerCallback[index] = nullptr;
+	_expired[index] = false;
+}
 
 
 void Timer::expire(TimerIndex index) { _expired[index] = true; }
 void Timer::unexpire(TimerIndex index) { _expired[index] = false; }
 bool Timer::isExpired(TimerIndex index) { return _expired[index]; }
+
+/*
+ * This is called from RTC0_IRQHandler, with interrupts disabled.
+ * The underlying CompareRegister has matched.
+ * The underlying CompareRegister has already been disabled and event cleared.
+ */
 void Timer::handleExpiration(TimerIndex index) {
-	// Callback with reason: TimerExpired
-	// TODO not the correct reason
+	/*
+	 * Callback with reason: TimerExpired
+	 * TODO not the correct reason for all Timers??
+	 */
 	timerCallback[index](SleepTimerCompare);	// call callback
-	Timer::cancel(index);
+
+	Timer::stop(index);
+	/*
+	 * Assert signal sent and Timer is stopped.
+	 * Assert callback signal won't be sent again (is nullptr, and _expired==false)
+	 */
 }
 
 
@@ -230,20 +250,21 @@ void Timer::cancel(TimerIndex index){
 	 * Legal to cancel Timer that has not been started.
 	 * Legal to call from IRQ or main thread.
 	 *
-	 * Possible race: Timer IRQ may expire in the middle of this,
-	 * so whatever flag the Timer sets may be set even after this is called.
+	 * Possible race: Timer IRQ may expire in the middle of this, so signal from Timer may happen anyway.
 	 *
 	 * We clear compare reg event, so it would not be set in a race.
 	 */
-	compareRegisters[index].disableInterrupt();
-	timerCallback[index] = nullptr;
-	compareRegisters[index].clearEvent();
+	compareRegisters[index].disableInterruptAndClearEvent();
+
+	stop(index);
 	/*
 	 * One-shot: assert:
 	 * - compare interrupt is disabled.
 	 * - compare event is cleared
-	 * - compare event is disabled
+	 *
 	 * - callback is cleared
+	 * - timer is unexpired
+	 *
 	 * Counter continues and compare reg still set, but it can't fire.
 	 */
 }

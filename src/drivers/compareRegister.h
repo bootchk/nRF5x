@@ -32,8 +32,13 @@ public:
 
 
 	void enableInterrupt() const;
+
+private:
 	void disableInterrupt() const;
 	void clearEvent() const;
+
+public:
+	void disableInterruptAndClearEvent() const;
 	bool isEvent() const;
 
 	/*

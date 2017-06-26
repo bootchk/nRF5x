@@ -34,12 +34,34 @@ static const unsigned int CountTimerInstances = 2;
 
 
 /*
- * Timers, 24-bit, one-shot. At resolution of 30uSec, max timeout is 5 seconds.
+ * Timers:
+ * - 24-bit
+ * - one-shot
+ * At resolution of 30uSec, max timeout is 5 seconds.
  * !!! Timers are shorter than the LongClock.
  *
  * Requires LongClock isRunning.
  */
 class Timer {
+private:
+	/*
+	 * Stop is called internally when Timer has expired OR when it is canceled.
+	 * The public API is "Cancel".
+	 */
+	static void stop(TimerIndex index);
+
+	/*
+	 * "expired" is an internal state.
+	 * Timer can expire when the underlying CompareRegister has not fired.
+	 */
+	static void expire(TimerIndex index);
+	static void unexpire(TimerIndex index);
+	static bool isExpired(TimerIndex index);
+
+	static void Timer::configureCompareRegisterForTimer(TimerIndex index, OSTime timeout);
+
+
+
 public:
 
 	// Not support timeouts longer than compare register
@@ -54,16 +76,12 @@ public:
 			TimerIndex index,	// [0:2]
 			OSTime timeout, // [0:0xffffff]
 			TimerCallback onTimeoutCallback);
+	/*
+	 * Cancel
+	 */
 	static void cancel(TimerIndex index);
 	static bool isStarted(TimerIndex index);
 
-	/*
-	 * "expired" is an internal state.
-	 * Timer can expire when the underlying CompareRegister has not fired.
-	 */
-	static void expire(TimerIndex index);
-	static void unexpire(TimerIndex index);
-	static bool isExpired(TimerIndex index);
 
 	/*
 	 * Action for state change from unexpired to expired.

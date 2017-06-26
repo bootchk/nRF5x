@@ -23,7 +23,7 @@ public:
 	static void stop();
 
 	static void configureOverflowInterrupt();
-	static void clearOverflowEvent();
+	static void clearOverflowEventAndWaitUntilClear();
 	static bool isOverflowEvent();
 
 	static OSTime ticks();

@@ -51,9 +51,10 @@ enum FlagIndex {
 	NoPowerToStartSyncSlot,			// 12. "
 	NoPowerToHalfSyncSlot,			//  "
 	PauseSync,					    // not enough power to listen/send sync
-	OversleptDurationIndex,			// overslept sleep time
+	IntendedSleepDuration,
+	OversleptDuration,			    // 16. overslept sleep time
 
-	BrownoutTrace1Index,			// 16. Trace for first brownout
+	BrownoutTrace1Index,			// Trace for first brownout
 	BrownoutTrace2Index = BrownoutTrace1Index + 3		// Trace for second brownout
 
 };

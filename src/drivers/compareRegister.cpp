@@ -25,6 +25,21 @@ void CompareRegister::enableInterrupt() const {
 	// not ensure nvic enabled
 }
 
+/*
+ * This is not necessarily within an ISR (with interrupts enabled.)
+ * An interrupt may occur in the middle of this.
+ * Thus the correct order is disableInterrupt, then clearEvent.
+ */
+void CompareRegister::disableInterruptAndClearEvent() const{
+	disableInterrupt();
+	clearEvent();
+	/*
+	 * Ensures event is clear.
+	 * !!! Does not ensure that interrupt did not occur and signal sent during call here.
+	 * E.G. reasonForWake could be set.
+	 */
+}
+
 
 void CompareRegister::disableInterrupt() const{
 	// Not needed: nrf_rtc_event_disable(NRF_RTC0, eventMask);

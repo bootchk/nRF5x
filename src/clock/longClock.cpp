@@ -1,15 +1,14 @@
 
-#include <clock/longClock.h>
+
 #include <cassert>
 #include <inttypes.h>
 
-#include "timer.h"
+#include <clock/longClock.h>
 
+#include "timer.h"
 #include "../drivers/lowFrequencyClock.h"
 #include "../drivers/counter.h"
 
-
-extern "C" { void RTC0_IRQHandler(void); }
 
 
 /*
@@ -48,51 +47,15 @@ void startXtalOscillator() {
 
 
 
-
-/*
- * One handler for many interrupt sources (overflow, and compare regs)
- * Many sources can be pending, so handle them all.
- *
- * Each IRQ may callback more than one user of Timer!
- *
- * Overrides weak default handler defined by gcc_startup_nrf52.c.
- */
-extern "C" {	// Binding must be "C" to override default handler.
-
-__attribute__ ((interrupt ("RTC_IRQ")))
-void
-RTC0_IRQHandler(void)
-{
-	/*
-	 * Dispatch on event type: overflow or compare reg match
-	 *
-	 * !!! More than one event may be set: handle them all
-	 * !!! The interrupt can come with no events, since SW can pend the interrupt in the NVIC
-	 */
-
-	// TODO call counterISR
-	// Source event is overflow
+void LongClock::longClockISR() {
 	if ( Counter::isOverflowEvent() ) {
 		mostSignificantBits++;
-		Counter::clearOverflowEvent();
+		Counter::clearOverflowEventAndWaitUntilClear();
 		// assert interrupt still enabled
 		// assert counter is near zero (it rolled over just before the interrupt)
+		// assert event was definitely cleared (more than 4 clock cycles ago on Cortex M4.)
 	}
-
-
-	Timer::timerISR();
-
-
-
-	/*
-	 * If any events have triggered after we checked them,
-	 * they will still trigger an interrupt and this handler will be called again.
-	 */
 }
-}	// extern "C"
-
-
-
 
 void LongClock::start() {
 
