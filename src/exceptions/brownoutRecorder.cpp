@@ -18,9 +18,12 @@ BrownoutCallback callback3 = nullptr;
 void recordTraceToFlashAtIndex(FlagIndex index)  {
 	// assume if one callback is valid, they all are
 	if (callback1 != nullptr) {
+		CustomFlash::writeWordsAtIndex(index, callback1(), callback2(), callback3());
+#ifdef OLD
 		CustomFlash::tryWriteIntAtIndex(index, callback1());
 		CustomFlash::tryWriteIntAtIndex((FlagIndex)(index+1), callback2());
 		CustomFlash::tryWriteIntAtIndex((FlagIndex)(index+2), callback3());
+#endif
 	}
 }
 

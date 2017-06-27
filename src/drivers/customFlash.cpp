@@ -74,3 +74,17 @@ void CustomFlash::copyStringPrefixToFlash(const char* text){
 
 	FlashController::disableWrite();
 }
+
+void CustomFlash::writeWordsAtIndex(FlagIndex index,
+		unsigned int value1, unsigned int value2, unsigned int value3) {
+	FlashController::enableWrite();
+	// Address arithmetic.  UICR is 32-bit words.
+	uint32_t * address = (uint32_t *) (FlashController::UICRStartAddress + index*4);
+	*(uint32_t *)(address) = value1 ;
+	*(uint32_t *)(address+4) = value2 ;
+	*(uint32_t *)(address+8) = value3 ;
+	FlashController::disableWrite();
+
+}
+
+

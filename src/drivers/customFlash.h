@@ -67,4 +67,9 @@ public:
 
 	// To a fixed place in flash
 	static void copyStringPrefixToFlash(const char* functionName);
+
+	/*
+	 * Write three words (uint32_t), without checking if already written.
+	 */
+	static void writeWordsAtIndex(FlagIndex, unsigned int, unsigned int, unsigned int );
 };
