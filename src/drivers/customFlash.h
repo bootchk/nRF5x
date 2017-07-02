@@ -72,4 +72,10 @@ public:
 	 * Write three words (uint32_t), without checking if already written.
 	 */
 	static void writeWordsAtIndex(FlagIndex, unsigned int, unsigned int, unsigned int );
+
+	/*
+	 * Clear bit of flag word.
+	 * Since flash is NOR flash, bits can be zeroed but not rewritten to one.
+	 */
+	static  void writeBitAtIndex(FlagIndex, unsigned int);
 };

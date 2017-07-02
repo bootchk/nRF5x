@@ -87,4 +87,10 @@ void CustomFlash::writeWordsAtIndex(FlagIndex index,
 
 }
 
+void CustomFlash::writeBitAtIndex(FlagIndex index, unsigned int bitIndex) {
+	// Make mask with zero at bitIndex
+	unsigned int mask = 1 << bitIndex;
+	mask = ~mask;
 
+	writeIntAtIndex(index, mask);
+}
