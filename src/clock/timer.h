@@ -67,7 +67,7 @@ public:
 	// Not support timeouts longer than compare register
 	static const unsigned int MaxTimeout = 0xFFFFFF;
 
-	// Called by LongClock.init()
+	// Called by LongClock.start()
 	static void initTimers();
 
 	static void timerISR();

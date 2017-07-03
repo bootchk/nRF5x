@@ -79,3 +79,14 @@ void MCU::enableInstructionCache(){
 void MCU::disableIRQ(){
 	__disable_irq();
 }
+
+
+bool MCU::isDebugMode() {
+#ifdef NRF52
+	// Debug mode has an instruction counter running
+	return (DWT->CYCCNT != 0);
+#else
+	// nrf51 not possible to know in software
+	return false;
+#endif
+}

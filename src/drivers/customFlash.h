@@ -39,12 +39,13 @@ class CustomFlash {
 	 * E.G. to address in UICR we write a string. e.g. address 0x10000840
 	 *
 	 * Customer UICR is 0x80 (128) bytes (32 words)
-	 * Reserve at least 16 words (64 bytes) for flags defined by app.
-	 * Reserve 6 words for brownout traces
-	 * Reserve 10 words (40 bytes) for string.
+	 *
+	 * 0-2 faults
+	 * 3-16 flags defined by app.
+	 *
+	 * 17 - 21 brownout traces 2@3 words
+	 * 10 words (40 bytes) string assertion filename
 	 */
-
-	// static const int OffsetToBrownoutTraces = 64;
 
 	static const unsigned int OffsetToString = 88;
 	static const unsigned int CountWordsOfFlashString = 10;

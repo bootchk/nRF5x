@@ -40,4 +40,9 @@ public:
 	// Disable all interrupts (using mcu PRIMASK register.)
 	// Since there is no enableIRQ(), this should only be used in a fatal condition
 	static void disableIRQ();
+
+	/*
+	 * Only effective for NRF52
+	 */
+	static bool isDebugMode();
 };

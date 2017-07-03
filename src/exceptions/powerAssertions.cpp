@@ -8,6 +8,7 @@
 #include "../drivers/adc.h"
 #include "../drivers/powerComparator.h"
 #include "../drivers/flashController.h"
+#include "../drivers/mcu.h"
 #include "powerAssertions.h"
 
 void assertUnusedOff();	// local
@@ -113,7 +114,8 @@ void assertUltraLowPower() {
 	// DCDC power regulator disabled
 	assert(NRF_POWER->DCDCEN == 0);
 
-	// TODO for nrf52 can assert not in debug mode
+	// Only effective for nrf52
+	assert(!MCU::isDebugMode());
 }
 
 void assertRadioPower() {
