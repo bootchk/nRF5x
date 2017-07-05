@@ -83,6 +83,10 @@ void MCU::disableIRQ(){
 
 bool MCU::isDebugMode() {
 #ifdef NRF52
+	/*
+	 * Not sure this works.
+	 * If not debug mode, are DWT registers readable?
+	 */
 	// Debug mode has an instruction counter running
 	return (DWT->CYCCNT != 0);
 #else
