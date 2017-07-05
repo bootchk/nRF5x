@@ -11,7 +11,7 @@
  * - monitoring for brownout
  *
  * The two purposes require coordination:
- * monitoring must be turned off while measuring power.
+ * brownout monitoring must be turned off while measuring power.
  *
  * !!! Modal.
  * enterBrownoutDetectionMode() enters the mode.
@@ -31,6 +31,12 @@
  * It is possible to get many BrownoutWarning's without an actual BOR.
  *
  * See BrownoutRecorder.
+ *
+ * Power requirements:
+ * PowerComparator uses 4uA when enabled AND (HFCLK is running.)
+ * !!! So when sleeping, brownout might not be detected:
+ * - sleeping w/ radio on: HFCLK (HFXO) is running and brownout is detected
+ * - sleeping w/o radio: brownout not detected.
  */
 
 class PowerMonitor {
