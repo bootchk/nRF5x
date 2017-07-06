@@ -136,7 +136,13 @@ void Sleeper::sleepUntilEventWithTimeout(OSTime timeout) {
 			timeout,
 			timerIRQCallback);
 
-	// Timer may already have expired, and then EventRegister is set, and this will not sleep.
+	/*
+	 * Timer may already have expired and set EventRegister.
+	 * Or EventRegister may be set for other reasons.
+	 * When EventRegister is set, this will not sleep.
+	 * To insure a sleep, you must either insure EventRegister is not set, or call this in a loop,
+	 * since MCU::sleep() will clear EventRegister.
+	 */
 	MCU::sleep();
 	/*
 	 * awakened by event: received msg or timeout or other event.

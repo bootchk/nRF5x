@@ -63,6 +63,12 @@ void MCU::sleep() {
 }
 
 
+void MCU::clearEventRegister() {
+	__SEV();
+	__WFE();	// Since internal event flag is set, this clears it without sleeping
+}
+
+
 void MCU::flushWriteCache() {
 	// Implementation: read any IO mapped address, which flushes write buffer on IO bus nrf52
 	(void) NRF_POWER->POFCON;

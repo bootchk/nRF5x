@@ -18,6 +18,11 @@ public:
 	 */
 	static void sleep();
 
+	// Clear mcu internal event flag
+	static void clearEventRegister();
+
+
+
 	/*
 	 * Flush ARM write cache to insure writes to IO memory mapped registers take effect now.
 	 * AKA write buffers between cpu and peripheral bus, see ARM docs.
