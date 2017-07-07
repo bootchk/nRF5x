@@ -115,7 +115,7 @@ void assertUltraLowPower() {
 	assert(NRF_POWER->DCDCEN == 0);
 
 	// Only effective for nrf52
-	assert(!MCU::isDebugMode());
+	// isDebugMode() doesn't seem to work:  assert(!MCU::isDebugMode());
 }
 
 void assertRadioPower() {

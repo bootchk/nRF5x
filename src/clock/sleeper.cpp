@@ -63,6 +63,7 @@ void timerIRQCallback(TimerInterruptReason reason) {
 			break;
 		case ReasonForWake::SleepTimerExpired:
 		case ReasonForWake::HFClockStarted:
+		case ReasonForWake::LFClockStarted:
 			assert(false);	// Timer was started again before handling/clearing previous expiration.
 			// Or unexpected HFClockStart
 		}
@@ -89,7 +90,8 @@ void timerIRQCallback(TimerInterruptReason reason) {
 			// Reason is already higher priority
 			break;
 		case ReasonForWake::HFClockStarted:
-			assert(false);	// Design does not user timer while HF clock is starting
+		case ReasonForWake::LFClockStarted:
+			assert(false);	// Design does not user timer while HF or LF clock is starting
 		}
 	}
 	// assert reasonForWake is not Cleared
@@ -265,10 +267,12 @@ bool Sleeper::isWakeForTimerExpired() {
 		//LogMessage::logUnexpectedWakeReason();
 		break;
 	case ReasonForWake::Cleared:
-		// Impossible, woken w/o any ISR setting reasonForWake
-		assert(false);
+		// Should be impossible, woken w/o any ISR setting reasonForWake
+		//assert(false);
+		// TODO log this
 		break;
 	case ReasonForWake::HFClockStarted:
+	case ReasonForWake::LFClockStarted:
 		// Impossible, not starting clock now
 		assert(false);
 		break;

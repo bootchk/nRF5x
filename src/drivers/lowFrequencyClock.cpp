@@ -18,8 +18,6 @@
  * and switches to the XTAL oscillator automatically.
  * Time for RC to start is 600uSec (say a few thousand instructions on the nRF52.)
  * Timer for XTAL to start is 0.25 seconds !!!
- *
- *
  */
 
 
@@ -43,7 +41,7 @@ void LowFrequencyClock::start() {
 	while (!isStarted()) {}
 #endif
 
-bool LowFrequencyClock::isStarted() {
+bool LowFrequencyClock::isStartedEvent() {
 	return nrf_clock_event_check(NRF_CLOCK_EVENT_LFCLKSTARTED);
 }
 
@@ -78,10 +76,14 @@ void LowFrequencyClock::configureXtalSource() {
 	 * Require: not started.
 	 * Nordic docs say "Source cannot be configured while running."  I assume they mean "started."
 	 */
-	assert( ! isStarted());
+	assert( ! isRunning());
 
 	nrf_clock_lf_src_set(NRF_CLOCK_LFCLK_Xtal);
 }
+
+
+void LowFrequencyClock::enableInterruptOnStarted(){ nrf_clock_int_enable(NRF_CLOCK_INT_LF_STARTED_MASK); }
+void LowFrequencyClock::disableInterruptOnStarted(){ nrf_clock_int_disable(NRF_CLOCK_INT_LF_STARTED_MASK); }
 
 
 void LowFrequencyClock::spinUntilRunning() {

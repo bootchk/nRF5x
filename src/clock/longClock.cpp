@@ -33,18 +33,6 @@ LongTime priorNow = 0;	// for assertion
 volatile uint32_t mostSignificantBits;
 
 
-/*
- * !!! Does not guarantee oscillator is running.
- */
-void startXtalOscillator() {
-	LowFrequencyClock::configureXtalSource();
-	// assert source is LFXO
-
-	LowFrequencyClock::start();
-	// not assert(LowFrequencyClock::isRunning());
-}
-
-
 } // namespace
 
 
@@ -61,11 +49,16 @@ void LongClock::longClockISR() {
 
 void LongClock::start() {
 
+	/*
+	 * RTC requires LFC started, but doesn't know how to start it.
+	 * And doesn't know details about which it is (LFXO or LFRC)
+	 */
+	assert(LowFrequencyClock::isRunning());
+
 	resetToNearZero();
 	// Later, a user (say SleepSyncAgent) can reset again
 
-	// RTC requires some LFC started, here use LFXO
-	startXtalOscillator();
+
 	/*
 	 * Oscillator might not be running (startup time.)
 	 * Oscillator source might temporarily be LFRC instead of LFXO.

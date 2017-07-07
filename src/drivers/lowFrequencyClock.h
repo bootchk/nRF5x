@@ -25,6 +25,9 @@
 
 class LowFrequencyClock {
 public:
+
+	static void enableInterruptOnStarted();
+	static void disableInterruptOnStarted();
 	static void configureXtalSource();
 
 	static void start();
@@ -34,7 +37,7 @@ public:
 	 * Was there a prior call to start() AND did the LFCKLSTARTED event occur?
 	 * !!! Does not guarantee isRunning()
 	 */
-	static bool isStarted();
+	static bool isStartedEvent();
 
 
 	/*

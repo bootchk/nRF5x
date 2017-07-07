@@ -155,8 +155,10 @@ void Timer::timerISR() {
 	}
 	else {
 		/*
+		 * When we get here, the First Timer has NOT expired but the RTC0 IRQ was called.
+		 * Thus it must be another Timer (compare register match) or Counter overflow.
 		 * First Timer is unique: used for a sleep loop.
-		 * If it is active, it will have woken by whatever event generate this interrupt.
+		 * If it is active, it will have woken by whatever event generated this interrupt.
 		 * Pass the callback the reason for wake, so it can sleep again.
 		 */
 		if ( Timer::isStarted(First) ) {

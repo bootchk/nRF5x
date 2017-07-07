@@ -34,6 +34,7 @@ enum class ReasonForWake{
 	CounterOverflowOrOtherTimerExpired,
 	BrownoutWarning,
 	HFClockStarted,
+	LFClockStarted,
 	Unknown
 } ;
 

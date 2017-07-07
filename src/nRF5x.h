@@ -11,6 +11,7 @@
 //#include <modules/ledService.h>
 
 #include <clock/sleeper.h>
+#include <clock/clockFacilitator.h>
 
 #include "services/mailbox.h"
 #include "services/logger.h"

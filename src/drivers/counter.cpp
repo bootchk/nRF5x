@@ -50,6 +50,9 @@ void Counter::configureOverflowInterrupt(){
 	// Usually, this is called shortly after starting Counter, so interrupt will come after period of Counter
 }
 
+#if __CORTEX_M != 0x04
+#error "Foo"
+#endif
 
 void Counter::clearOverflowEventAndWaitUntilClear(){
 	// HAL ensures that event is clear by reading the register after writing it (on Cortext M4)
