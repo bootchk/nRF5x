@@ -47,8 +47,8 @@ void BrownoutRecorder::registerCallbacks(
 	callback3 = c;
 }
 
-
-void BrownoutRecorder::recordToFlash(uint32_t faultAddress) {
+// OLD parameter uint32_t faultAddress
+void BrownoutRecorder::recordToFlash() {
 	/*
 	 * Since for some power supplies, the system may repeatedly brownout and POR,
 	 * and since flash is not writeable more than once,

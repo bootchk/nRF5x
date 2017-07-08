@@ -1,6 +1,6 @@
 
-#include "longClock.h"
-#include "timer.h"
+#include "../clock/longClock.h"
+#include "../clock/timer.h"
 
 
 
@@ -22,7 +22,7 @@ extern "C" {
 
 void RTC0_IRQHandler();
 
-__attribute__ ((interrupt ("RTC_IRQ")))
+__attribute__ ((interrupt ("IRQ")))
 void
 RTC0_IRQHandler(void)
 {

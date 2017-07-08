@@ -23,7 +23,8 @@ public:
 	 *
 	 * Called in a brownout state (EVENTS_POFWARN is set)
 	 */
-	static void recordToFlash(uint32_t faultAddress);
+	//OLD static void recordToFlash(uint32_t faultAddress);
+	static void recordToFlash();
 
 	/*
 	 * Register function that returns important information at time of brownout.

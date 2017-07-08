@@ -5,6 +5,7 @@
  * Understands dependencies and startup times.
  *
  * LongClock and Timers depend on RTC0 (Counter and CompareRegisters) depends on LowFrequencyClock.
+ * Starting requires IRQ enabled.
  */
 class ClockFacilitator {
 public:

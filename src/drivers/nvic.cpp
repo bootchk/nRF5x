@@ -1,4 +1,6 @@
 
+#include <cassert>
+
 #include "nvic.h"
 
 #include "nrf.h"
@@ -39,9 +41,19 @@ void Nvic::pendRTC0Interrupt() {
 /*
  * PowerClock
  */
+
+#ifdef NOT_USED
+not supported by HAL
+bool Nvic::isEnabledPowerClockIRQ(){
+	return false;
+	// !!! Not correct: NVIC_GetActive(POWER_CLOCK_IRQn);
+}
+#endif
+
 void Nvic::enablePowerClockIRQ(){
 	NVIC_ClearPendingIRQ(POWER_CLOCK_IRQn);
 	NVIC_EnableIRQ(POWER_CLOCK_IRQn);
+	//assert(isEnabledPowerClockIRQ());
 }
 
 void Nvic::disablePowerClockIRQ(){

@@ -14,7 +14,7 @@
  * If you just leave it as a separate file,
  * it doesn't resolve any symbols and so linker does not link it in
  */
-#include "rtc0IRQ.cpp"
+#include "../iRQHandlers/rtc0IRQ.cpp"
 
 /*
  * Private data.
@@ -150,6 +150,27 @@ OSTime LongClock::osClockNowTime() {
 }
 
 
+/*
+ * LongClock is running if:
+ * - LFClock is running (source to counter)
+ * - AND Counter is started (enabled to count LFClock)
+ */
 bool LongClock::isOSClockRunning(){
 	return LowFrequencyClock::isRunning();
+	// TODO AND counter started
+}
+
+/*
+ * Wait until the counter changes.
+ * Note it may overflow.
+ * So the condition is not that nextTime > firstTime, only that it is different.
+ */
+void LongClock::waitOneTick(){
+	OSTime firstTime, nextTime;
+
+	firstTime = osClockNowTime();
+	do {
+		nextTime = osClockNowTime();
+	}
+	while (nextTime == firstTime);
 }

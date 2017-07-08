@@ -6,9 +6,55 @@
 
 #include "lowFrequencyClock.h"
 
+// Used by ISR
+#include "../clock/sleeper.h"
 
 
 // Uses HAL instead of nrf_drv_clock
+
+
+void LowFrequencyClock::clockISR(){
+	/*
+	 * !!! Order is important.
+	 * Because we leave EVENT_LFCLCKSTARTED set, this code will set reasonForWake always.
+	 * So put other reasons (HFCLKCSTARTED) after it.
+	 */
+	// TODO prioritize reasonsforwake
+	/*
+	 * LF
+	 */
+	if (nrf_clock_event_check(NRF_CLOCK_EVENT_LFCLKSTARTED)) {
+		// Signal wake reason to sleep
+		Sleeper::setReasonForWake(ReasonForWake::LFClockStarted);
+
+		/*
+		 * !!!
+		 * The event must remain set so that the RTC Counter continues to increment.
+		 * See Errata 20.
+		 * But we disable interrupt so it is not triggered again by the event which remains set.
+		 */
+		disableInterruptOnStarted();
+	}
+
+	/*
+	 * HF
+	 */
+	if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED)) {
+		// Signal wake reason to sleep
+		Sleeper::setReasonForWake(ReasonForWake::HFClockStarted);
+
+		// Clear event so interrupt not triggered again.
+		nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
+	}
+}
+
+
+/*
+ * Not needed (and dangerous)
+ * clearLFClockStartedEvent()
+ * nrf_clock_event_clear(NRF_CLOCK_EVENT_LFCLKSTARTED);
+ */
+
 
 
 /*

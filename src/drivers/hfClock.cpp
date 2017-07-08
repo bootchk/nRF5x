@@ -6,20 +6,16 @@
 #include "hfClock.h"
 #include "nvic.h"
 
+#include "../clock/sleeper.h"
 
 
 
-// Include this source code so it always is linked in
-#include "../exceptions/powerIRQ.h"
 
-namespace {
+void HfCrystalClock::enableInterruptOnRunning() {
 
-Nvic* nvic = nullptr;	// uses
+	// Requires this, but not implemented
+	// assert(Nvic::isEnabledPowerClockIRQ());
 
-
-void enableInterruptOnRunning() {
-
-	nvic->enablePowerClockIRQ();
 	/*
 	 * EVENT_HFCLKSTARTED signals HFXO clock is running stably !!!!
 	 * The name seems wrong:
@@ -30,14 +26,16 @@ void enableInterruptOnRunning() {
 	nrf_clock_int_enable(NRF_CLOCK_INT_HF_STARTED_MASK);
 }
 
+bool HfCrystalClock::isInterruptEnabledForRunning() {
+	return nrf_clock_int_enable_check(NRF_CLOCK_INT_HF_STARTED_MASK);
+}
+
 #ifdef NOTUSED
 void disableInterruptOnRunning() {
 	nvic->disablePowerClockIRQ();
 	nrf_clock_int_disable(NRF_CLOCK_INT_HF_STARTED_MASK);
 }
 #endif
-
-}  // namespace
 
 
 
@@ -64,8 +62,7 @@ void disableInterruptOnRunning() {
  */
 
 
-void HfCrystalClock::init(Nvic* aNvic){
-	nvic = aNvic;
+void HfCrystalClock::init(){
 
 	enableInterruptOnRunning();
 	// Leave it enabled
@@ -76,10 +73,9 @@ void HfCrystalClock::init(Nvic* aNvic){
 /*
  * Only trigger start task.
  * Does not ensure isRunning
+ * Does not ensure interrupts enabled
  */
 void HfCrystalClock::start(){
-
-	assert(nvic != nullptr);	// has been initted
 
 	// Enable the High Frequency clock to the system as a whole
 	nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
@@ -117,7 +113,8 @@ void HfCrystalClock::startAndSleepUntilRunning() {
 	assert( !isRunning() );
 	assert(!nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED));
 
-	// assert interrupt is enabled
+	// Interrupt must be enabled because we sleep until interrupt
+	assert (isInterruptEnabledForRunning());
 
 	/*
 	 * We should not be sleeping, but other low-priority reasons such as BrownoutWarning etc.

@@ -4,7 +4,17 @@
 
 #include "mcu.h"
 
+
 #include "powerComparator.h"
+
+// Used by ISR
+#include <exceptions/brownoutRecorder.h>
+#include "../clock/sleeper.h"
+#include "../modules/powerMonitor.h"
+
+
+
+// TODO use hal, since it is family nrf52 independent
 
 /*
  * Implementation notes:
@@ -20,6 +30,60 @@
  * These thresholds are common to NRF51 and NRF52.
  * NRF52 family has finer grained thresholds (more thresholds), but highest is only 2.8V
  */
+
+/*
+ * Testing procedure for brownout detection/writing to flash:
+ * Use a NRF52DK with custom board connected by SW and having separate variable power supply.
+ * Set power supply to 3V.
+ * Start debugger and execute a main that harnesses this code.
+ * Lower the power supply to below 2.3V (or whatever you have set for brownout detection.)
+ * The debugger should stop at the BKPT below.
+ * Word 19 of UICR should contain the PC where the fault occurred.
+ * Use Eclipse memory view to view UICR at 0x10001080, use unsigned int rendering to view fault address in decimal.
+ */
+
+void PowerComparator::powerISR() {
+	if (nrf_power_event_check(NRF_POWER_EVENT_POFWARN)) {
+
+		/*
+		 * Brownout: write PC to flash so we can analyze later where in the app we brownout.
+		 */
+		BrownoutRecorder::recordToFlash();
+#ifdef NOT_USED
+		BrownoutRecorder::recordToFlash(faultAddress);
+#endif
+
+		/*
+		 * Typically little further execution is possible (power is failing).
+		 *
+		 * Alternatives:
+		 * 1) stop execution (at time of fault.)
+		 * 2) continue, signal to others BrownoutWarning, and wait for actual BOR
+		 *
+		 * 1) BKPT causes an additional hard fault on Cortext M0
+		 * __asm("BKPT #0\n") ; // Break into the debugger, if it is running
+		 * 1) resetOrHalt();
+		 *   will enter infinite loop
+		 */
+
+		/*
+		 *  2) Proceed and wait for actual BOR
+		 */
+		// Signal
+		// TODO prioritize
+		Sleeper::setReasonForWake(ReasonForWake::BrownoutWarning);
+
+		/*
+		 * Disable further POFWARN events, at least temporarily/
+		 * The app may enable them again later.
+		 * Only here do we understand how to clear EVENT.
+		 * PowerMonitor only understands disabling.
+		 */
+		nrf_power_event_clear(NRF_POWER_EVENT_POFWARN);
+		PowerMonitor::disableBrownoutDetection();
+	}
+}
+
 
 
 
@@ -120,6 +184,7 @@ void PowerComparator::setThresholdAndDisable(nrf_power_pof_thr_t threshold) {
  * This must not be optimized out.
  */
 void PowerComparator::delayForPOFEvent() {
+#ifdef NRF52
 	asm ("nop");
 	asm ("nop");
 	asm ("nop");
@@ -127,6 +192,9 @@ void PowerComparator::delayForPOFEvent() {
 
 	asm ("nop");
 	asm ("nop");
+#endif
+	// NRF51 peripheral bus freq matches cpu freq so a few cyles is enough
 	asm ("nop");
 	asm ("nop");
+
 }

@@ -118,4 +118,5 @@ public:
 	static OSTime osClockNowTime();	// LSB
 
 	static bool isOSClockRunning();
+	static void waitOneTick();
 };

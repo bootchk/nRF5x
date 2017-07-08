@@ -3,6 +3,7 @@
 #include "clockFacilitator.h"
 
 #include "../drivers/lowFrequencyClock.h"
+#include "../drivers/nvic.h"
 #include "sleeper.h"
 
 
@@ -11,13 +12,20 @@
  * We enable interrupt on LFCLOCKSTARTED, and leave it enabled.
  * The event comes and we disable interrupt but leave the event as a flag to show it is started.
  */
-// TODO disable in POWER_CLOCK IRQ
+
+
+// include so it overrides default handler
+#include "../iRQHandlers/powerClockIRQHandler.cpp"
+
 
 void ClockFacilitator::startLongClockWithSleepUntilRunning(){
 
 	/*
 	 * In reverse order of dependencies.
 	 */
+
+	// Starting clocks with sleep requires IRQ enabled
+	Nvic::enablePowerClockIRQ();
 
 	LowFrequencyClock::enableInterruptOnStarted();
 	LowFrequencyClock::configureXtalSource();
@@ -31,4 +39,8 @@ void ClockFacilitator::startLongClockWithSleepUntilRunning(){
 	Sleeper::sleepUntilEvent(ReasonForWake::LFClockStarted);
 
 	assert(LowFrequencyClock::isRunning());
+
+	// Finally, enable Counter to start counting ticks of LFClock
+	LongClock::start();
+
 }

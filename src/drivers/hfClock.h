@@ -26,11 +26,12 @@ class HfCrystalClock {
 
 private:
 	static void start();
-
+	static void enableInterruptOnRunning();
+	static bool isInterruptEnabledForRunning();
 
 public:
-	// Uses nvic
-	static void init(Nvic* nvic);
+
+	static void init();
 
 	static bool isRunning();
 

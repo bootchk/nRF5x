@@ -1,3 +1,4 @@
+#pragma once
 
 /*
  * Low frequence oscillator (not really a clock.)
@@ -25,6 +26,8 @@
 
 class LowFrequencyClock {
 public:
+
+	static void clockISR();	// Also for HFClock
 
 	static void enableInterruptOnStarted();
 	static void disableInterruptOnStarted();

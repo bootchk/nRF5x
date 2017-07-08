@@ -59,9 +59,8 @@ extern "C" {
 __attribute__ ((interrupt ("RADIO_IRQ")))
 void
 RADIO_IRQHandler()  {
+	// XXX rename radioISR
 	Radio::receivedEventHandler();	// relay to static C++ method
-	// assert ARM is in IRQ mode and assembler will generate proper RTI instructions
-	// ARM set an internal event flag will be set on RTI that must be cleared by SEV
 }
 }
 

@@ -27,6 +27,8 @@
 
 class PowerComparator {
 public:
+	static void powerISR();
+
 	static void enable();
 	static void disable();
 	static bool isDisabled();
