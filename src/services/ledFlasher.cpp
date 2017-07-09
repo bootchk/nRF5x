@@ -11,34 +11,20 @@
 
 namespace {
 
-LEDService* ledService;
-
 /*
  * Callback from timer, keep it short.
  * The timer interrupt wakes the mcu if was sleeping.
  */
 void ledOffCallback(TimerInterruptReason reason) {
 	// We don't callback for Overflow or other timers
-	// TODO SleepTimerExpired?
-	assert(reason == OverflowOrOtherTimerCompare);
+	assert(reason == SleepTimerCompare);
 
 	// TODO we should turn off led that is on, here assume it is first LED, ordinal 1
-	ledService->switchLED(1, false);
+	LEDService::switchLED(1, false);
 	// Timer cancels itself
 }
 
 } // namespace
-
-
-
-
-void LEDFlasher::init(LEDService* aLedService) {
-	// TODO require Timer is init
-	// assert(LongClock::isOSClockRunning());
-	// require LedLogger initialized
-
-	ledService = aLedService;
-}
 
 
 
@@ -57,7 +43,7 @@ void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 		return;
 	}
 
-	ledService->switchLED(ordinal, true);
+	LEDService::switchLED(ordinal, true);
 
 
 

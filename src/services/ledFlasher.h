@@ -27,6 +27,15 @@
  * - a request to flash while LED is already being flashed (ON) is ignored
  */
 
+/*
+ * Uses pure classes (device facades).
+ * Requires:
+ *  Timer is init
+ *  assert(LongClock::isOSClockRunning());
+ *  require LedLogger initialized???
+ *  LEDService initialized
+ */
+
 class LEDFlasher {
 public:
 	/*
@@ -50,7 +59,7 @@ public:
 
 
 
-	static void init(LEDService*);
+	static void init();
 
 	/*
 	 * No effect if ordinal out of range defined by boards.h
