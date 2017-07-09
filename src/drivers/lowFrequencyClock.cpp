@@ -29,11 +29,12 @@ void LowFrequencyClock::clockISR(){
 
 		/*
 		 * !!!
-		 * The event must remain set so that the RTC Counter continues to increment.
-		 * See Errata 20.
-		 * But we disable interrupt so it is not triggered again by the event which remains set.
+		 * The event does NOT need to remain set so that the RTC Counter continues to increment.  See Errata 20.
+		 * Disable interrupt and clear the event.
+		 * Assert we only start the LFCLK once, when no other interrupts are enabled.
 		 */
 		disableInterruptOnStarted();
+		nrf_clock_event_clear(NRF_CLOCK_EVENT_LFCLKSTARTED);
 	}
 
 	/*
@@ -41,10 +42,13 @@ void LowFrequencyClock::clockISR(){
 	 */
 	if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED)) {
 		// Signal wake reason to sleep
+		// Assert that no other interrupts can come and change reasonForWake
+		// Otherwise, we should not set it directly, but prioritize it.
 		Sleeper::setReasonForWake(ReasonForWake::HFClockStarted);
 
 		// Clear event so interrupt not triggered again.
 		nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
+		// Interrupt remains enabled because we start and stop HF clock often.
 	}
 }
 

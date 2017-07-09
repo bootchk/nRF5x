@@ -25,6 +25,8 @@ typedef unsigned int LEDOrdinal;
  *
  * You must call init() to guarantee pins are configured properly:
  * Valid sequence is: init(), toggleLEDs(), ...
+ *
+ * Managed pins should be dedicated, e.g. not physical pins shared with LFXO.
  */
 
 

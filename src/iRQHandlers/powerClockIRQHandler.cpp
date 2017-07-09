@@ -43,7 +43,7 @@ POWER_CLOCK_IRQHandler() {
 
 	/*
 	 * Each of powerISR and clockISR may set reasonForWake,
-	 * so they must be aware of each other, and prioritize reasonForWake.
+	 * so they must be aware of each other, or prioritize reasonForWake.
 	 */
 	PowerComparator::powerISR();
 

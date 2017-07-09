@@ -94,12 +94,12 @@ bool isVddGreaterThanThreshold(nrf_power_pof_thr_t threshold) {
 /*
  * This takes care to maintain the alternate use of POFCON: brownout detect.
  *
- * It temporarily disables brownout interrupt, then restores it.
+ * It briefly disables brownout interrupt, then restores it.
  */
 bool isVddGreaterThanThresholdWithBrownoutDetection(nrf_power_pof_thr_t threshold) {
 	bool result;
 
-	// disable brownout detection temporarily while we use device for other purpose
+	// disable brownout detection briefly while we use device for other purpose
 	PowerComparator::disableInterrupt();
 
 	// get result to be returned

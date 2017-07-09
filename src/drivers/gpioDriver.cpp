@@ -23,10 +23,14 @@ GPIOMask managedPinsMask;
 // Mask of sunk pins: logic low pulls current from LED in series with Vcc.
 GPIOMask sunkPinsMask;
 
+#ifdef NOT_USED
+/*
+ * !!! This will stop the LFXO and RTC0 counter.
+ */
 /*
  * Not sure this is necessary:
  * some forum posts say that the reset condition guarantees low power
- * while others say that NOPULL should nt be used.
+ * while others say that NOPULL should not be used.
  */
 void initLowPower() {
 	// Set every pin to IN, DISCONNECT,
@@ -42,7 +46,7 @@ void initLowPower() {
 				NRF_GPIO_PIN_NOSENSE);
 	}
 }
-
+#endif
 
 }	// namespace
 
@@ -54,9 +58,6 @@ void GPIODriver::init(GPIOMask mask, McuSinksOrSources arePinsSunk) {
 		sunkPinsMask = mask;
 	else
 		sunkPinsMask = ~mask;	// sunkPinsMask has bits set where not set in managedPinsMask
-
-	// TODO test whether this is necessary
-	initLowPower();
 }
 
 void GPIODriver::enableOut(GPIOMask mask) {

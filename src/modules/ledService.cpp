@@ -30,9 +30,10 @@ bool _wasInit = false;
  */
 GPIOIndex ledOrdinalToPinMap[MaxLedCount];
 unsigned int ledCount;
-GPIOMask allLedPinsMask;
 
-GPIODriver gpio;
+// Mask of a subset of all pins: those that the LEDService manages
+// Passed to GPIOInit and never used again; it could be eliminated by passing different parameters
+GPIOMask managedLedPinsMask;
 
 
 void createMap(int count, GPIOIndex led1GPIO, GPIOIndex led2GPIO, GPIOIndex led3GPIO, GPIOIndex led4GPIO){
@@ -70,6 +71,19 @@ GPIOMask maskFromOrdinal(unsigned int ordinal) {
 	return result;
 }
 
+/*
+ * Init Gpio from class data.
+ */
+void initGpio(McuSinksOrSources arePinsSunk) {
+	GPIODriver::init(managedLedPinsMask, arePinsSunk);
+
+	// !!! off before enable out so no glitch
+	GPIODriver::turnOff(managedLedPinsMask);
+	GPIODriver::enableOut(managedLedPinsMask);
+
+	// assert LED GPIO pins configured
+}
+
 }	// namespace
 
 
@@ -87,17 +101,14 @@ void LEDService::init(unsigned int count, McuSinksOrSources arePinsSunk, GPIOInd
 	// Similar to Nordic board.h LED macros, but at runtime, not at macro time
 	ledCount = count;
 	createMap(count, led1GPIO, led2GPI0, led3GPIO, led4GPIO);
-	allLedPinsMask = createMaskOfManagedIndices(count, led1GPIO, led2GPI0, led3GPIO, led4GPIO);
+	managedLedPinsMask = createMaskOfManagedIndices(count, led1GPIO, led2GPI0, led3GPIO, led4GPIO);
 
-	gpio.init(allLedPinsMask, arePinsSunk);
-	// !!! off before enable out so no glitch
-	gpio.turnOff(allLedPinsMask);
-	gpio.enableOut(allLedPinsMask);
+	initGpio(arePinsSunk);
 
-	// assert LED GPIO pins configured
 	// assert self count, map, allLedsMask are initialized
+
 	// ensure LEDs are dark
-	assert(! gpio.isOn(allLedPinsMask));
+	assert(! GPIODriver::isOn(managedLedPinsMask));
 }
 
 bool LEDService::wasInit() {
@@ -112,13 +123,13 @@ void LEDService::toggleLEDsInOrder() {
 }
 
 void LEDService::toggleLED(unsigned int ordinal) {
-	gpio.invert(maskFromOrdinal(ordinal));
+	GPIODriver::invert(maskFromOrdinal(ordinal));
 }
 
 void LEDService::switchLED(unsigned int ordinal, bool state) {
 	if (state)
-		gpio.turnOn(maskFromOrdinal(ordinal));
+		GPIODriver::turnOn(maskFromOrdinal(ordinal));
 	else
-		gpio.turnOff(maskFromOrdinal(ordinal));
+		GPIODriver::turnOff(maskFromOrdinal(ordinal));
 }
 

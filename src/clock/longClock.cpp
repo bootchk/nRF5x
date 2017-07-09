@@ -61,7 +61,7 @@ void LongClock::start() {
 
 	/*
 	 * Oscillator might not be running (startup time.)
-	 * Oscillator source might temporarily be LFRC instead of LFXO.
+	 * Oscillator source might briefly be LFRC instead of LFXO.
 	 */
 
 	// Product anomaly 20 on nRF52 says do this

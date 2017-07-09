@@ -74,7 +74,7 @@ void PowerComparator::powerISR() {
 		Sleeper::setReasonForWake(ReasonForWake::BrownoutWarning);
 
 		/*
-		 * Disable further POFWARN events, at least temporarily/
+		 * Disable further POFWARN events, until enabled later.
 		 * The app may enable them again later.
 		 * Only here do we understand how to clear EVENT.
 		 * PowerMonitor only understands disabling.
