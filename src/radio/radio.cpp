@@ -37,7 +37,7 @@ namespace {
 // RadioDevice device;
 
 // protocol module uses but doesn't own
-Nvic* nvic;
+// Nvic* nvic;
 
 
 void (*aRcvMsgCallback)() = nullptr;
@@ -71,9 +71,6 @@ RADIO_IRQHandler()  {
 
 // Class data
 RadioDevice Radio::device;
-
-HfCrystalClock* Radio::hfCrystalClock;
-DCDCPowerSupply* Radio::dcdcPowerSupply;
 
 
 
@@ -144,11 +141,11 @@ void Radio::clearEventForMsgReceivedInterrupt() { device.clearDisabledEvent(); }
  */
 void Radio::enableInterruptForMsgReceived() {
 	assert(!device.isDisabledEventSet());	// else interrupt immediately???
-	nvic->enableRadioIRQ();
+	Nvic::enableRadioIRQ();
 	device.enableInterruptForDisabledEvent();
 }
 void Radio::disableInterruptForMsgReceived() {
-	nvic->disableRadioIRQ();
+	Nvic::disableRadioIRQ();
 	device.disableInterruptForDisabledEvent();
 }
 bool Radio::isEnabledInterruptForMsgReceived() {
@@ -187,16 +184,8 @@ void Radio::dispatchPacketCallback() {
 
 
 
-void Radio::init(
-		Nvic* aNvic,
-		DCDCPowerSupply* aPowerSupply,
-		HfCrystalClock* aHfClock
-		)
+void Radio::configure()
 {
-	nvic = aNvic;
-	dcdcPowerSupply = aPowerSupply;
-	hfCrystalClock = aHfClock;
-
 	// Not require radio device power on
 
 	// assert radio is configured to device reset defaults, which is non-functional.
@@ -320,7 +309,7 @@ void Radio::shutdownDependencies() {
 	// not ensure not ready; caller must spin if necessary
 	*/
 
-	hfCrystalClock->stop();
+	HfCrystalClock::stop();
 	// assert hf RC clock resumes for other peripherals
 
 	state = PowerOff;

@@ -41,13 +41,10 @@ void msgReceivedCallback() {
 int main() {
 	// assert embedded system startup is done and calls main.
 
+	// TODO this is obsolete, FIXME
 	LongClock::start();
 
-	radio.init(
-			&nvic,
-			&powerSupply,
-			&hfClock
-	);
+	radio.configure();
 
 	radio.setMsgReceivedCallback(msgReceivedCallback);
 	log("Initialized clock and radio\n");

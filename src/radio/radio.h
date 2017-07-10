@@ -104,9 +104,7 @@ public:
 	// Radio owns instance of RadioDevice
 	static RadioDevice device;
 
-	// Radio knows and exposes to others
-	static HfCrystalClock* hfCrystalClock;
-	static DCDCPowerSupply* dcdcPowerSupply;
+	// Radio knows and uses HfCrystalClock, DCDCPowerSupply, Nvic
 
 	// Define protocol lengths
 
@@ -153,14 +151,9 @@ public:
 	static void receivedEventHandler();
 
 	/*
-	 * Tells radio of needed other devices. More configuration required.
+	 * Configure protocol.  Other configuration required before each session.
 	 */
-	static void init(
-			// Used devices
-			Nvic*,
-			DCDCPowerSupply*,
-			HfCrystalClock*
-			);
+	static void configure();
 
 	/*
 	 * Set callback for all physical messages received.

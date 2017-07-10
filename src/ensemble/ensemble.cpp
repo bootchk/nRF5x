@@ -11,9 +11,13 @@
 
 
 void Ensemble::init(MsgReceivedCallback aCallback) {
-	// Only need configure radio.
+
+	HfCrystalClock::init();
+	assert(! HfCrystalClock::isRunning());	// xtal not running
+
 	// On some platforms, it stays configured.
-	Radio::configurePhysicalProtocol();
+	Radio::configure();
+
 	Radio::setMsgReceivedCallback(aCallback);
 }
 
@@ -26,7 +30,7 @@ bool Ensemble::isLowPower() {
 	return ((!Radio::isPowerOn()) && !Radio::hfCrystalClock->isRunning());
 #else
 	// Radio will be low power if not in use
-	return ((!isRadioInUse()) && !Radio::hfCrystalClock->isRunning());
+	return ((!isRadioInUse()) && !HfCrystalClock::isRunning());
 #endif
 }
 
