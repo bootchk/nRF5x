@@ -37,3 +37,8 @@ DeviceID myID() {
 	return result;
 }
 
+
+uint8_t myShortID() {
+	return (uint8_t) myID();
+}
+
