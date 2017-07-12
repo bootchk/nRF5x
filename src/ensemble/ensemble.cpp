@@ -18,7 +18,7 @@ void Ensemble::init(MsgReceivedCallback aCallback) {
 
 	assert(! HfCrystalClock::isRunning());	// xtal not running
 
-	// On some platforms, it stays configured.
+	// On some platforms, it stays configured for life of app.
 	Radio::configure();
 
 	Radio::setMsgReceivedCallback(aCallback);
@@ -53,6 +53,7 @@ void Ensemble::startup() {
 
 	// enable this first so it has time to ramp up
 	// assert enough power for radio => >2.1V required by DCDCPowerSupply
+	// TODO what if the board has no DCDC components?  e.g. Waveshare
 	DCDCPowerSupply::enable();
 
 #ifdef RADIO_POWER_IS_REAL
