@@ -6,7 +6,7 @@
 #include "hfClock.h"
 #include "nvic.h"
 
-#include "../clock/sleeper.h"
+// Driver: no calls to other modules, only to HAL
 
 
 
@@ -30,12 +30,10 @@ bool HfCrystalClock::isInterruptEnabledForRunning() {
 	return nrf_clock_int_enable_check(NRF_CLOCK_INT_HF_STARTED_MASK);
 }
 
-#ifdef NOTUSED
-void disableInterruptOnRunning() {
-	nvic->disablePowerClockIRQ();
+void HfCrystalClock::disableInterruptOnRunning() {
 	nrf_clock_int_disable(NRF_CLOCK_INT_HF_STARTED_MASK);
 }
-#endif
+
 
 
 
@@ -62,13 +60,6 @@ void disableInterruptOnRunning() {
  */
 
 
-void HfCrystalClock::init(){
-
-	enableInterruptOnRunning();
-	// Leave it enabled
-}
-
-
 
 /*
  * Only trigger start task.
@@ -91,6 +82,9 @@ void HfCrystalClock::start(){
 }
 
 
+bool HfCrystalClock::isStartedEvent(){
+	return nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED);
+}
 
 
 bool HfCrystalClock::isRunning(){
@@ -104,42 +98,10 @@ bool HfCrystalClock::isRunning(){
 }
 
 
-void HfCrystalClock::startAndSleepUntilRunning() {
-	/*
-	 * Illegal to call if already running.
-	 * In that case, there might not be an event or interrupt to wake,
-	 * or the interrupt could occur quickly after we start() but before we sleep (WFI)
-	 */
-	assert( !isRunning() );
-	assert(!nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED));
-
-	// Interrupt must be enabled because we sleep until interrupt
-	assert (isInterruptEnabledForRunning());
-
-	/*
-	 * We should not be sleeping, but other low-priority reasons such as BrownoutWarning etc.
-	 * could be set and lost by this clear.
-	 */
-	Sleeper::clearReasonForWake();
-	start();
-	/*
-	 * Event may have come already, but there is not a race to clear reason.
-	 * sleepUntilEvent does NOT clearReasonForWake.
-	 */
-
-	// Blocking
-	Sleeper::sleepUntilEvent(ReasonForWake::HFClockStarted);
-
-	// assert ISR cleared event.
-
-	// Do not disable interrupt.
-
-	assert(isRunning());
-}
 
 
 #ifdef NOTUSED
-void HfCrystalClock::startAndWaitUntilRunning(){
+void HfCrystalClock::startAndSpinUntilRunning(){
 
 	// Enable the High Frequency clock to the system as a whole
 	start();

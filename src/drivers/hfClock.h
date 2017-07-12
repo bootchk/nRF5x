@@ -24,25 +24,17 @@
 
 class HfCrystalClock {
 
-private:
-	static void start();
+public:
 	static void enableInterruptOnRunning();
+	static void disableInterruptOnRunning();
 	static bool isInterruptEnabledForRunning();
 
-public:
-
-	static void init();
-
+	static void start();
+	static bool isStartedEvent();
 	static bool isRunning();
 
 	static void stop();
 
-	// static void startAndWaitUntilRunning();
-
-	/*
-	 * Sleep during startup to avoid energy consumption.
-	 * Does not return until running, but is low power until then.
-	 * HfCrystalClock takes about 0.5 mSec to run stable.
-	 */
-	static void startAndSleepUntilRunning();
+	// TODO move to ClockFacilitator
+	// static void startAndSpinUntilRunning();
 };

@@ -7,12 +7,15 @@
 #include "../radio/radio.h"
 #include "../drivers/hfClock.h"
 #include "../drivers/powerSupply.h"
+#include "../clock/clockFacilitator.h"
 
+// temp, for measuring varying startup duration
+#include "../clock/longClock.h"
+#include "../services/logger.h"
 
 
 void Ensemble::init(MsgReceivedCallback aCallback) {
 
-	HfCrystalClock::init();
 	assert(! HfCrystalClock::isRunning());	// xtal not running
 
 	// On some platforms, it stays configured.
@@ -21,9 +24,9 @@ void Ensemble::init(MsgReceivedCallback aCallback) {
 	Radio::setMsgReceivedCallback(aCallback);
 }
 
-bool Ensemble::isConfigured(){
-	return Radio::isConfigured();
-}
+// The only member that needs configuration is Radio
+bool Ensemble::isConfigured(){ return Radio::isConfigured(); }
+
 
 bool Ensemble::isLowPower() {
 #ifdef RADIO_POWER_IS_REAL
@@ -60,8 +63,25 @@ void Ensemble::startup() {
 	// Radio stays powered and configured.
 #endif
 
-	// TIMING: 360uSec
-	HfCrystalClock::startAndSleepUntilRunning();
+	/*
+	 * Timing varies by board, since different crystal models used.
+	 * NRF52DK: 11 ticks == 360uSec
+	 * Waveshare nRF51: 40 ticks == 1200uSec
+	 */
+	// temp
+	LongTime startTime = LongClock::nowTime();
+	/*
+	 * OLD
+	 * Formerly, startup required varying duration.
+	 * Now, startup takes a constant duration.
+	 *
+	 * HfCrystalClock::startAndSleepUntilRunning();
+	 */
+	// TODO symbolic constant that depends on the board
+	ClockFacilitator::startHFClockWithSleepConstantExpectedDelay(40);
+	logInt(LongClock::nowTime() - startTime);
+	log("<hfclock start\n");
+
 	assert(Radio::isConfigured());
 }
 

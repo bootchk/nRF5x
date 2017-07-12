@@ -3,8 +3,12 @@
 #include "clockFacilitator.h"
 
 #include "../drivers/lowFrequencyClock.h"
+#include "../drivers/hfClock.h"
 #include "../drivers/nvic.h"
+
 #include "sleeper.h"
+
+#include "../../../sleepSyncAgent/src/syncAgent/sleepers/syncSleeper.h"
 
 
 /*
@@ -44,3 +48,61 @@ void ClockFacilitator::startLongClockWithSleepUntilRunning(){
 	LongClock::start();
 
 }
+
+
+void ClockFacilitator::startHFClockWithSleepConstantExpectedDelay(OSTime delay){
+	assert( !HfCrystalClock::isRunning() );
+	assert(!HfCrystalClock::isStartedEvent());
+
+	// We don't want interrupt
+	assert(!HfCrystalClock::isInterruptEnabledForRunning());
+
+	Sleeper::clearReasonForWake();
+	HfCrystalClock::start();
+
+	// TODO depends on SyncSleeper.  Maybe move SyncSleeper to nRF5x??? or ClockFacilitator up?
+	// Blocking
+	SyncSleeper::sleepUntilTimeout(delay);
+
+	/*
+	 * !!! Not unsure HFXO is stably running.
+	 * We waited a constant time that is expected, but not guaranteed for HFXO to be running.
+	 * The constant time might depend on measurements of actual board implementations of crystal network.
+	 */
+}
+
+
+
+void ClockFacilitator::startHFXOAndSleepUntilRunning() {
+	/*
+	 * Illegal to call if already running.
+	 * In that case, there might not be an event or interrupt to wake,
+	 * or the interrupt could occur quickly after we start() but before we sleep (WFI)
+	 */
+	assert( !HfCrystalClock::isRunning() );
+	assert(!HfCrystalClock::isStartedEvent());
+
+	// Interrupt must be enabled because we sleep until interrupt
+	HfCrystalClock::enableInterruptOnRunning();
+
+	/*
+	 * We should not be sleeping, but other low-priority reasons such as BrownoutWarning etc.
+	 * could be set and lost by this clear.
+	 */
+	Sleeper::clearReasonForWake();
+	HfCrystalClock::start();
+	/*
+	 * Event may have come already, but there is not a race to clear reason.
+	 * sleepUntilEvent does NOT clearReasonForWake.
+	 */
+
+	// Blocking
+	Sleeper::sleepUntilEvent(ReasonForWake::HFClockStarted);
+
+	// assert ISR cleared event.
+
+	HfCrystalClock::disableInterruptOnRunning();
+
+	assert(HfCrystalClock::isRunning());
+}
+
