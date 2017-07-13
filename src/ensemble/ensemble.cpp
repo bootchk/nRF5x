@@ -69,8 +69,10 @@ void Ensemble::startup() {
 	 * NRF52DK: 11 ticks == 360uSec
 	 * Waveshare nRF51: 40 ticks == 1200uSec
 	 */
-	// temp
+	/* Debugging
 	LongTime startTime = LongClock::nowTime();
+	*/
+
 	/*
 	 * OLD
 	 * Formerly, startup required varying duration.
@@ -80,8 +82,11 @@ void Ensemble::startup() {
 	 */
 	// TODO symbolic constant that depends on the board
 	ClockFacilitator::startHFClockWithSleepConstantExpectedDelay(40);
+
+	/* Debugging
 	logInt(LongClock::nowTime() - startTime);
 	log("<hfclock start\n");
+	*/
 
 	assert(Radio::isConfigured());
 }
