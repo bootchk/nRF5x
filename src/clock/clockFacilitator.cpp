@@ -53,7 +53,9 @@ void ClockFacilitator::startLongClockWithSleepUntilRunning(){
 
 void ClockFacilitator::startHFClockWithSleepConstantExpectedDelay(OSTime delay){
 	assert( !HfCrystalClock::isRunning() );
-	assert(!HfCrystalClock::isStartedEvent());
+
+	// Don't care whether event is set since not using interrupt on event
+	// assert(!HfCrystalClock::isStartedEvent());
 
 	// We don't want interrupt
 	assert(!HfCrystalClock::isInterruptEnabledForRunning());

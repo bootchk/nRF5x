@@ -5,10 +5,11 @@
 
 
 /*
- * Understands dependencies and startup times.
+ * Facilitates (coordinates) starting of various clocks.
+ * Understands/hides dependencies and startup times.
  * For higher level clocks:
- * - LongClock (extended, counting, LFClock)
- * - HfClock (just an oscillator, no counting)
+ * - LongClock (extended, counting, LFClock).  Starts the dependencies and sleeps until running.
+ * - HfClock (just an oscillator, no counting).  No dependencies but delays or sleeps until running.
  *
  *
  * LongClock and Timers depend on RTC0 (Counter and CompareRegisters) depends on LowFrequencyClock.
