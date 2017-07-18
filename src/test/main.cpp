@@ -25,6 +25,7 @@
 
 // TODO no instance needed
 Nvic nvic;
+RTTLogger logger;
 
 
 HfCrystalClock hfClock;
@@ -33,7 +34,7 @@ Radio radio;
 
 void msgReceivedCallback();
 void msgReceivedCallback() {
-	log("Msg received\n");
+	logger.log("Msg received\n");
 }
 
 
@@ -47,11 +48,11 @@ int main() {
 	radio.configure();
 
 	radio.setMsgReceivedCallback(msgReceivedCallback);
-	log("Initialized clock and radio\n");
+	logger.log("Initialized clock and radio\n");
 
 	while (true) {
 		// delay
-		logLongLong( LongClock::nowTime() );
+		logger.log( LongClock::nowTime() );
 		// longClock.timer1.start(100);
 	}
 

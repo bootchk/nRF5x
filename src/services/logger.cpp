@@ -9,26 +9,26 @@
 // from NRF_SDK/external/segger_rtt
 #include <SEGGER_RTT.h>
 
-void initLogging() {
+void RTTLogger::init() {
 	SEGGER_RTT_Init();
 }
 
-void log(const char* aString) {
+void RTTLogger::log(const char* aString) {
 	SEGGER_RTT_WriteString(0, aString);
 }
 
 
 //I had trouble with this being undefined in linker, name mangled to logPK...
-void logByte(uint8_t value){
+void RTTLogger::log(uint8_t value){
 	(void) SEGGER_RTT_printf(0, "x%02x", value);
 }
 
 
-void logInt(uint32_t value){
+void RTTLogger::log(uint32_t value){
 	(void) SEGGER_RTT_printf(0, "%u", value);
 }
 
-void logLongLong(uint64_t value ){
+void RTTLogger::log(uint64_t value ){
 	// Print 64-bit int as two uint32-t on same line, hex notation
 	// FUTURE this should work, but it doesn't????
 	//(void) SEGGER_RTT_printf(0, "%x %x\n", *(((uint32_t*) &value) + 1), value);

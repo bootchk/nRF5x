@@ -27,11 +27,14 @@ void initLogging(void)
 
 #endif
 
-void initLogging();
-void log(const char* aString);
-void logByte(uint8_t);
-void logInt(uint32_t);
-void logLongLong(uint64_t);
+class RTTLogger {
+public:
+	static void init();
+	static void log(const char* aString);
+	static void log(uint8_t);
+	static void log(uint32_t);
+	static void log(uint64_t);
+};
 
 
 //void logPrintf(const char * sFormat, ...);

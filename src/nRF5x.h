@@ -14,7 +14,6 @@
 #include <clock/clockFacilitator.h>
 
 #include "services/mailbox.h"
-#include "services/logger.h"
 #include "services/ledFlasher.h"
 
 #include "ensemble/ensemble.h"
@@ -31,4 +30,6 @@
 #include "drivers/mcu.h"
 #include "drivers/customFlash.h"
 
+// optional
+// #include "services/logger.h"
 
