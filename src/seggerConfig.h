@@ -9,11 +9,16 @@
 // <i> or this value is actually used. It depends on which one is bigger.
 
 #ifndef SEGGER_RTT_CONFIG_BUFFER_SIZE_UP
-#define SEGGER_RTT_CONFIG_BUFFER_SIZE_UP 64
+// lkk 64->512.  Remember this only affects a build config built with logging
+#define SEGGER_RTT_CONFIG_BUFFER_SIZE_UP (512)
+#else
+#error "my def not ef"
 #endif
+
 
 // <o> SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS - Size of upstream buffer.
 #ifndef SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS
+// lkk tried  2->8, didn't help.  I always only use buffer 0
 #define SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS 2
 #endif
 
