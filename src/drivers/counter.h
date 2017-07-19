@@ -2,7 +2,7 @@
 
 #include <inttypes.h>
 
-#include "../types.h"  // OSTime
+#include "../platformTypes.h"  // OSTime
 
 // Uses Nvic class
 

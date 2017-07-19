@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "../drivers/counter.h"	// OSTime
+#include "../platformTypes.h"	// OSTime
 
 
 /*

@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "../types.h"	// library types
+#include "../platformTypes.h"
 
 /*
  * Simple mailbox:
