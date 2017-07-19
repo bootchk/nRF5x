@@ -2,13 +2,10 @@
 
 #include <inttypes.h>
 
+#include "../types.h"  // OSTime
+
 // Uses Nvic class
 
-
-/*
- * Type the Counter yields.  Only 24 bits are valid.
- */
-typedef uint32_t OSTime;
 
 
 

@@ -8,7 +8,6 @@
 // For now, just the ones I use
 #include <clock/longClock.h>
 #include <exceptions/brownoutRecorder.h>
-//#include <modules/ledService.h>
 
 #include <clock/sleeper.h>
 #include <clock/clockFacilitator.h>
