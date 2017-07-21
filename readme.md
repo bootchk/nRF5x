@@ -47,12 +47,22 @@ Other important settings:
     Tool Settings>Target Processor  float abi hard (nRF52 has FPU)
     *Properties>C/C++ General>Paths and Symbols>Symbols* define NRF52 or NRF51, and a board e.g. PC10040?
     
-Other settings:
 
-    *Properties>C/C++ General>Paths and Symbols>Symbols* define LOGGING to make Logger potent
 
 AFAIK, many of the other defines for PAN's (Product Anomalies) found in Nordic Makefiles are not needed for this library.  They seem to affect code conditionally compiled into certain Nordic libraries.
 
+Build Configurations that log
+-
+
+Several build configurations implement logging using Segger RTT.  For these configurations, the RTTLogger::log() methods are potent.  In other build configurations, calls to those methods do nothing (conditionally compiled by LOGGING macro var.)
+
+Segger RTT source code is in src/test/external and is not excluded from the build configuration. (In Eclipse, you see a slash through the icon when it IS excluded.  Click RightMouseButton on file and choose ResourceConfigurations>ExcludeFromBuild to see which build configs a source file is excluded from. )
+
+Other settings:
+
+    *Properties>C/C++ General>Paths and Symbols>Symbols* define LOGGING to make RTTLogger potent
+
+Also, Segger RTT source depends on Nordic SDK app_util_platform.cpp for critical section functions.  Currently not built into the library, but built into calling apps.  Also, so .h files are found, app build config has include paths to "${NRF_SDK}/external/segger_rtt", "${NRF_SDK}/components/libraries/util", and "${NRF_SDK}/components/drivers_nrf/nrf_soc_nosd" .  FIXME, move these to the library build configs.
 
 Debugging
 -
