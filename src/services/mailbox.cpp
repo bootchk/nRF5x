@@ -17,6 +17,7 @@
 
 void Mailbox::put(WorkPayload aItem){
 	// FUTURE Thread safe: atomic
+	assert(! isItem);
 	item = aItem;
 	isItem = true;
 }
