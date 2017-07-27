@@ -124,7 +124,7 @@ void Radio::radioISR(void)
 }
 
 
-static LongTime timeOfArrival() { return _timeOfArrival; }
+LongTime Radio::timeOfArrival() { return _timeOfArrival; }
 
 
 
