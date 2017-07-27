@@ -9,6 +9,11 @@
 
 #include "../drivers/radio/types.h"	// BufferPointer
 
+// uses LongClock to timestamp.
+#include "../clock/longClock.h"
+
+
+
 // XXX enum class
 typedef enum {
 	Receiving,
@@ -148,7 +153,7 @@ public:
 
 
 
-	static void receivedEventHandler();
+	static void radioISR();
 
 	/*
 	 * Configure protocol.  Other configuration required before each session.
@@ -238,7 +243,7 @@ public:
 	static void setupXmitOrRcv(BufferPointer data, uint8_t length);
 #endif
 
-
+	static LongTime timeOfArrival();
 
 
 

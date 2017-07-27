@@ -9,6 +9,10 @@
 #include "../drivers/nvic.h"
 #include "../drivers/powerSupply.h"
 
+
+
+
+
 // Debugging
 // TODO pass this into radio and only call it if non-null
 // LEDService ledLogger2;
@@ -31,6 +35,12 @@
  * !!! Note this file has no knowledge of registers (nrf.h) , see radioLowLevel and radioConfigure.c
  */
 
+
+// Class data
+// Singleton.  Device is not shared.
+RadioDevice Radio::device;
+
+
 namespace {
 
 // protocol module owns radio device
@@ -39,8 +49,11 @@ namespace {
 // protocol module uses but doesn't own
 // Nvic* nvic;
 
-
+// App's callback
 void (*aRcvMsgCallback)() = nullptr;
+
+// timestamp of packet
+LongTime _timeOfArrival;
 
 // State currently just used for assertions
 RadioState state;
@@ -53,15 +66,12 @@ RadioState state;
  */
 volatile uint8_t radioBuffer[Radio::FixedPayloadCount];
 
-
 extern "C" {
 
 __attribute__ ((interrupt ("RADIO_IRQ")))
 void
-RADIO_IRQHandler()  {
-	// XXX rename radioISR
-	Radio::receivedEventHandler();	// relay to static C++ method
-}
+RADIO_IRQHandler()  { Radio::radioISR(); }
+
 }
 
 
@@ -69,18 +79,19 @@ RADIO_IRQHandler()  {
 
 
 
-// Class data
-RadioDevice Radio::device;
 
-
-
-
-void Radio::receivedEventHandler(void)
+void Radio::radioISR(void)
 {
 	// We only expect an interrupt on packet received
 
     if (isEventForMsgReceivedInterrupt())
     {
+    	/*
+    	 * Timestamp packet ASAP.
+    	 * For every packet, including those with CRC errors.
+    	 */
+    	_timeOfArrival = LongClock::nowTime();
+
     	assert(state == Receiving);	// sanity
 
     	clearEventForMsgReceivedInterrupt();
@@ -111,6 +122,9 @@ void Radio::receivedEventHandler(void)
     assert(!isEventForMsgReceivedInterrupt());	// Ensure event is clear else get another unexpected interrupt
     // assert Sleeper::reasonForWake != None
 }
+
+
+static LongTime timeOfArrival() { return _timeOfArrival; }
 
 
 
