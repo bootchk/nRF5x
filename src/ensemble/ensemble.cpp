@@ -52,9 +52,16 @@ bool Ensemble::isPacketCRCValid()          { return Radio::isPacketCRCValid(); }
 void Ensemble::startup() {
 
 	// enable this first so it has time to ramp up
-	// assert enough power for radio => >2.1V required by DCDCPowerSupply
-	// TODO what if the board has no DCDC components?  e.g. Waveshare
-	DCDCPowerSupply::enable();
+	// FIXME
+	/*
+	 * This should be conditionally compiled for whether board has DCDC components?  e.g. Waveshare
+	 * The behaviour of the power supply when board has no LC components is not specified.
+	 *
+	 * This should check whether Vcc > 2.1V.
+	 * Nordic docs state DCDC should not be used in that condition.
+	 */
+	// until fixed, commented out
+	// DCDCPowerSupply::enable();
 
 #ifdef RADIO_POWER_IS_REAL
 	Radio::powerOn();
