@@ -35,7 +35,7 @@ enum class ReasonForWake{
 	BrownoutWarning,
 	HFClockStarted,
 	LFClockStarted,
-	Unknown
+	Unknown			// An ISR was called but it found no expected events.
 } ;
 
 
