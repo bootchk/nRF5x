@@ -30,29 +30,27 @@ void ledOffCallback(TimerInterruptReason reason) {
 
 
 void LEDFlasher::flashLEDMinimumVisible(unsigned int ordinal) {
-	flashLEDByAmount(ordinal, MinAmountToFlash);
+	flashLEDByAmount(ordinal, MinFlashAmount);
 }
 
 void LEDFlasher::flashLEDByAmount(unsigned int ordinal, unsigned int amount){
 	// assert LEDService initialized
 	// assert TimerService initialized
-	assert(amount>=MinAmountToFlash);
-	if (Timer::isStarted(Second)) {
-		// Led already flashing.
-		// Illegal to start Timer already started.
-		return;
-	}
+
+	// Check range
+	assert(amount>=MinFlashAmount);
+	// Clamp to max
+	if (amount > MaxFlashAmount )  amount = MaxFlashAmount;
+
+
+	// Return if already flashing.
+	if (Timer::isStarted(Second)) {	return; }
+
 
 	LEDService::switchLED(ordinal, true);
 
-
-
-	// Clamp to max
-	if (amount > MaxFlashAmount )
-		amount = MaxFlashAmount;
-
-	// Calculate timeout in units ticks from amount in units of min visible flash
-	OSTime timeout = amount * MinVisibleTicksPerFlash;
+	// Calculate timeout in units ticks from amount units
+	OSTime timeout = amount * TicksPerFlashAmount;
 
 	// start timer to turn LED off
 	Timer::start(

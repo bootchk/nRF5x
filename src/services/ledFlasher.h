@@ -37,25 +37,28 @@
  */
 
 class LEDFlasher {
+
+private:
+	/*
+	 * Conversion factor from FlashAmount to TimerTick.
+	 * Ticks for 32kHz clock are 0.030 mSec
+	 * Conversion factor of 20  gives a .6 mSec flash, which is barely visible in indoor room light.
+	 */
+	static const unsigned int TicksPerFlashAmount = 20;
+
+
 public:
 	/*
-	 * Amount is in units that equal 20 ticks.
-	 * Amount==1 is barely visible.
+	 * Min and max FlashAmount
 	 */
-	static const unsigned int MinAmountToFlash = 1;
-
-	/*
-	 * Ticks for 32kHz clock are 0.030 mSec
-	 * This gives a .6 mSec flash, which is barely visible in indoor room light.
-	 */
-	static const unsigned int MinVisibleTicksPerFlash = 20;
+	static const unsigned int MinFlashAmount = 1;
 
 	/*
 	 * Timer constrains max.
 	 * Timer may be 32-bit, i.e. 16M
 	 * Which yields (16M/20)*0.0006 = 50s
 	 */
-	static const unsigned int MaxFlashAmount = Timer::MaxTimeout / MinVisibleTicksPerFlash;
+	static const unsigned int MaxFlashAmount = Timer::MaxTimeout / TicksPerFlashAmount;
 
 
 
