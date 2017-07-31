@@ -12,6 +12,10 @@
 
 #include "faultHandlers.h"
 
+// Whether to soft reset versus low-power infinite loop
+// Usually defined in build configuration, -D flag to compiler
+// #define RESET_INSTEAD_OF_HALT 1
+
 
 namespace {
 
@@ -51,13 +55,14 @@ extern "C" {
  * Conditionally compile:
  * - Release mode: reset and keep trying to function
  * - Debug mode: sleep forever in low power
+ *
+ * Even if reset, an exception might be recorded in UICR
  */
 __attribute__((noreturn))
 void resetOrHalt() {
-    // On fault, the system can only recover with a reset.
-#ifdef NDEBUG
-	// TODO we may want to leave assertions in the release version: change NDEBUG to IS_RELEASE
-	// If C standard symbol NDEBUG is defined, assertions off, and this resets system instead of sleeping.
+
+#ifdef RESET_INSTEAD_OF_HALT
+	// Reset (boot and start over.)
     Nvic::softResetSystem();
 #else
     sleepForeverInLowPower();
@@ -66,7 +71,12 @@ void resetOrHalt() {
 
 /*
  * A fault has occurred.
- * Try to record it and to stay out of brownout.
+ * Try to stay out of brownout.
+ *
+ * This is only useful in that you can see that the app has stopped
+ * (instead of resetting and appearing to run normally.)
+ * It might be more useful if you can attach debugger and break into the running program.
+ * Debug mode takes 1-4mA so likely that solar power is not enough to support
  */
 __attribute__((noreturn))
 void sleepForeverInLowPower() {
