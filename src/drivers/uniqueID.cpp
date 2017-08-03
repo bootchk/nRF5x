@@ -1,10 +1,7 @@
-#include <cassert>
-#include <inttypes.h>
-
-#include <nrf.h>
 
 #include "uniqueID.h"
 
+#include <nrf.h>
 
 /*
  * unique ID burned at factory
@@ -12,14 +9,10 @@
  */
 
 
-
-// But only use LSB six bytes
-#define MAX_DEVICE_ID   0xfFfFfFfFfFfF
-
 // FUTURE use a 48-bit bit field
 
 
-DeviceID myID() {
+uint64_t deviceID() {
 	/*
 	 * NRF_FICR->DEVICEADDR[] is array of 32-bit words.
 	 * NRF_FICR->DEVICEADDR yields type (unit32_t*)
@@ -29,16 +22,7 @@ DeviceID myID() {
 	 * Nordic doc asserts upper two bytes read all ones.
 	 */
 	uint64_t result = *((uint64_t*) NRF_FICR->DEVICEADDR);
-
-	// Mask off upper bytes, to match over-the-air length of 6 bytes.
-	result = result & MAX_DEVICE_ID;
-
-	assert(result <= MAX_DEVICE_ID);
 	return result;
 }
 
-
-uint8_t myShortID() {
-	return (uint8_t) myID();
-}
 

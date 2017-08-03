@@ -5,6 +5,9 @@
  * which are intended to be hidden.
  */
 
+
+// !!! should not include from /drivers/
+
 // For now, just the ones I use
 #include <clock/longClock.h>
 #include <exceptions/brownoutRecorder.h>
@@ -25,9 +28,9 @@
 #include "exceptions/faultHandlers.h"
 #include "exceptions/powerAssertions.h"
 #include "exceptions/resetAssertions.h"
-#include "drivers/uniqueID.h"
+#include "services/system.h"
 #include "drivers/mcu.h"
-#include "drivers/customFlash.h"
+#include "services/customFlash.h"
 
 // optional
 // #include "services/logger.h"

@@ -1,4 +1,4 @@
 Drivers for peripherals.
 
 These isolate knowledge of NRF internals.
-I.E. a separate layer.
+Only the source in this directory should use Nordic API's.
