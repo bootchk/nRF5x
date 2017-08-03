@@ -29,7 +29,6 @@
 #include "exceptions/powerAssertions.h"
 #include "exceptions/resetAssertions.h"
 #include "services/system.h"
-#include "drivers/mcu.h"
 #include "services/customFlash.h"
 
 // optional
