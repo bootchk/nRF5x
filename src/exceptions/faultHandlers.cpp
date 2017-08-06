@@ -180,5 +180,9 @@ void genericAssertionFaultHandler(const char* locationText, int lineNumber){
 	resetOrHalt();
 }
 
+bool wasHardFault() { return CustomFlash::isWrittenAtIndex(HardFaultPCIndex); }
+bool wasAssertionFault() { return CustomFlash::isWrittenAtIndex(ExitFlagIndex); }
+
+
 
 } // extern C

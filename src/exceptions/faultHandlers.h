@@ -67,6 +67,13 @@ void genericExitHandler();
 void genericAssertionFaultHandler(const char* functionName, int lineNumber);
 
 
+/*
+ * Did fault occur sometime since UICR was cleared?
+ */
+bool wasHardFault();
+bool wasAssertionFault();
+
+
 // M4 also defines other faults, subclasses, having their own vectors
 /*
 MemoryManagement_Handler	memory protection violation
