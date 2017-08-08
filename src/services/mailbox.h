@@ -25,7 +25,10 @@ class Mailbox {
 	bool isItem = false;
 
 public:
-	// put overwrites a mail when overflows
+	// Does nothing if mailbox full
+	void tryPut(WorkPayload item);
+
+	// Requires mailbox not full
 	void put(WorkPayload item);
 
 	// fetch first mail in box (if queued)
