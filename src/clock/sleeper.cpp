@@ -46,9 +46,12 @@ volatile ReasonForWake reasonForWake = ReasonForWake::Cleared;
  */
 
 void timerIRQCallback(TimerInterruptReason reason) {
+	/*
+	 * Prioritize concurrent reasonForWake, compare new reason with existing reason
+	 */
 	switch(reason) {
 	case SleepTimerCompare:
-		// Prioritize reasonForWake
+
 		switch(reasonForWake) {
 		case ReasonForWake::Cleared:
 		case ReasonForWake::Unknown:
@@ -62,10 +65,12 @@ void timerIRQCallback(TimerInterruptReason reason) {
 			// Do not overwrite highest priority: MsgReceived
 			break;
 		case ReasonForWake::SleepTimerExpired:
+			__asm("BKPT #0\n") ; // Break into the debugger, if it is running
+			assert(false);	// Timer was started again before handling/clearing previous expiration.
 		case ReasonForWake::HFClockStarted:
 		case ReasonForWake::LFClockStarted:
-			assert(false);	// Timer was started again before handling/clearing previous expiration.
-			// Or unexpected HFClockStart
+			__asm("BKPT #0\n") ; // Break into the debugger, if it is running
+			assert(false);	// Timer was started without clearing previous reasonForWake??
 		}
 		break;
 

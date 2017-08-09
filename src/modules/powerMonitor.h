@@ -52,7 +52,10 @@ public:
 	 * For testing on NRF52DK, change to V23 since debugger needs higher voltage for comm to target.
 	 */
 #ifdef NRF52
-		static const nrf_power_pof_thr_t BrownoutThreshold = NRF_POWER_POFTHR_V17;
+	/*
+	 * Alternative: V17, but that might not leave enough power to record brownout to flash?
+	 */
+	static const nrf_power_pof_thr_t BrownoutThreshold = NRF_POWER_POFTHR_V21;
 #else
 		static const nrf_power_pof_thr_t BrownoutThreshold = NRF_POWER_POFTHR_V21;
 #endif
