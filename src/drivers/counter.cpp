@@ -63,7 +63,7 @@ bool Counter::isOverflowEvent(){
 	return nrf_rtc_event_pending(NRF_RTC0, NRF_RTC_EVENT_OVERFLOW);
 }
 
-OSTime Counter::ticks(){
+uint32_t Counter::ticks(){
 	return nrf_rtc_counter_get(NRF_RTC0);
 }
 

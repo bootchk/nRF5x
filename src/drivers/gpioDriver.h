@@ -19,15 +19,10 @@
 
 #include <inttypes.h>
 
-// GPIO index is not the same as a chip's pin number
-typedef uint8_t GPIOIndex;	// [0..31]
+
 
 typedef uint32_t GPIOMask;
 
-enum McuSinksOrSources {
-	McuSources =0,
-	McuSinks
-};
 
 
 
@@ -36,7 +31,7 @@ public:
 	/*
 	 * Configure driver: has no effect on hw pins.
 	 */
-	static void init(GPIOMask allPinsMask, McuSinksOrSources arePinsSunk);
+	static void init(GPIOMask allPinsMask, bool arePinsSunk);
 
 	/*
 	 * Set GPIO direction to OUT.

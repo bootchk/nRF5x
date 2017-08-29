@@ -51,10 +51,10 @@ void initLowPower() {
 }	// namespace
 
 
-void GPIODriver::init(GPIOMask mask, McuSinksOrSources arePinsSunk) {
+void GPIODriver::init(GPIOMask mask, bool arePinsSunk) {
 	// Does not allow a mix of sunk and source managed pins
 	managedPinsMask = mask;
-	if (arePinsSunk == McuSinks)
+	if (arePinsSunk)
 		sunkPinsMask = mask;
 	else
 		sunkPinsMask = ~mask;	// sunkPinsMask has bits set where not set in managedPinsMask

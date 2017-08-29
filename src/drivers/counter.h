@@ -2,13 +2,6 @@
 
 #include <inttypes.h>
 
-#include "../platformTypes.h"  // OSTime
-
-// Uses Nvic class
-
-
-
-
 class Counter {
 public:
 
@@ -23,5 +16,5 @@ public:
 	static void clearOverflowEventAndWaitUntilClear();
 	static bool isOverflowEvent();
 
-	static OSTime ticks();
+	static uint32_t ticks();	// OSTime
 };

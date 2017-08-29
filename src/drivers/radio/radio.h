@@ -6,7 +6,7 @@
 // radio driver configures HFClock
 #include "../hfClock.h"
 
-#include "types.h"	// BufferPointer
+#include "types.h"	// RadioBufferPointer
 
 
 /*
@@ -48,7 +48,7 @@ private:
 	static void setFirstNetworkAddressInPool();
 
 public:
-	static void configurePacketAddress(BufferPointer data);
+	static void configurePacketAddress(RadioBufferPointer data);
 	static void configurePacketLengthDynamic(uint8_t length);
 
 

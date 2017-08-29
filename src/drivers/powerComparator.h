@@ -1,3 +1,5 @@
+#pragma once
+
 
 /*
  * Low-level driver for nrf5x family PowerFailureComparator (POFCON) device.
@@ -23,10 +25,23 @@
  * But you must coordinate those uses at a higher level.
  */
 
-#include <nrf_power.h>	// hal
+/*
+ * API does not depend on platform, only implementation depends on platform.
+ */
+
+// Define platform independent thresholds
+enum class PowerThreshold {
+	V2_1,
+	V2_3,
+	V2_5,
+	V2_7,
+	V2_8
+};
+
 
 class PowerComparator {
 public:
+
 	static void powerISR();
 
 	static void enable();
@@ -42,7 +57,14 @@ public:
 	static bool isPOFEvent();
 	static void clearPOFEvent();
 
-	static void setThresholdAndDisable(nrf_power_pof_thr_t threshold); 	// Use NRFSDK hal enum
+	/*
+	 * Set threshold to a platform independent thresholds (which are converted to platform dependent thresholds.)
+	 */
+	static void setThresholdAndDisable(PowerThreshold threshold);
+	/*
+	 * Set threshold to the the platform dependent brownout threshold.
+	 */
+	static void setBrownoutThresholdAndDisable();
 
 	static void delayForPOFEvent();
 };

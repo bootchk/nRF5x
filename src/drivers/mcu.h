@@ -46,8 +46,12 @@ public:
 	// Since there is no enableIRQ(), this should only be used in a fatal condition
 	static void disableIRQ();
 
+	static bool isResetReason();
+	static void clearResetReason();
+
 	/*
 	 * Only effective for NRF52
 	 */
 	static bool isDebugMode();
+
 };

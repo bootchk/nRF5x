@@ -1,6 +1,7 @@
 
 #include <cassert>
 #include <nrf.h>
+#include <nrf_power.h>
 
 #include "mcu.h"
 
@@ -8,9 +9,31 @@
 #include "powerComparator.h"
 
 // Used by ISR
-#include <exceptions/brownoutRecorder.h>
-#include "../clock/sleeper.h"
-#include "../modules/powerMonitor.h"
+// Call layer above, radioSoC
+// TODO for more independence these should be callbacks registered from above
+#include <services/brownoutRecorder.h>
+#include <clock/sleeper.h>
+#include <modules/powerMonitor.h>
+
+
+
+
+namespace {
+
+static void setThresholdMaskAndDisable(nrf_power_pof_thr_t thresholdMask) {
+	/*
+	 * Set and clear multiple bits:
+	 * - several threshold bits to a bit pattern
+	 * - the enable/disable bit to zero.
+	 */
+	// Shift mask into position in register
+	NRF_POWER->POFCON = thresholdMask << POWER_POFCON_THRESHOLD_Pos;
+	MCU::flushWriteCache();
+	assert(PowerComparator::isDisabled());
+}
+
+
+}  // namespace
 
 
 
@@ -157,18 +180,48 @@ void PowerComparator::enableInterrupt() {
  *
  * Alternative is to set threshold without clearing disable bit, using mask POWER_POFCON_POF_Msk
  */
-void PowerComparator::setThresholdAndDisable(nrf_power_pof_thr_t threshold) {
+void PowerComparator::setThresholdAndDisable(PowerThreshold threshold) {
 	/*
-	 * Set and clear multiple bits:
-	 * - several threshold bits to a bit pattern
-	 * - the enable/disable bit to zero.
+	 * For API independence, convert from enum to platform specific bitmask
 	 */
-	NRF_POWER->POFCON = threshold << POWER_POFCON_THRESHOLD_Pos;
-	MCU::flushWriteCache();
-	assert(isDisabled());
+	nrf_power_pof_thr_t thresholdMask;
+	switch(threshold){
+	case PowerThreshold::V2_1:
+		thresholdMask = NRF_POWER_POFTHR_V21;
+		break;
+	case PowerThreshold::V2_3:
+		thresholdMask = NRF_POWER_POFTHR_V23;
+		break;
+	case PowerThreshold::V2_5:
+		thresholdMask = NRF_POWER_POFTHR_V25;
+		break;
+	case PowerThreshold::V2_7:
+		thresholdMask = NRF_POWER_POFTHR_V27;
+		break;
+	// TODO ifdef NRF52
+	case PowerThreshold::V2_8:
+		thresholdMask = NRF_POWER_POFTHR_V27;
+		break;
+	}
+
+	setThresholdMaskAndDisable(thresholdMask);
 }
 
 
+// Platform specific
+#ifdef NRF52
+	/*
+	 * Alternative: V17, but that might not leave enough power to record brownout to flash?
+	 */
+	static const nrf_power_pof_thr_t BrownoutThreshold = NRF_POWER_POFTHR_V21;
+#else
+	static const nrf_power_pof_thr_t BrownoutThreshold = NRF_POWER_POFTHR_V21;
+#endif
+
+
+void PowerComparator::setBrownoutThresholdAndDisable() {
+	setThresholdMaskAndDisable(BrownoutThreshold);
+}
 
 /*
  * Delay from POFCON enable until event is generated.

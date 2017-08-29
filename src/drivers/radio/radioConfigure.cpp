@@ -124,7 +124,7 @@ void RadioDevice::configureStaticPayloadFormat(const uint8_t payloadCount, const
  *  Implementation is portable until platform (ARM) pointers exceed 32-bit.
  *  Cast a pointer as ordinary 32-bit int required by register.
  */
-void RadioDevice::configurePacketAddress(const BufferPointer bufferPtr){
+void RadioDevice::configurePacketAddress(const RadioBufferPointer bufferPtr){
 	/*
 	 * Radio must be powered on.
 	 *
@@ -136,7 +136,7 @@ void RadioDevice::configurePacketAddress(const BufferPointer bufferPtr){
 	assert(isPowerOn());
 	assert(isDisabledState());
 	NRF_RADIO->PACKETPTR = reinterpret_cast<uint32_t>( bufferPtr);
-	assert(reinterpret_cast<BufferPointer>(NRF_RADIO->PACKETPTR) ==  bufferPtr);
+	assert(reinterpret_cast<RadioBufferPointer>(NRF_RADIO->PACKETPTR) ==  bufferPtr);
 }
 
 

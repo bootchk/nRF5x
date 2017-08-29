@@ -1,13 +1,16 @@
 #include <cassert>
 #include <inttypes.h>
-// The following include includes sdk_config.h
+
+// The following includes sdk_config.h
 //#include "nrf_drv_clock.h"
 #include "nrf_clock.h"
 
 #include "lowFrequencyClock.h"
 
 // Used by ISR
-#include "../clock/sleeper.h"
+// Call layer above, radioSoC
+// TODO should be a callback
+#include <clock/sleeper.h>
 
 
 // Uses HAL instead of nrf_drv_clock

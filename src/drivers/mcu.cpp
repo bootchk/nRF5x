@@ -100,3 +100,13 @@ bool MCU::isDebugMode() {
 	return false;
 #endif
 }
+
+bool MCU::isResetReason() {
+	return (NRF_POWER->RESETREAS != 0);
+}
+
+void MCU::clearResetReason() {
+	// Writing 1's clears bits
+	NRF_POWER->RESETREAS = 0xFFFFFFFF;
+}
+

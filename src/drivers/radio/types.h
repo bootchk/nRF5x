@@ -11,4 +11,4 @@
  * Both the radio driver (the mcu) and the radio device access the buffer concurrently.
  * I.E. there are two separate threads/processors accessing buffer.
  */
-typedef volatile uint8_t * BufferPointer;
+typedef volatile uint8_t * RadioBufferPointer;
