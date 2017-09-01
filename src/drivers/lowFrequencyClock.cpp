@@ -7,13 +7,24 @@
 
 #include "lowFrequencyClock.h"
 
-// Used by ISR
-// Call layer above, radioSoC
-// TODO should be a callback
-#include <clock/sleeper.h>
 
 
 // Uses HAL instead of nrf_drv_clock
+
+
+namespace {
+
+	Callback lfClockStartedCallback = nullptr;
+	Callback hfClockStartedCallback = nullptr;
+
+}
+
+
+void LowFrequencyClock::registerCallbacks(Callback lfStarted, Callback hfStarted) {
+	lfClockStartedCallback = lfStarted;
+	hfClockStartedCallback = hfStarted;
+}
+
 
 
 void LowFrequencyClock::clockISR(){
@@ -27,8 +38,10 @@ void LowFrequencyClock::clockISR(){
 	 * LF
 	 */
 	if (nrf_clock_event_check(NRF_CLOCK_EVENT_LFCLKSTARTED)) {
-		// Signal wake reason to sleep
-		Sleeper::setReasonForWake(ReasonForWake::LFClockStarted);
+		// Signal
+		assert(lfClockStartedCallback);
+		lfClockStartedCallback();
+
 
 		/*
 		 * !!!
@@ -44,10 +57,8 @@ void LowFrequencyClock::clockISR(){
 	 * HF
 	 */
 	if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED)) {
-		// Signal wake reason to sleep
-		// Assert that no other interrupts can come and change reasonForWake
-		// Otherwise, we should not set it directly, but prioritize it.
-		Sleeper::setReasonForWake(ReasonForWake::HFClockStarted);
+		assert(hfClockStartedCallback);
+		hfClockStartedCallback();
 
 		// Clear event so interrupt not triggered again.
 		nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);

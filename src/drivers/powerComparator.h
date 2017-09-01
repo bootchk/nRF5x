@@ -39,10 +39,22 @@ enum class PowerThreshold {
 };
 
 
+typedef void (*Callback)();
+
+
 class PowerComparator {
 public:
 
+	/*
+	 * Called by IRQ Handler.
+	 * Which on Nordic, handles both power and clock.
+	 */
 	static void powerISR();
+
+	/*
+	 * To isolate driver from higher layer concerns.
+	 */
+	static void registerBrownoutCallback(Callback);
 
 	static void enable();
 	static void disable();

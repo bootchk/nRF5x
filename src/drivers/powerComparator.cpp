@@ -3,22 +3,17 @@
 #include <nrf.h>
 #include <nrf_power.h>
 
-#include "mcu.h"
-
-
 #include "powerComparator.h"
 
-// Used by ISR
-// Call layer above, radioSoC
-// TODO for more independence these should be callbacks registered from above
-#include <services/brownoutRecorder.h>
-#include <clock/sleeper.h>
-#include <modules/powerMonitor.h>
-
+#include "mcu.h"
 
 
 
 namespace {
+
+
+Callback brownoutCallback = nullptr;
+
 
 static void setThresholdMaskAndDisable(nrf_power_pof_thr_t thresholdMask) {
 	/*
@@ -65,19 +60,21 @@ static void setThresholdMaskAndDisable(nrf_power_pof_thr_t thresholdMask) {
  * Use Eclipse memory view to view UICR at 0x10001080, use unsigned int rendering to view fault address in decimal.
  */
 
+
+
+void PowerComparator::registerBrownoutCallback(Callback callback) {
+	brownoutCallback = callback;
+}
+
+
 void PowerComparator::powerISR() {
 	if (nrf_power_event_check(NRF_POWER_EVENT_POFWARN)) {
 
 		/*
-		 * Brownout: write PC to flash so we can analyze later where in the app we brownout.
-		 */
-		BrownoutRecorder::recordToFlash();
-#ifdef NOT_USED
-		BrownoutRecorder::recordToFlash(faultAddress);
-#endif
-
-		/*
+		 * Brownout occurred.
+		 *
 		 * Typically little further execution is possible (power is failing).
+		 * Higher layers decide continuation in callback.
 		 *
 		 * Alternatives:
 		 * 1) stop execution (at time of fault.)
@@ -85,25 +82,26 @@ void PowerComparator::powerISR() {
 		 *
 		 * 1) BKPT causes an additional hard fault on Cortext M0
 		 * __asm("BKPT #0\n") ; // Break into the debugger, if it is running
-		 * 1) resetOrHalt();
+		 *
+		 * 2) resetOrHalt();
 		 *   will enter infinite loop
+		 *
+		 * 3) proceed and wait for actual BOR
 		 */
+		if (brownoutCallback != nullptr)  brownoutCallback();
 
 		/*
-		 *  2) Proceed and wait for actual BOR
+		 * Callback has decided to continue.
 		 */
-		// Signal
-		// TODO prioritize
-		Sleeper::setReasonForWake(ReasonForWake::BrownoutWarning);
 
 		/*
 		 * Disable further POFWARN events, until enabled later.
 		 * The app may enable them again later.
-		 * Only here do we understand how to clear EVENT.
-		 * PowerMonitor only understands disabling.
+		 * Higher layers must know that a brownout disables further brownout detection.
 		 */
 		nrf_power_event_clear(NRF_POWER_EVENT_POFWARN);
-		PowerMonitor::disableBrownoutDetection();
+		disable();
+		disableInterrupt();
 	}
 }
 

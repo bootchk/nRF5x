@@ -24,10 +24,25 @@
 
 // XXX methods const (no data members to write)
 
+
+typedef void (*Callback)();
+
+
+
 class LowFrequencyClock {
 public:
 
-	static void clockISR();	// Also for HFClock
+	/*
+	 * Callbacks from ISR with interrupts disabled, should be short.
+	 */
+	static void registerCallbacks(Callback, Callback);
+
+	/*
+	 * Called from IRQ Handler.
+	 * Interrupts disabled.
+	 * Dispatches events for LFClock and HFClock
+	 */
+	static void clockISR();
 
 	static void enableInterruptOnStarted();
 	static void disableInterruptOnStarted();
