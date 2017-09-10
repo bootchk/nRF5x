@@ -1,28 +1,23 @@
 
-Sparse, object oriented (C++) driver library for nRF5x family embedded radios.
-
-This readme is stale.
+Sparse, object oriented (C++) driver library for nRF5x family embedded radio chips.
 
 Provides
 -
-      
-     Wrappers around certain RTC peripherals of the Nordic nRF5x family of embedded radio SoC chips.
-     Other simple services such as a mailbox
-     Wrappers around certain board-level devices such as LED's.
-     Exception handlers.
-
+     Wrappers for certain Nordic nRF5x family of embedded radio SoC chips.
+     Drivers for the mcu, nvic, flash memory
+     Drivers for certain commonly used peripherals (clocks, counters, power supplies, radio, etc.)
 
 Motivation
 -
-    Nordic's libraries suspect and overweight for my use case.
-    I wanted a lightweight radio protocol
+    Nordic's libraries overweight for my use case.
+    I wanted a lightweight radio protocol (not Bluetooth)
     I didn't think I needed an RTOS, but needed some basics e.g. timers and mailbox
 
-I had the most trouble with Nordic's app_timer library.
+See History below.  Much was separated into a platform independent library radioSoC.
     
 Implementation Notes
 -
-Some use of HAL but also some bare metal, direct access to device registers.  (Probably HAL should be used exclusively so it could be ported to another chip?)
+Mostly uses Nordic's HAL (abstraction across various Nordic chips) but also some bare metal, direct access to device registers.  (Probably HAL should be used exclusively so it could be ported to another chip?)
 
 Not using Nordics C-language drivers in NRF\_SDK/components/nrf_drv.  Those drivers may be more robust, but are hard to read and understand.
 
@@ -51,18 +46,7 @@ Other important settings:
 
 AFAIK, many of the other defines for PAN's (Product Anomalies) found in Nordic Makefiles are not needed for this library.  They seem to affect code conditionally compiled into certain Nordic libraries.
 
-Build Configurations that log
--
 
-Several build configurations implement logging using Segger RTT.  For these configurations, the RTTLogger::log() methods are potent.  In other build configurations, calls to those methods do nothing (conditionally compiled by LOGGING macro var.)
-
-Segger RTT source code is in src/test/external and is not excluded from the build configuration. (In Eclipse, you see a slash through the icon when it IS excluded.  Click RightMouseButton on file and choose ResourceConfigurations>ExcludeFromBuild to see which build configs a source file is excluded from. )
-
-Other settings:
-
-    *Properties>C/C++ General>Paths and Symbols>Symbols* define LOGGING to make RTTLogger potent
-
-Also, Segger RTT source depends on Nordic SDK app_util_platform.cpp for critical section functions.  Currently not built into the library, but built into calling apps.  Also, so .h files are found, app build config has include paths to "${NRF_SDK}/external/segger_rtt", "${NRF_SDK}/components/libraries/util", and "${NRF_SDK}/components/drivers_nrf/nrf_soc_nosd" .  FIXME, move these to the library build configs.
 
 Debugging
 -
@@ -77,42 +61,24 @@ Testing nRFCounter, you should see a sequence of times scroll by.
 
 TODO add other mains that test other modules.
 
-Boards
+
+Boards, Logging, Exception Handlers
 -
-Some services (e.g. ledLogger) depend on the board configuration (what pins are configured as digital out to LEDs, and what revision of the chip is on the board.)
 
-One build configuration for the nRF51 family defines BOARDS\_CUSTOM which means included Nordic file boards.h will include custom_board.h for RedBear Nano (one LED) from this directory.  
+Board configuration, logging, exception handlers not provided.
 
-Another build configuration for nRF52 family builds for the nRF52DK board (four LED's.)  Defines BOARD_PCA10040.
-
-Exception Handlers
--
-Also called faults (not to be confused with C++ exceptions.)
-
-Two kinds of faults handled:
-
-    hw faults e.g. HardFault_Handler
-    sw faults e.g. the handler called by the assert() macro
-
-The library overrides certain default handlers.  Default handlers enter an infinite loop, without entering low power mode.  The override default handlers:
-
-    for production, reset instead of infinite loop
-    for debug using a low-reserve power supply, reduce power before sleeping
-    
-For production, soft reset is preferable to infinite loop so the system might recover, without human intervention to hard reset.
- 
-For debug, reducing power and sleeping keeps the system in a debuggable state (otherwise an infinite loop quickly causes brown out.)
- 
-(Future: for debug, the handlers should save system registers from the program context in variables i.e. save the top level of the stack trace.)
+Instead, they are provided in higher layers.
 
 
-See Also
+History
 -
 Derived from (and superseding) nRFCounter and nRFrawProtocol
  
 See testnRFCounter project, a template project with similar build and debug configurations.  More explanation there about exactly how to configure a Build Configuration in Eclipse.
 
-A using project will be fireFly.
+Early versions were huge.  Since split into this project of only drivers of Nordic hardware, and lib radioSoC, intended to be platform inpependent.
+
+A using project is fireFly.
 
 Environment
 -
