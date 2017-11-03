@@ -185,8 +185,9 @@ void RadioDevice::setShortcutsAvoidSomeEvents() {
 	//
 	// In other words, make automatic transitions in state diagram.
 	NRF_RADIO->SHORTS = RADIO_SHORTS_READY_START_Msk // shortcut READY event to START task
-			| RADIO_SHORTS_END_DISABLE_Msk;		 // shortcut END event to DISABLE task
-			// | RADIO_SHORTS_ADDRESS_RSSISTART_Msk;	 //
+			| RADIO_SHORTS_END_DISABLE_Msk		 // shortcut END event to DISABLE task
+			// next is optional.  I assume it doesn't take any more power to always sample RSSI
+			| RADIO_SHORTS_ADDRESS_RSSISTART_Msk;	 // shortcut ADDRESS event to RSSISTART task
 
 	// RadioHead nrf51
 	// These shorts will make the radio transition from Ready to Start to Disable automatically
@@ -212,3 +213,15 @@ uint8_t RadioDevice::receivedLogicalAddress() {
 	return (uint8_t) NRF_RADIO->RXMATCH;
 }
 
+int RadioDevice::receivedSignalStrength() {
+	/*
+	 * Assume RSSI_END event is set i.e. sample is done.
+	 *
+	 * Assume MSB bits read zero (no masking), only 7 LSB could be ones.
+	 *
+	 * Don't clear RSSI_END, we don't care.
+	 */
+	// Assert a shortcut is set so that
+	int result = NRF_RADIO->RSSISAMPLE;
+	return result;
+}
