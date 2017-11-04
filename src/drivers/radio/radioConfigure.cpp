@@ -140,21 +140,27 @@ void RadioDevice::configurePacketAddress(const RadioBufferPointer bufferPtr){
 }
 
 
-void RadioDevice::configureXmitPower(unsigned int dBm) {
-	// Convert to platform constant
-	uint8_t value;	// platform constants defined as unsigned
-	switch(dBm) {
-	case 1:
-		value = RADIO_TXPOWER_TXPOWER_Pos4dBm;
-		break;
-	case 8:
-		value = RADIO_TXPOWER_TXPOWER_Neg40dBm;
-		break;
-	default:
-		value = RADIO_TXPOWER_TXPOWER_0dBm;
-	}
-	// write byte to word register
-	NRF_RADIO->TXPOWER = value;
+void RadioDevice::configureXmitPower(unsigned int powerValue) {
+	/*
+	 * value must be one of defined constants for the HW
+	 *
+	 * Values are positive ints (since only LSB 7 bits might be set.
+	 *
+	 * More values are available for nrf52, e.g. RADIO_TXPOWER_TXPOWER_Pos3dBm
+	 */
+	assert( powerValue == RADIO_TXPOWER_TXPOWER_0dBm
+			or powerValue == RADIO_TXPOWER_TXPOWER_Pos4dBm
+
+			or powerValue == RADIO_TXPOWER_TXPOWER_Neg4dBm
+			or powerValue == RADIO_TXPOWER_TXPOWER_Neg8dBm
+			or powerValue == RADIO_TXPOWER_TXPOWER_Neg12dBm
+			or powerValue == RADIO_TXPOWER_TXPOWER_Neg16dBm
+			or powerValue == RADIO_TXPOWER_TXPOWER_Neg20dBm
+			or powerValue == RADIO_TXPOWER_TXPOWER_Neg40dBm
+			);
+
+	// write entire word to word register
+	NRF_RADIO->TXPOWER = powerValue;
 }
 
 
