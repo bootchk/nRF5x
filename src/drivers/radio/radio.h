@@ -31,9 +31,12 @@ public:
 	static void configureStaticPacketFormat(const uint8_t, const uint8_t );
 	static void configureWhiteningOn();	// Must follow configureStaticPacketFormat()
 	static void configureWhiteningSeed(int);
-	static void configureXmitPower(unsigned int dBm);
 	static void configureMegaBitrate(unsigned int baud);
 	static void configureFastRampUp();
+
+	static void configureXmitPower(int8_t dBm);
+	static int8_t getXmitPower();
+
 private:
 	static void configureShortCRCLength();
 	static void configureShortCRCGeneratorInit();

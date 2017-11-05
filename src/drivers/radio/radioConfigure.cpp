@@ -140,27 +140,33 @@ void RadioDevice::configurePacketAddress(const RadioBufferPointer bufferPtr){
 }
 
 
-void RadioDevice::configureXmitPower(unsigned int powerValue) {
+void RadioDevice::configureXmitPower(int8_t powerValue) {
 	/*
 	 * value must be one of defined constants for the HW
 	 *
-	 * Values are positive ints (since only LSB 7 bits might be set.
+	 * Values are positive ints (since only LSB 2 bytes might be set.
 	 *
 	 * More values are available for nrf52, e.g. RADIO_TXPOWER_TXPOWER_Pos3dBm
 	 */
 	assert( powerValue == RADIO_TXPOWER_TXPOWER_0dBm
 			or powerValue == RADIO_TXPOWER_TXPOWER_Pos4dBm
-
-			or powerValue == RADIO_TXPOWER_TXPOWER_Neg4dBm
-			or powerValue == RADIO_TXPOWER_TXPOWER_Neg8dBm
-			or powerValue == RADIO_TXPOWER_TXPOWER_Neg12dBm
-			or powerValue == RADIO_TXPOWER_TXPOWER_Neg16dBm
-			or powerValue == RADIO_TXPOWER_TXPOWER_Neg20dBm
-			or powerValue == RADIO_TXPOWER_TXPOWER_Neg40dBm
+			or powerValue == (int8_t) RADIO_TXPOWER_TXPOWER_Neg4dBm
+			or powerValue == (int8_t)RADIO_TXPOWER_TXPOWER_Neg8dBm
+			or powerValue == (int8_t)RADIO_TXPOWER_TXPOWER_Neg12dBm
+			or powerValue == (int8_t)RADIO_TXPOWER_TXPOWER_Neg16dBm
+			or powerValue == (int8_t)RADIO_TXPOWER_TXPOWER_Neg20dBm
+			or powerValue == (int8_t)RADIO_TXPOWER_TXPOWER_Neg40dBm
 			);
 
-	// write entire word to word register
+	// write byte to word register
 	NRF_RADIO->TXPOWER = powerValue;
+
+	assert(static_cast<int8_t>(NRF_RADIO->TXPOWER) == powerValue);	// ensure
+}
+
+int8_t RadioDevice::getXmitPower() {
+	// take lower byte of 32-bit int
+	return static_cast<int8_t> (NRF_RADIO->TXPOWER);
 }
 
 
