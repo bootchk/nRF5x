@@ -43,8 +43,8 @@ void CompareRegister::enableInterrupt() const {
 	// Clear event so we don't interrupt immediately
 	clearEvent();
 
-	// Not needed: nrf_rtc_event_enable(NRF_RTC0, eventMask);
-	nrf_rtc_int_enable(NRF_RTC0, interruptMask);
+	// Not needed: nrf_rtc_event_enable(NRF_RTC1, eventMask);
+	nrf_rtc_int_enable(NRF_RTC1, interruptMask);
 	// not ensure nvic enabled
 }
 
@@ -65,20 +65,20 @@ void CompareRegister::disableInterruptAndClearEvent() const{
 
 
 void CompareRegister::disableInterrupt() const{
-	// Not needed: nrf_rtc_event_disable(NRF_RTC0, eventMask);
-	nrf_rtc_int_disable(NRF_RTC0, interruptMask);
+	// Not needed: nrf_rtc_event_disable(NRF_RTC1, eventMask);
+	nrf_rtc_int_disable(NRF_RTC1, interruptMask);
 	// not ensure nvic disabled
 }
 
 
 void CompareRegister::clearEvent() const{
 	// cast platform independent type into platform specific type
-	nrf_rtc_event_clear(NRF_RTC0, (nrf_rtc_event_t) eventAddress);
+	nrf_rtc_event_clear(NRF_RTC1, (nrf_rtc_event_t) eventAddress);
 }
 
 
 bool CompareRegister::isEvent() const {
-	return nrf_rtc_event_pending(NRF_RTC0, (nrf_rtc_event_t) eventAddress);
+	return nrf_rtc_event_pending(NRF_RTC1, (nrf_rtc_event_t) eventAddress);
 }
 
 void CompareRegister::set(const uint32_t newCompareValue) const {
@@ -89,7 +89,7 @@ void CompareRegister::set(const uint32_t newCompareValue) const {
 	 * But that is a concern above, here we just put it in the HW register
 	 */
 
-	nrf_rtc_cc_set(NRF_RTC0, selfIndex, newCompareValue);
+	nrf_rtc_cc_set(NRF_RTC1, selfIndex, newCompareValue);
 
 	/*
 	 * Ensures:
