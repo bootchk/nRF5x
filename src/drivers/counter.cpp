@@ -9,7 +9,7 @@
 
 void Counter::start(){
 	// Start (power on and begin counting ticks from clock source)
-	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);
+	nrf_rtc_task_trigger(NRF_RTC1, NRF_RTC_TASK_START);
 	/*
 	 * Exists a delay until first increment.
 	 * A minimum of 47 uSec when LF clock is already stable running.
@@ -25,14 +25,14 @@ void Counter::start(){
 }
 
 void Counter::stop(){
-	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_STOP);
+	nrf_rtc_task_trigger(NRF_RTC1, NRF_RTC_TASK_STOP);
 }
 
 /*
  * Don't need this:
  * enableEventRouting()
  * // Writes 1 to bit of EVTEN reg.  Does not affect other enabled events.
-	nrf_rtc_event_enable(NRF_RTC0, RTC_EVTEN_OVRFLW_Msk);
+	nrf_rtc_event_enable(NRF_RTC1, RTC_EVTEN_OVRFLW_Msk);
  */
 void Counter::configureOverflowInterrupt(){
 
@@ -44,9 +44,9 @@ void Counter::configureOverflowInterrupt(){
 	 */
 
 	// Writes 1 to bit of INTENSET reg.  Does not affect other enabled interrupts.
-	nrf_rtc_int_enable(NRF_RTC0, NRF_RTC_INT_OVERFLOW_MASK);
+	nrf_rtc_int_enable(NRF_RTC1, NRF_RTC_INT_OVERFLOW_MASK);
 
-	Nvic::enableRTC0IRQ();
+	Nvic::enableRTC1IRQ();
 
 	// Interrupt can come at any time.
 	// Usually, this is called shortly after starting Counter, so interrupt will come after period of Counter
@@ -56,14 +56,14 @@ void Counter::configureOverflowInterrupt(){
 
 void Counter::clearOverflowEventAndWaitUntilClear(){
 	// HAL ensures that event is clear by reading the register after writing it (on Cortext M4)
-	nrf_rtc_event_clear(NRF_RTC0, NRF_RTC_EVENT_OVERFLOW);
+	nrf_rtc_event_clear(NRF_RTC1, NRF_RTC_EVENT_OVERFLOW);
 }
 
 bool Counter::isOverflowEvent(){
-	return nrf_rtc_event_pending(NRF_RTC0, NRF_RTC_EVENT_OVERFLOW);
+	return nrf_rtc_event_pending(NRF_RTC1, NRF_RTC_EVENT_OVERFLOW);
 }
 
 uint32_t Counter::ticks(){
-	return nrf_rtc_counter_get(NRF_RTC0);
+	return nrf_rtc_counter_get(NRF_RTC1);
 }
 

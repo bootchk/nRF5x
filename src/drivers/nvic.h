@@ -12,9 +12,11 @@ public:
 	static void enableRadioIRQ();
 	static void disableRadioIRQ();
 
-	static void enableRTC0IRQ();
+	static void enableRTC1IRQ();
 	// Often never called, since RTC runs forever in many apps
-	static void disableRTC0IRQ();
+	static void disableRTC1IRQ();
+	static void pendRTC1Interrupt();
+
 
 	static void enablePowerClockIRQ();
 	static void disablePowerClockIRQ();
@@ -25,5 +27,5 @@ public:
 	// Trigger reset via software
 	static void softResetSystem();
 
-	static void pendRTC0Interrupt();
+
 };

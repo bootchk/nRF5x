@@ -25,7 +25,8 @@ GPIOMask sunkPinsMask;
 
 #ifdef NOT_USED
 /*
- * !!! This will stop the LFXO and RTC0 counter.
+ * !!! This will stop the LFXO and RTC counters.
+ * Since the XTAL is on one pin, and configuring disconnect does NOT remove the pulldown.
  */
 /*
  * Not sure this is necessary:

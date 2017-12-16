@@ -24,15 +24,15 @@ void Nvic::disableRadioIRQ() {
 
 
 /*
- * RTC0
+ * RTC1
  */
-void Nvic::enableRTC0IRQ() {
-	NVIC_ClearPendingIRQ(RTC0_IRQn);
-	NVIC_EnableIRQ(RTC0_IRQn);
+void Nvic::enableRTC1IRQ() {
+	NVIC_ClearPendingIRQ(RTC1_IRQn);
+	NVIC_EnableIRQ(RTC1_IRQn);
 }
 
-void Nvic::pendRTC0Interrupt() {
-	NVIC_SetPendingIRQ(RTC0_IRQn);
+void Nvic::pendRTC1Interrupt() {
+	NVIC_SetPendingIRQ(RTC1_IRQn);
 }
 
 
