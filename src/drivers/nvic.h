@@ -1,7 +1,15 @@
+
 #pragma once
 
 /*
- * nested vectored interrupt controller
+ * Hides implementation.
+ * Two implementations: SD compatible and not.
+ *
+ * NVIC nested vectored interrupt controller.
+ * NVIC is not a device, but inside the mpu.
+ * The SD requires a certain API to control NVIC so that SD can know and check your usage.
+ * Since NVIC is in mpu, SD cannot use its usual mechanism to protect certain memory locations,
+ * but requires you to funnel your calls through its sd_nvic_... API.
  *
  * !!! Nvic is the class, NVIC is a Nordic macro
  */
@@ -21,8 +29,9 @@ public:
 	static void enablePowerClockIRQ();
 	static void disablePowerClockIRQ();
 
+	// FUTURE
 	//static bool isEnabledPowerClockIRQ();
-	// FUTURE static bool isEnabledRadioIRQ();
+	// static bool isEnabledRadioIRQ();
 
 	// Trigger reset via software
 	static void softResetSystem();

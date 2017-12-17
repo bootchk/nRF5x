@@ -1,15 +1,12 @@
 #include <cassert>
 #include <inttypes.h>
 
-// The following includes sdk_config.h
-//#include "nrf_drv_clock.h"
+//#include "nrf_drv_clock.h"   includes sdk_config.h
+// Uses HAL instead of nrf_drv_clock
 #include "nrf_clock.h"
 
 #include "lowFrequencyClock.h"
 
-
-
-// Uses HAL instead of nrf_drv_clock
 
 
 namespace {
