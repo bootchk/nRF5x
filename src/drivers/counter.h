@@ -11,6 +11,7 @@ public:
 	 */
 	static void start();
 	static void stop();
+	static bool isTicking();
 
 	static void configureOverflowInterrupt();
 	static void clearOverflowEventAndWaitUntilClear();

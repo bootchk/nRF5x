@@ -6,6 +6,14 @@
 #include "nvic.h"
 
 
+namespace {
+/*
+ * Whether the counter has been started.
+ * Unless the LF clock is also running, counter it not really ticking.
+ * See isTicking();
+ */
+bool _isTicking = false;
+}
 
 void Counter::start(){
 	// Start (power on and begin counting ticks from clock source)
@@ -22,11 +30,25 @@ void Counter::start(){
 	 *
 	 * TODO, use TRIGOVRFLW to ensure first tick has come.
 	 */
+	_isTicking = true;
 }
 
 void Counter::stop(){
 	nrf_rtc_task_trigger(NRF_RTC1, NRF_RTC_TASK_STOP);
+	_isTicking = false;
 }
+
+
+bool Counter::isTicking() {
+	/*
+	 * Not exist nrf_rtc function.
+	 * Not exist a bit in hardware.
+	 * Therefore, implement as a local flag from start(), stop().
+	 */
+	return _isTicking;
+}
+
+
 
 /*
  * Don't need this:
