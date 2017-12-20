@@ -1,10 +1,12 @@
 #pragma once
 
 /*
- * Low frequence oscillator (not really a clock.)
+ * Low frequency oscillator (not really a clock.)
  *
  * The states are: !started, started, !running, running
  * started does not guarantee running!!!
+ * !!! These are the states of this API.
+ * The states of the hardware might be different and confusing.
  *
  * Valid call sequences:
  *
@@ -29,7 +31,7 @@ typedef void (*Callback)();
 
 
 
-class LowFrequencyClock {
+class LowFreqClockRaw {
 public:
 
 	/*
@@ -57,6 +59,11 @@ public:
 	 */
 	static bool isStartedEvent();
 
+	/*
+	 * Was previous call to start()?
+	 * Does not guarantee isRunning() or not stopped
+	 */
+	static bool isStarted();
 
 	/*
 	 * Is clock running (and stable)?

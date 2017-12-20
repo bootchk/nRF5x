@@ -1,15 +1,18 @@
+#include <drivers/lowFreqClockRaw.h>
 #include <cassert>
 #include <inttypes.h>
 
 //#include "nrf_drv_clock.h"   includes sdk_config.h
 // Uses HAL instead of nrf_drv_clock
-#include "nrf_clock.h"
+#include "nrf_clock.h"	// hal, i.e. raw
 
-#include "lowFrequencyClock.h"
 
 
 
 namespace {
+
+	// flag meaning only that start() was called
+	bool _isStarted = false;
 
 	Callback lfClockStartedCallback = nullptr;
 	Callback hfClockStartedCallback = nullptr;
@@ -17,14 +20,14 @@ namespace {
 }
 
 
-void LowFrequencyClock::registerCallbacks(Callback lfStarted, Callback hfStarted) {
+void LowFreqClockRaw::registerCallbacks(Callback lfStarted, Callback hfStarted) {
 	lfClockStartedCallback = lfStarted;
 	hfClockStartedCallback = hfStarted;
 }
 
 
 
-void LowFrequencyClock::clockISR(){
+void LowFreqClockRaw::clockISR(){
 	/*
 	 * !!! Order is important.
 	 * Because we leave EVENT_LFCLCKSTARTED set, this code will set reasonForWake always.
@@ -82,7 +85,7 @@ void LowFrequencyClock::clockISR(){
  */
 
 
-void LowFrequencyClock::start() {
+void LowFreqClockRaw::start() {
 	/*
 	 * Assumes source configured prior, else default source.
 	 */
@@ -90,19 +93,20 @@ void LowFrequencyClock::start() {
 	nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
 	// We leave the started event set, it means little here and interrupt is not enabled
 
+	_isStarted = true;
+
 	/*
 	 * !!! Not wait for any event.
 	 * not assert isRunning()
 	 */
 }
 
-#ifdef OBSOLETE
 
-// Wait for event
-	while (!isStarted()) {}
-#endif
+bool LowFreqClockRaw::isStarted() {
+	return _isStarted;
+}
 
-bool LowFrequencyClock::isStartedEvent() {
+bool LowFreqClockRaw::isStartedEvent() {
 	return nrf_clock_event_check(NRF_CLOCK_EVENT_LFCLKSTARTED);
 }
 
@@ -117,10 +121,11 @@ bool LowFrequencyClock::isStartedEvent() {
  *
  * !!! Note this is independent of clock source.  This does NOT guarantee the source.
  */
-bool LowFrequencyClock::isRunning() {
+bool LowFreqClockRaw::isRunning() {
 	/*
-	 * !!! It is not correct to check started event.
+	 * !!! It is not correct to check started event:
 	 * return nrf_clock_event_check(NRF_CLOCK_EVENT_LFCLKSTARTED);
+	 * See components/drivers_nrf/hal/nrf_clock.h where is is implemented as checking the hw clock status register.
 	 */
 	return nrf_clock_lf_is_running();
 }
@@ -131,7 +136,7 @@ bool LowFrequencyClock::isRunning() {
  * If the board has no xtal???
  * If you don't call this, source is reset default of LFRC.
  */
-void LowFrequencyClock::configureXtalSource() {
+void LowFreqClockRaw::configureXtalSource() {
 
 	/*
 	 * Require: not started.
@@ -143,10 +148,10 @@ void LowFrequencyClock::configureXtalSource() {
 }
 
 
-void LowFrequencyClock::enableInterruptOnStarted(){ nrf_clock_int_enable(NRF_CLOCK_INT_LF_STARTED_MASK); }
-void LowFrequencyClock::disableInterruptOnStarted(){ nrf_clock_int_disable(NRF_CLOCK_INT_LF_STARTED_MASK); }
+void LowFreqClockRaw::enableInterruptOnStarted(){ nrf_clock_int_enable(NRF_CLOCK_INT_LF_STARTED_MASK); }
+void LowFreqClockRaw::disableInterruptOnStarted(){ nrf_clock_int_disable(NRF_CLOCK_INT_LF_STARTED_MASK); }
 
 
-void LowFrequencyClock::spinUntilRunning() {
+void LowFreqClockRaw::spinUntilRunning() {
 	while( !isRunning()) {}
 }
