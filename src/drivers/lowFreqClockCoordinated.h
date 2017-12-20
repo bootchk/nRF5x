@@ -3,9 +3,12 @@
 /*
  * Low frequency oscillator (not really a clock.)
  *
- * Raw: only supports one user of clock.  Not compatible with SD Softdevice.
- * Uses hal (low level driver) instead of nrf_drv_clock (high level driver.)
+ * Coordinated: allows multiprotocol, i.e. compatible with SD.
+ * Allows multiple users of the clock, keeps clock running until last user finished with clock.
+ * Some protocols never stop the clock, but for generality, the SD assumes it might be stopped.
  *
+ *
+ * TODO are the rest of the comments correct
  * The states are: !started, started, !running, running
  * started does not guarantee running!!!
  * !!! These are the states of this API.
@@ -34,8 +37,12 @@ typedef void (*Callback)();
 
 
 
-class LowFreqClockRaw {
+class LowFreqClockCoordinated {
 public:
+	/*
+	 * Coordination requires init.
+	 */
+	static void init();
 
 	/*
 	 * Callbacks from ISR with interrupts disabled, should be short.
