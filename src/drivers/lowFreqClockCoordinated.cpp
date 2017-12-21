@@ -19,7 +19,12 @@
 namespace {
 
 	// flag meaning only that start() was called
-	// bool _isStarted = false;
+	bool _isStarted = false;
+
+}
+
+
+#ifdef NOT_USED
 
 	Callback lfClockStartedCallback = nullptr;
 	Callback hfClockStartedCallback = nullptr;
@@ -27,13 +32,21 @@ namespace {
 	/*
 	 * Node in chain of handlers (callbacks)
 	 */
-	nrf_drv_clock_event_handler_t node = {
+	nrf_drv_clock_event_handler_t handlerChainNode;
+
+	/*
+	= {
 			p_next: nullptr,
 			event_handler: callback
 	};
+	 */
 
-}
+	/*
+	 * Handler of type nrf_drv_clock_event_handler_t == void (*)(nrf_drv_clock_evt_type_t event);
+	 */
+	void startedCallback(nrf_drv_clock_evt_type_t event) {
 
+	}
 
 void LowFreqClockCoordinated::registerCallbacks(Callback lfStarted, Callback hfStarted) {
 	lfClockStartedCallback = lfStarted;
@@ -44,57 +57,29 @@ void LowFreqClockCoordinated::registerCallbacks(Callback lfStarted, Callback hfS
 /*
  * MULTIPROTOCOL must use coordinate with SD, can't use POWERCLOCK_ISR
  */
-#ifndef MULTIPROTOCOL
-void LowFreqClockCoordinated::clockISR(){
-	/*
-	 * !!! Order is important.
-	 * Because we leave EVENT_LFCLCKSTARTED set, this code will set reasonForWake always.
-	 * So put other reasons (HFCLKCSTARTED) after it.
-	 */
-	// TODO prioritize reasonsforwake
-	/*
-	 * LF
-	 */
-	if (nrf_clock_event_check(NRF_CLOCK_EVENT_LFCLKSTARTED)) {
-		// Signal
-		assert(lfClockStartedCallback);
-		lfClockStartedCallback();
 
 
-		/*
-		 * !!!
-		 * The event does NOT need to remain set so that the RTC Counter continues to increment.  See Errata 20.
-		 * Disable interrupt and clear the event.
-		 * Assert we only start the LFCLK once, when no other interrupts are enabled.
-		 */
-		disableInterruptOnStarted();
-		nrf_clock_event_clear(NRF_CLOCK_EVENT_LFCLKSTARTED);
-	}
 
-	/*
-	 * HF
-	 */
-	if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED)) {
-		assert(hfClockStartedCallback);
-		hfClockStartedCallback();
-
-		// Clear event so interrupt not triggered again.
-		nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
-		// Interrupt remains enabled because we start and stop HF clock often.
-	}
-}
-
-#else
 
 /*
- * Get callback from module with started event.
+ * callback from module with started event.
+ *
+ * Pointer to handler func inside a struct whose address is passed to ..._request when starting.
  */
-
-void callback() {
-
+void clockStartedEventHandler(nrf_drv_clock_evt_type_t event) {
+	// Called when clock is started.
+	// We don't care when the clock starts, we know it will start and thus app_timers beging working.
+	//NRFLog::log("LF clock started");
 }
 
+nrf_drv_clock_handler_item_s handlers = {
+			p_next: nullptr,
+			event_handler: clockStartedEventHandler
+	};
+
 #endif
+
+
 
 
 /*
@@ -108,11 +93,12 @@ void callback() {
 
 
 void LowFreqClockCoordinated::init() {
-	ret_code_t err_code;
-
-	err_code = nrf_drv_clock_init();
-	APP_ERROR_CHECK(err_code);
-	// TODO ignore return NRF_ERROR_MODULE_ALREADY_INITIALIZED
+	/*
+	 * Ignore return NRF_ERROR_MODULE_ALREADY_INITIALIZED.
+	 * It is harmless.
+	 * This depends on init() returning only two errors: success or already initialized.
+	 */
+	(void) nrf_drv_clock_init();
 }
 
 
@@ -121,8 +107,12 @@ void LowFreqClockCoordinated::start() {
 	/*
 	 * Clock source is configured by ???
 	 */
-	nrf_drv_clock_lfclk_request(nrf_drv_clock_handler_item_t * callback);
 
+	nrf_drv_clock_lfclk_request(nullptr);
+	// When need callback on started
+	// nrf_drv_clock_lfclk_request(&handlers);
+
+	_isStarted = true;
 	/*
 	 * !!! Not wait for any event.
 	 * not assert isRunning()
@@ -132,11 +122,10 @@ void LowFreqClockCoordinated::start() {
 
 
 bool LowFreqClockCoordinated::isStarted() {
+	/*
+	 * Lower API does not support, use local flag
+	 */
 	return _isStarted;
-}
-
-bool LowFreqClockCoordinated::isStartedEvent() {
-	return nrf_clock_event_check(NRF_CLOCK_EVENT_LFCLKSTARTED);
 }
 
 
@@ -156,29 +145,9 @@ bool LowFreqClockCoordinated::isRunning() {
 	 * return nrf_clock_event_check(NRF_CLOCK_EVENT_LFCLKSTARTED);
 	 * See components/drivers_nrf/hal/nrf_clock.h where is is implemented as checking the hw clock status register.
 	 */
-	return nrf_clock_lf_is_running();
+	return nrf_drv_clock_lfclk_is_running();
 }
 
-
-/*
- * Configure to high accuracy xtal clock source.
- * If the board has no xtal???
- * If you don't call this, source is reset default of LFRC.
- */
-void LowFreqClockCoordinated::configureXtalSource() {
-
-	/*
-	 * Require: not started.
-	 * Nordic docs say "Source cannot be configured while running."  I assume they mean "started."
-	 */
-	assert( ! isRunning());
-
-	nrf_clock_lf_src_set(NRF_CLOCK_LFCLK_Xtal);
-}
-
-
-void LowFreqClockCoordinated::enableInterruptOnStarted(){ nrf_clock_int_enable(NRF_CLOCK_INT_LF_STARTED_MASK); }
-void LowFreqClockCoordinated::disableInterruptOnStarted(){ nrf_clock_int_disable(NRF_CLOCK_INT_LF_STARTED_MASK); }
 
 
 void LowFreqClockCoordinated::spinUntilRunning() {

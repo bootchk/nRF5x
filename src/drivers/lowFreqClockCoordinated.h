@@ -7,8 +7,10 @@
  * Allows multiple users of the clock, keeps clock running until last user finished with clock.
  * Some protocols never stop the clock, but for generality, the SD assumes it might be stopped.
  *
+ * Configured by sdk_config.h when the underlying "clock module" nrf_drv_clock.c is compiled.
+ * Main configurations is source: xtal or rc.
+
  *
- * TODO are the rest of the comments correct
  * The states are: !started, started, !running, running
  * started does not guarantee running!!!
  * !!! These are the states of this API.
@@ -17,17 +19,10 @@
  * Valid call sequences:
  *
  * The normal call sequence:
- * configureXtalSource, start, isStarted returns true, while(!isRunning()) {}, isRunning returns true
- *
- * start, isStarted, ... (uses default LFRC oscillator source)
+ * init, start, isStarted returns true, while(!isRunning()) {}, isRunning returns true
  *
  * You must busy wait for isRunning:
  * isStarted returns false, start, isStarted returns true, isRunning returns false
- *
- * You must configure before starting:
- * start, configureXtalSource will halt
- *
- *
  */
 
 // XXX methods const (no data members to write)
@@ -49,25 +44,9 @@ public:
 	 */
 	static void registerCallbacks(Callback, Callback);
 
-	/*
-	 * Called from IRQ Handler.
-	 * Interrupts disabled.
-	 * Dispatches events for LFClock and HFClock
-	 */
-	static void clockISR();
-
-	static void enableInterruptOnStarted();
-	static void disableInterruptOnStarted();
-	static void configureXtalSource();
 
 	static void start();
 
-
-	/*
-	 * Was there a prior call to start() AND did the LFCKLSTARTED event occur?
-	 * !!! Does not guarantee isRunning()
-	 */
-	static bool isStartedEvent();
 
 	/*
 	 * Was previous call to start()?
