@@ -20,10 +20,13 @@ public:
 	static void enableRadioIRQ();
 	static void disableRadioIRQ();
 
-	static void enableRTC1IRQ();
+	/*
+	 * LFTimer is one of the RTCx where x in [0,2] on NRF52
+	 */
+	static void enableLFTimerIRQ();
 	// Often never called, since RTC runs forever in many apps
-	static void disableRTC1IRQ();
-	static void pendRTC1Interrupt();
+	static void disableLFTimerIRQ();
+	static void pendLFTimerInterrupt();
 
 
 	static void enablePowerClockIRQ();

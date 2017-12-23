@@ -11,6 +11,12 @@
  */
 #define USING_SD 1
 
+/*
+ * Configure which RTCx to use
+ */
+// use RTC2
+#define LFTimerRTCIRQ     RTC2_IRQn
+
 #ifdef USING_SD
 
 
@@ -44,33 +50,34 @@ void Nvic::disableRadioIRQ() {
 }
 
 
-void Nvic::enableRTC1IRQ() {
+void Nvic::enableLFTimerIRQ() {
 	ret_code_t err_code;
 
-	err_code = sd_nvic_ClearPendingIRQ(RTC1_IRQn);
+	err_code = sd_nvic_ClearPendingIRQ(LFTimerRTCIRQ);
 	APP_ERROR_CHECK(err_code);
 
 	/*
 	 * If not set, defaults to 0, which conflicts with SD.
 	 */
-	err_code = sd_nvic_SetPriority(RTC1_IRQn, 7);
+	err_code = sd_nvic_SetPriority(LFTimerRTCIRQ, 7);
 	APP_ERROR_CHECK(err_code);
-	err_code = sd_nvic_EnableIRQ(RTC1_IRQn);
-	APP_ERROR_CHECK(err_code);
-}
-void Nvic::disableRTC1IRQ() {
-	ret_code_t err_code;
-
-	err_code = sd_nvic_ClearPendingIRQ(RTC1_IRQn);
-	APP_ERROR_CHECK(err_code);
-	err_code = sd_nvic_DisableIRQ(RTC1_IRQn);
+	err_code = sd_nvic_EnableIRQ(LFTimerRTCIRQ);
 	APP_ERROR_CHECK(err_code);
 }
 
-void Nvic::pendRTC1Interrupt() {
+void Nvic::disableLFTimerIRQ() {
 	ret_code_t err_code;
 
-	err_code = sd_nvic_SetPendingIRQ(RTC1_IRQn);
+	err_code = sd_nvic_ClearPendingIRQ(LFTimerRTCIRQ);
+	APP_ERROR_CHECK(err_code);
+	err_code = sd_nvic_DisableIRQ(LFTimerRTCIRQ);
+	APP_ERROR_CHECK(err_code);
+}
+
+void Nvic::pendLFTimerInterrupt() {
+	ret_code_t err_code;
+
+	err_code = sd_nvic_SetPendingIRQ(LFTimerRTCIRQ);
 	APP_ERROR_CHECK(err_code);
 }
 
@@ -139,24 +146,24 @@ bool Nvic::isEnabledPowerClockIRQ(){
 #endif
 
 /*
- * RTC1
+ * RTCx
  */
-void Nvic::enableRTC1IRQ() {
-	NVIC_ClearPendingIRQ(RTC1_IRQn);
+void Nvic::enableLFTimerIRQ() {
+	NVIC_ClearPendingIRQ(LFTimerRTCIRQ);
 
 	/*
 	 * If not set, defaults to 0, which conflicts with SD.
 	 */
-	NVIC_SetPriority(RTC1_IRQn, 7);
-	NVIC_EnableIRQ(RTC1_IRQn);
+	NVIC_SetPriority(LFTimerRTCIRQ, 7);
+	NVIC_EnableIRQ(LFTimerRTCIRQ);
 }
-void Nvic::disableRTC1IRQ() {
-	NVIC_ClearPendingIRQ(RTC1_IRQn);
-	NVIC_DisableIRQ(RTC1_IRQn);
+void Nvic::disableLFTimerIRQ() {
+	NVIC_ClearPendingIRQ(LFTimerRTCIRQ);
+	NVIC_DisableIRQ(LFTimerRTCIRQ);
 }
 
-void Nvic::pendRTC1Interrupt() {
-	NVIC_SetPendingIRQ(RTC1_IRQn);
+void Nvic::pendLFTimerInterrupt() {
+	NVIC_SetPendingIRQ(LFTimerRTCIRQ);
 }
 
 
