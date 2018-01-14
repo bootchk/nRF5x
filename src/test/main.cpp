@@ -17,7 +17,7 @@
 
 #include "drivers/nvic.h"
 #include "drivers/powerSupply.h"
-#include "drivers/hfClock.h"
+#include "drivers/oscillators/hfClock.h"
 
 #include "services/logger.h"
 

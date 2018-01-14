@@ -4,7 +4,7 @@
 #include <inttypes.h>
 
 // radio driver configures HFClock
-#include "../hfClock.h"
+#include "../oscillators/hfClock.h"
 
 #include "types.h"	// RadioBufferPointer
 

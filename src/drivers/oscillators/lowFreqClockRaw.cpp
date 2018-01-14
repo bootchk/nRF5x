@@ -1,11 +1,11 @@
-#include <drivers/lowFreqClockRaw.h>
+
 #include <cassert>
 #include <inttypes.h>
 
-//#include "nrf_drv_clock.h"   includes sdk_config.h
+#include "lowFreqClockRaw.h"
+
 // Uses HAL instead of nrf_drv_clock
 #include "nrf_clock.h"	// hal, i.e. raw
-
 
 
 

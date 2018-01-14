@@ -7,7 +7,7 @@
 // Use HAL
 #include "nrf_rtc.h"
 
-#include "hwConfig.h"
+#include "../hwConfig.h"
 
 
 /*

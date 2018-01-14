@@ -1,7 +1,5 @@
 #pragma once
 
-#include "nvic.h"
-
 /*
  * The HF (16Mhz) xtal clock.
  * Required by radio.
