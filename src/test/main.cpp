@@ -15,7 +15,7 @@
 #include <clock/longClock.h>
 #include "radio/radio.h"
 
-#include "drivers/nvic.h"
+#include "drivers/nvic/nvic.h"
 #include "drivers/powerSupply.h"
 #include "drivers/oscillators/hfClock.h"
 

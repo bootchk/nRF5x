@@ -14,7 +14,7 @@
 // Implementation uses macros defined in /components/toolchain/cmsis/include/ e.g. core_cm4.h
 #include "nrf.h"
 
-#include "hwConfig.h"
+#include "../hwConfig.h"
 
 
 

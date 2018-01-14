@@ -5,7 +5,7 @@
 
 #include "hfClock.h"
 
-#include "../nvic.h"
+#include "../nvic/nvic.h"
 
 // Driver: no calls to other modules, only to HAL
 

@@ -3,7 +3,7 @@
 
 // Implementation: using HAL because it accounts for Cortex M4 write buffer using compiler flag  __CORTEX_M == 0x04
 #include "nrf_rtc.h"	// HAL
-#include "../nvic.h"
+#include "../nvic/nvic.h"
 
 #include "../hwConfig.h"
 

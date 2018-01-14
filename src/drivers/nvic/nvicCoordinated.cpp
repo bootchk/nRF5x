@@ -1,7 +1,7 @@
 
 #include <cassert>
 
-#include "nvicCoordinated.h"
+#include "nvic.h"
 
 
 /*
@@ -24,7 +24,7 @@
 
 
 
-void NvicCoordinated::enableRadioIRQ() {
+void Nvic::enableRadioIRQ() {
 	ret_code_t err_code;
 
 	err_code = sd_nvic_ClearPendingIRQ(RADIO_IRQn);
@@ -33,7 +33,7 @@ void NvicCoordinated::enableRadioIRQ() {
 	APP_ERROR_CHECK(err_code);
 }
 
-void NvicCoordinated::disableRadioIRQ() {
+void Nvic::disableRadioIRQ() {
 	ret_code_t err_code;
 
 	err_code = sd_nvic_ClearPendingIRQ(RADIO_IRQn);
@@ -43,7 +43,7 @@ void NvicCoordinated::disableRadioIRQ() {
 }
 
 
-void NvicCoordinated::enableLFTimerIRQ() {
+void Nvic::enableLFTimerIRQ() {
 	ret_code_t err_code;
 
 	err_code = sd_nvic_ClearPendingIRQ(LFTimerRTCIRQ);
@@ -58,7 +58,7 @@ void NvicCoordinated::enableLFTimerIRQ() {
 	APP_ERROR_CHECK(err_code);
 }
 
-void NvicCoordinated::disableLFTimerIRQ() {
+void Nvic::disableLFTimerIRQ() {
 	ret_code_t err_code;
 
 	err_code = sd_nvic_ClearPendingIRQ(LFTimerRTCIRQ);
@@ -67,14 +67,14 @@ void NvicCoordinated::disableLFTimerIRQ() {
 	APP_ERROR_CHECK(err_code);
 }
 
-void NvicCoordinated::pendLFTimerInterrupt() {
+void Nvic::pendLFTimerInterrupt() {
 	ret_code_t err_code;
 
 	err_code = sd_nvic_SetPendingIRQ(LFTimerRTCIRQ);
 	APP_ERROR_CHECK(err_code);
 }
 
-void NvicCoordinated::enablePowerClockIRQ(){
+void Nvic::enablePowerClockIRQ(){
 	ret_code_t err_code;
 
 	err_code = sd_nvic_ClearPendingIRQ(POWER_CLOCK_IRQn);
@@ -84,7 +84,7 @@ void NvicCoordinated::enablePowerClockIRQ(){
 	//assert(isEnabledPowerClockIRQ());
 }
 
-void NvicCoordinated::disablePowerClockIRQ(){
+void Nvic::disablePowerClockIRQ(){
 	ret_code_t err_code;
 
 	err_code = sd_nvic_ClearPendingIRQ(POWER_CLOCK_IRQn);
@@ -94,7 +94,7 @@ void NvicCoordinated::disablePowerClockIRQ(){
 }
 
 
-void NvicCoordinated::softResetSystem(){
+void Nvic::softResetSystem(){
 	ret_code_t err_code;
 
 	err_code = sd_nvic_SystemReset();
