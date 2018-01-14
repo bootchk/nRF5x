@@ -5,11 +5,7 @@
 #include "nrf_rtc.h"	// HAL
 #include "nvic.h"
 
-
-/*
- * Configure which RTCx in use
- */
-#define LFTimerRTC NRF_RTC2
+#include "hwConfig.h"
 
 
 

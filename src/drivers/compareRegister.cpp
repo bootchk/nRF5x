@@ -7,6 +7,9 @@
 // Use HAL
 #include "nrf_rtc.h"
 
+#include "hwConfig.h"
+
+
 /*
  * Implementation notes:
  *
@@ -15,10 +18,6 @@
  * An event is a separate address.
  */
 
-/*
- * Configure which RTCx in use
- */
-#define LFTimerRTC  NRF_RTC2
 
 
 

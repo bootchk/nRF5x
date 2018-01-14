@@ -1,4 +1,4 @@
-#include <drivers/lowFreqClockCoordinated.h>
+#include "lowFreqClockCoordinated.h"
 #include <cassert>
 #include <inttypes.h>
 

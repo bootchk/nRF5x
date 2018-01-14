@@ -1,7 +1,7 @@
 
 #include <cassert>
 #include <nrf.h>
-#include <nrf_adc.h>	// HAL
+
 #include "adc.h"
 
 /*
@@ -16,6 +16,9 @@
 
 
 #ifdef NRF51
+
+#include <nrf_adc.h>	// HAL
+
 
 namespace {
 

@@ -15,11 +15,28 @@ Motivation
 
 See History below.  Much was separated into a platform independent library radioSoC.
     
+    
 Implementation Notes
 -
-Mostly uses Nordic's HAL (abstraction across various Nordic chips) but also some bare metal, direct access to device registers.  (Probably HAL should be used exclusively so it could be ported to another chip?)
 
-Not using Nordics C-language drivers in NRF\_SDK/components/nrf_drv.  Those drivers may be more robust, but are hard to read and understand.
+HW resources can be used via :
+
+    bare metal, direct access to device registers
+    Nordic's HAL (abstraction across various Nordic chips)
+    Nordic's drivers  nrf_drv_<foo> in NRF\_SDK/components/nrf_drv
+   
+HAL
+ 
+Library mostly uses HAL but also some bare metal.  (Probably HAL should be used exclusively so it could be ported to another chip?)
+
+HAL:  implements in-line (see the Nordic .h files.)  Thus few extra Nordic source files (.c) are needed in the project or to use the library.
+
+
+Nordic drivers
+
+Nordic drivers are required when Softdevice is also used (to coordinate access to shared resources.)
+Softdevice can be used for sequential multiprotocol to use BT for provisioning.
+
 
 
 Building
@@ -46,6 +63,13 @@ Other important settings:
 
 AFAIK, many of the other defines for PAN's (Product Anomalies) found in Nordic Makefiles are not needed for this library.  They seem to affect code conditionally compiled into certain Nordic libraries.
 
+Build configurations
+-
+
+NRF51 build configuration uses NRF_SDK v12.3 (last version to support 51)
+
+NRF52 Now using v14.2 
+Early version was not Softdevice compatible.  Now is Softdevice compatible.
 
 
 Debugging
@@ -79,6 +103,7 @@ See testnRFCounter project, a template project with similar build and debug conf
 Early versions were huge.  Since split into this project of only drivers of Nordic hardware, and lib radioSoC, intended to be platform inpependent.
 
 A using project is fireFly.
+
 
 Environment
 -
