@@ -18,6 +18,7 @@
 
 namespace {
 
+	bool _isInit = false;
 	// flag meaning only that start() was called
 	bool _isStarted = false;
 
@@ -99,6 +100,7 @@ void LowFreqClockCoordinated::init() {
 	 * This depends on init() returning only two errors: success or already initialized.
 	 */
 	(void) nrf_drv_clock_init();
+	_isInit = true;
 }
 
 
@@ -107,6 +109,7 @@ void LowFreqClockCoordinated::start() {
 	/*
 	 * Clock source is configured by ???
 	 */
+	assert(_isInit);
 
 	nrf_drv_clock_lfclk_request(nullptr);
 	// When need callback on started

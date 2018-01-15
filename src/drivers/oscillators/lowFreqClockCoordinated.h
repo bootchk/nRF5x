@@ -3,14 +3,6 @@
 /*
  * Low frequency oscillator (not really a clock.)
  *
- * Coordinated: allows multiprotocol, i.e. compatible with SD.
- * Allows multiple users of the clock, keeps clock running until last user finished with clock.
- * Some protocols never stop the clock, but for generality, the SD assumes it might be stopped.
- *
- * Configured by sdk_config.h when the underlying "clock module" nrf_drv_clock.c is compiled.
- * Main configurations is source: xtal or rc.
-
- *
  * The states are: !started, started, !running, running
  * started does not guarantee running!!!
  * !!! These are the states of this API.
@@ -23,6 +15,16 @@
  *
  * You must busy wait for isRunning:
  * isStarted returns false, start, isStarted returns true, isRunning returns false
+ */
+
+/*
+ * Coordinated: allows multiprotocol, i.e. compatible with SD.
+ * Allows multiple users of the clock, keeps clock running until last user finished with clock.
+ * Some protocols never stop the clock, but for generality, the SD assumes it might be stopped.
+ *
+ * Configured by sdk_config.h when the underlying "clock module" nrf_drv_clock.c is compiled.
+ * Main configurations is source: xtal or rc.
+ * Defaults to xtal
  */
 
 // XXX methods const (no data members to write)

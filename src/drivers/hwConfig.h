@@ -9,6 +9,7 @@
  * Nordic docs wrong: 51 has no RTC2
  */
 #ifdef NRF52
+#define LFTimerUseRTC2    1
 #define LFTimerRTC        NRF_RTC2
 #define LFTimerRTCIRQ     RTC2_IRQn
 #else
