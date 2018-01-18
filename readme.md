@@ -1,4 +1,6 @@
 
+nRF5x library
+
 Sparse, object oriented (C++) driver library for nRF5x family embedded radio chips.
 
 Provides
@@ -66,24 +68,40 @@ AFAIK, many of the other defines for PAN's (Product Anomalies) found in Nordic M
 Build configurations
 -
 
-NRF51 build configuration uses NRF_SDK v12.3 (last version to support 51)
+All these configs are debugging: assertions enabled and no optimization.
 
-NRF52 Now using v14.2 
-Early version was not Softdevice compatible.  Now is Softdevice compatible.
+Debug51    NRF51 . NRF_SDK v12.3 (last version to support 51)
 
+Debug52    NRF52 Now using v14.2. Not Softdevice compatible.  Uses HAL which is in-lined from Nordic .h files.
+
+Debug52SD    nrf52 SDK14.2  Softdevice (and whatever nrf_log() is enabled in sdk_config.h
+
+test52     NRF52  Build a main that minimally calls the library (often out of date.)
+
+
+
+Multiprotocol
+-
+
+SOFTDEVICE_PRESENT	Whether library is compatible with Softdevice.  Same symbol as used in NRF_SDK
+
+SOFTDEVICE_PRESENT usually means "sequential multiprotocol" i.e. alternate between using the Softdevice for Bluetooth protocol and implementing your own protocol.
+
+Using Softdevice means the implementation is restricted: can't define some ISR's and thus can't conveniently use interrupts, but must poll or just wait for events.
+
+Historically, the NRF51 builds were not SOFTDEVICE_PRESENT.
 
 Debugging
 -
 
-Eclipse with the GNU ARM Plugin supports the nRF52DK and its Segger debug probe nicely.  Plug in your DK dev kit's USB and choose *Debug As>Debug Configurations>nRF5x DebugNRF52*.
+These are general notes.  As stated above, the test harness is often out of date.
+The library is more or less stable, and I test it using other projects that call the library.
 
-(You may want to create your own Debug Configuration.)
+Build the test52 configuration and create a debug configuration for it.
+
+Eclipse with the GNU ARM Plugin supports the nRF52DK and its Segger debug probe nicely.  Plug in your DK dev kit's USB and choose *Debug As>Debug Configurations><your debug config>.
 
 To see the log, open a terminal and run JLinkRTTClient, which you can download from Segger.
-
-Testing nRFCounter, you should see a sequence of times scroll by.
-
-TODO add other mains that test other modules.
 
 
 Boards, Logging, Exception Handlers
@@ -92,6 +110,8 @@ Boards, Logging, Exception Handlers
 Board configuration, logging, exception handlers not provided.
 
 Instead, they are provided in higher layers.
+
+Except that a build config with the SD may have NRF_LOG enabled (Nordics logging from it's modules.)
 
 
 History
