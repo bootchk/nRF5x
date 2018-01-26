@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project>
-	<configuration id="ilg.gnuarmeclipse.managedbuild.cross.config.lib.debug.389825804" name="DebugnRF52">
+	<configuration id="ilg.gnuarmeclipse.managedbuild.cross.config.lib.debug.389825804" name="Debug52">
 		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
 			<provider copy-of="extension" id="org.eclipse.cdt.ui.UserLanguageSettingsProvider"/>
 			<provider-reference id="org.eclipse.cdt.core.ReferencedProjectsLanguageSettingsProvider" ref="shared-provider"/>
@@ -22,7 +22,7 @@
 			</provider>
 		</extension>
 	</configuration>
-	<configuration id="ilg.gnuarmeclipse.managedbuild.cross.config.lib.debug.389825804.1270918010" name="DebugnRF51">
+	<configuration id="ilg.gnuarmeclipse.managedbuild.cross.config.lib.debug.389825804.1270918010" name="Debug51">
 		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
 			<provider copy-of="extension" id="org.eclipse.cdt.ui.UserLanguageSettingsProvider"/>
 			<provider-reference id="org.eclipse.cdt.core.ReferencedProjectsLanguageSettingsProvider" ref="shared-provider"/>

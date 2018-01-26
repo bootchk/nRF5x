@@ -29,13 +29,23 @@ HAL
  
 Library mostly uses HAL but also some bare metal.  (Probably HAL should be used exclusively so it could be ported to another chip?)
 
-HAL:  implements in-line (see the Nordic .h files.)  Thus few extra Nordic source files (.c) are needed in the project or to use the library.
+HAL implements in-line (see the Nordic .h files.)  Thus few (no?) extra Nordic source files (.c) are needed in the project or to use the library.
 
 
 Nordic drivers
 
 Nordic drivers are required when Softdevice is also used (to coordinate access to shared resources.)
 Softdevice can be used for sequential multiprotocol to use BT for provisioning.
+
+
+Softdevice compatibility
+
+Portions of this library are NOT Softdevice compatible.
+For the devices which must be coordinated with the Softdevice.
+A caller must choose either drivers from this library,
+or drivers from libNRFDrivers (which are Softdevice compatible.)
+The driver facade classes are distinctly named.
+See libNRFDrivers for the devices which must be coordinated (oscillators, NVIC, POWER).
 
 
 
@@ -69,7 +79,7 @@ Build configurations
 NRF51 build configuration uses NRF_SDK v12.3 (last version to support 51)
 
 NRF52 Now using v14.2 
-Early version was not Softdevice compatible.  Now is Softdevice compatible.
+
 
 
 Debugging
