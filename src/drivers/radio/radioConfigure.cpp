@@ -197,3 +197,9 @@ void RadioDevice::configureFastRampUp() {
 #endif
 }
 
+/*
+ * Arbitrarily use PCNF1
+ */
+uint32_t RadioDevice::configurationSignature() {
+	return NRF_RADIO->PCNF1;
+}

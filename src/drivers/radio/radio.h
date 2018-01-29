@@ -37,6 +37,9 @@ public:
 	static void configureXmitPower(int8_t dBm);
 	static int8_t getXmitPower();
 
+	// value that indicates has been configured (not in reset configuration)
+	static uint32_t configurationSignature();
+
 private:
 	static void configureShortCRCLength();
 	static void configureShortCRCGeneratorInit();

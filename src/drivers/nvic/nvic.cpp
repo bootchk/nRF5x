@@ -7,8 +7,10 @@
 /*
  * Two implementations:
  * - incompatible with SD, using NVIC_... API
- * - compatible with SD, using sd_nvic_... API
+ * - compatible with SD, using sd_nvic_... API  see libNRFDrivers/nvicCoordinated
  */
+
+// !!! Linker chooses the first implementation it sees, when you link multiple definitions?
 
 // only need CMSIS defs, and nrf.h seems to include them
 // Implementation uses macros defined in /components/toolchain/cmsis/include/ e.g. core_cm4.h
