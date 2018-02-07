@@ -213,7 +213,7 @@ uint8_t RadioDevice::receivedLogicalAddress() {
 	return (uint8_t) NRF_RADIO->RXMATCH;
 }
 
-int RadioDevice::receivedSignalStrength() {
+unsigned int RadioDevice::receivedSignalStrength() {
 	/*
 	 * Assume RSSI_END event is set i.e. sample is done.
 	 *
@@ -222,6 +222,6 @@ int RadioDevice::receivedSignalStrength() {
 	 * Don't clear RSSI_END, we don't care.
 	 */
 	// Assert a shortcut is set so that
-	int result = NRF_RADIO->RSSISAMPLE;
+	unsigned int result = NRF_RADIO->RSSISAMPLE;
 	return result;
 }

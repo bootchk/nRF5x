@@ -120,5 +120,5 @@ public:
 	 * Result is for most recently received packet.
 	 * If called before any receive, result is meaningless.
 	 */
-	static int receivedSignalStrength();
+	static unsigned int receivedSignalStrength();
 };
