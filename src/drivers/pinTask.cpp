@@ -32,6 +32,18 @@ void PinTask::disableTaskAndForceToInitialState(){
 /*
  * Identify OUT register for task 0 must correspond to MY_TASK_INDEX.
  */
-uint32_t PinTask::getTaskRegisterAddress() {
-    return  nrf_gpiote_task_addr_get(NRF_GPIOTE_TASKS_OUT_0);
+uint32_t* PinTask::getTaskRegisterAddress() {
+	/*
+	 * The declared type of ...addr_get is wrong.
+	 * Cast it to a pointer type.
+	 */
+    return (uint32_t*) (nrf_gpiote_task_addr_get(NRF_GPIOTE_TASKS_OUT_0));
+}
+
+
+/*
+ * Start a task by writing 1 to its register
+ */
+void PinTask::startTask() {
+	*getTaskRegisterAddress() = 1;
 }

@@ -18,3 +18,9 @@
 #define LFTimerRTC        NRF_RTC1
 #define LFTimerRTCIRQ     RTC1_IRQn
 #endif
+
+
+/*
+ * Configure how many RTC compare registers have facades.
+ */
+#define COMPARE_REG_COUNT 3

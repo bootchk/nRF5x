@@ -23,5 +23,8 @@ public:
 	static void disableTaskAndForceToInitialState();
 
 	// Needed to hook to PPI
-	static uint32_t getTaskRegisterAddress();
+	static uint32_t* getTaskRegisterAddress();
+
+	// Start the task which self provides
+	static void startTask();
 };

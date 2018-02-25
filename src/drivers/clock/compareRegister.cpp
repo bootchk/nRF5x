@@ -35,9 +35,10 @@
  * This does not guarantee the state of the hw compare registers
  * (but typically, all are in POR reset state i.e. disabled.)
  */
-const CompareRegister compareRegisters[2] = {
+const CompareRegister compareRegisters[COMPARE_REG_COUNT] = {
 		CompareRegister(NRF_RTC_EVENT_COMPARE_0, NRF_RTC_INT_COMPARE0_MASK, 0),
-		CompareRegister(NRF_RTC_EVENT_COMPARE_1, NRF_RTC_INT_COMPARE1_MASK, 1)
+		CompareRegister(NRF_RTC_EVENT_COMPARE_1, NRF_RTC_INT_COMPARE1_MASK, 1),
+		CompareRegister(NRF_RTC_EVENT_COMPARE_2, NRF_RTC_INT_COMPARE2_MASK, 2)
 };
 
 
@@ -49,7 +50,7 @@ void CompareRegister::enableInterrupt() const {
 	clearEvent();
 
 	// Not needed: nrf_rtc_event_enable(LFTimerRTC, eventMask);
-	nrf_rtc_int_enable(LFTimerRTC, interruptMask);
+	nrf_rtc_int_enable(LFTimerRTC, eventMask);
 	// not ensure nvic enabled
 }
 
@@ -71,7 +72,7 @@ void CompareRegister::disableInterruptAndClearEvent() const{
 
 void CompareRegister::disableInterrupt() const{
 	// Not needed: nrf_rtc_event_disable(LFTimerRTC, eventMask);
-	nrf_rtc_int_disable(LFTimerRTC, interruptMask);
+	nrf_rtc_int_disable(LFTimerRTC, eventMask);
 	// not ensure nvic disabled
 }
 
@@ -104,3 +105,12 @@ void CompareRegister::set(const uint32_t newCompareValue) const {
 }
 
 
+// !!! Same mask is used to enable event signal as enable interrupt
+void CompareRegister::enableEventSignal() const {
+	nrf_rtc_event_enable(LFTimerRTC, eventMask);
+}
+
+
+void CompareRegister::disableEventSignal() const {
+	nrf_rtc_event_disable(LFTimerRTC, eventMask);
+}
