@@ -54,4 +54,11 @@ public:
 	 */
 	static bool isDebugMode();
 
+	/*
+	 * If ARM debug mode is enabled, enter Debug mode, else generate hardfault.
+	 * If a debugging probe is attached, the probe enables debug mode and controls the app,
+	 * and in that case, this will cause gdb to show the location in its GUI.
+	 */
+	static void breakIntoDebuggerOrHardfault();
+
 };

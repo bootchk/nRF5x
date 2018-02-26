@@ -80,8 +80,7 @@ void PowerComparator::powerISR() {
 		 * 1) stop execution (at time of fault.)
 		 * 2) continue, signal to others BrownoutWarning, and wait for actual BOR
 		 *
-		 * 1) BKPT causes an additional hard fault on Cortext M0
-		 * __asm("BKPT #0\n") ; // Break into the debugger, if it is running
+		 * 1) BKPT asm instruction causes an additional hard fault on Cortext M0
 		 *
 		 * 2) resetOrHalt();
 		 *   will enter infinite loop

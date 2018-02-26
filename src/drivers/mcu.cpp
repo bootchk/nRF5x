@@ -110,3 +110,6 @@ void MCU::clearResetReason() {
 	NRF_POWER->RESETREAS = 0xFFFFFFFF;
 }
 
+void MCU::breakIntoDebuggerOrHardfault() {
+	__asm("BKPT #0\n") ;
+}
