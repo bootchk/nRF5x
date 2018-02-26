@@ -64,4 +64,6 @@ public:
 	 * Whose type is OSTime (24-bit)
 	 */
 	void set(const uint32_t newCompareValue) const;
+
+	uint32_t* getEventRegisterAddress() const;
 };

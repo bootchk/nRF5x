@@ -114,3 +114,8 @@ void CompareRegister::enableEventSignal() const {
 void CompareRegister::disableEventSignal() const {
 	nrf_rtc_event_disable(LFTimerRTC, eventMask);
 }
+
+uint32_t* CompareRegister::getEventRegisterAddress() const {
+	return nrf_rtc_event_address_get(LFTimerRTC, eventMask);
+}
+
