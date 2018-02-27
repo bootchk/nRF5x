@@ -101,6 +101,13 @@ bool MCU::isDebugMode() {
 #endif
 }
 
+
+/*
+ * RESETREAS register is cumulative through resetpin, soft, dog, lockup, and wake-from-off resets.
+ * POR and Brownout resets clear it.
+ *
+ * If a har
+ */
 bool MCU::isResetReason() {
 	return (NRF_POWER->RESETREAS != 0);
 }
