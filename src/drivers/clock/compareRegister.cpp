@@ -117,6 +117,7 @@ void CompareRegister::disableEventSignal() const {
 
 
 uint32_t* CompareRegister::getEventRegisterAddress() const {
-	return nrf_rtc_event_address_get(LFTimerRTC, eventAddress );
+	// SDK mistakenly says return type is uint32_t
+	return (uint32_t*) nrf_rtc_event_address_get(LFTimerRTC, (nrf_rtc_event_t) eventAddress );
 }
 
