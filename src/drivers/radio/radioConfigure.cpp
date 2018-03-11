@@ -191,9 +191,11 @@ void RadioDevice::configureMegaBitrate(unsigned int baud) {
  * Reduces rampup from 140uSec (nrf51) to 40uSec.
  */
 void RadioDevice::configureFastRampUp() {
-#ifdef NRF52
+#ifdef NRF52_SERIES
 	NRF_RADIO->MODECNF0 = RADIO_MODECNF0_RU_Fast;
 	// Not a bitset: alters other fields of the register.
+#else
+   #warning "Not using fast rampup"
 #endif
 }
 

@@ -21,7 +21,7 @@ public:
 	static void disableRadioIRQ();
 
 	/*
-	 * LFTimer is one of the RTCx where x in [0,2] on NRF52
+	 * LFTimer is one of the RTCx (count x depends on chip, not family)
 	 */
 	static void enableLFTimerIRQ();
 	// Often never called, since RTC runs forever in many apps

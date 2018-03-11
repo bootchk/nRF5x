@@ -206,7 +206,7 @@ void PowerComparator::setThresholdAndDisable(PowerThreshold threshold) {
 
 
 // Platform specific
-#ifdef NRF52
+#ifdef NRF52_SERIES
 	/*
 	 * Alternative: V17, but that might not leave enough power to record brownout to flash?
 	 */
@@ -230,11 +230,12 @@ void PowerComparator::setBrownoutThresholdAndDisable() {
  * This ensures that the POFCON sees the write in the first peripheral bus cycle,
  * and then can generate the event in the next peripheral bus cycle.
  * I am not sure about any of this.
- *
- * This must not be optimized out.
  */
+// Timing that must not be optimized out.
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
 void PowerComparator::delayForPOFEvent() {
-#ifdef NRF52
+#if defined(NRF52_SERIES)
 	asm ("nop");
 	asm ("nop");
 	asm ("nop");
@@ -242,9 +243,12 @@ void PowerComparator::delayForPOFEvent() {
 
 	asm ("nop");
 	asm ("nop");
+#elif defined(NRF51)
+#else
+#error "M4/MO NRF Family not defined."
 #endif
 	// NRF51 peripheral bus freq matches cpu freq so a few cyles is enough
 	asm ("nop");
 	asm ("nop");
-
 }
+#pragma GCC pop_options

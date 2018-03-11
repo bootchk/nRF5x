@@ -68,7 +68,10 @@ void MCU::clearEventRegister() {
 	__WFE();	// Since internal event flag is set, this clears it without sleeping
 }
 
-
+/*
+ * Must not be optimized out.
+ */
+__attribute__((optimize("O0")))
 void MCU::flushWriteCache() {
 	// Implementation: read any IO mapped address, which flushes write buffer on IO bus nrf52
 	(void) NRF_POWER->POFCON;
@@ -76,8 +79,11 @@ void MCU::flushWriteCache() {
 
 
 void MCU::enableInstructionCache(){
-#ifdef NRF52
+#ifdef NRF52832_XXAA
 	NRF_NVMC->ICACHECNF=0x01;
+#else
+	// NRF51 series and NRF52810 don't have this register
+    #warning "Not using inst cache enable."
 #endif
 }
 
@@ -88,7 +94,7 @@ void MCU::disableIRQ(){
 
 
 bool MCU::isDebugMode() {
-#ifdef NRF52
+#ifdef NRF52_SERIES
 	/*
 	 * Not sure this works.
 	 * If not debug mode, are DWT registers readable?
