@@ -39,7 +39,7 @@ enum class PowerThreshold {
 };
 
 
-typedef void (*Callback)();
+typedef void (*Callback)(void);
 
 
 class PowerComparator {
