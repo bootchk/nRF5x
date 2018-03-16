@@ -83,7 +83,7 @@ void MCU::enableInstructionCache(){
 	NRF_NVMC->ICACHECNF=0x01;
 #else
 	// NRF51 series and NRF52810 don't have this register
-    #warning "Not using inst cache enable."
+    #pragma message( "No instruction cache enable." )
 #endif
 }
 

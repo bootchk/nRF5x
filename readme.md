@@ -126,3 +126,14 @@ I use:
      Eclipse ARM GCC plugin
      Nordic NRF_SDK v12
 
+
+Cmake Build
+-
+
+    rm -rf cmakeBuild
+    mkdir cmakeBuild
+    cmake -H. -B"cmakeBuild" -G "Ninja"
+    cmake --build "cmakeBuild" --target nRF5x52810e
+    
+    
+    
