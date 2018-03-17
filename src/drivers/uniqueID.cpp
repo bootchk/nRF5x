@@ -3,16 +3,10 @@
 
 #include <nrf.h>
 
-/*
- * unique ID burned at factory
- * 6 bytes
- */
-
-
 // FUTURE use a 48-bit bit field
 
 
-uint64_t deviceID() {
+uint64_t SystemProperties::deviceID() {
 	/*
 	 * NRF_FICR->DEVICEADDR[] is array of 32-bit words.
 	 * NRF_FICR->DEVICEADDR yields type (unit32_t*)
