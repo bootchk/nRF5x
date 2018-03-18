@@ -28,16 +28,18 @@ nRF5SetIncludePaths()
 # libraries
 # Each specific to a chip
 # (It might be possible to build one library that works with all nRF52x chips?)
-add_library(nRF5x52810e "")
+# Not exist separate libraries for 52810e (emulated) and 52810
+add_library(nRF5x52810 "")
 
-set_target_properties( nRF5x52810e
+set_target_properties( nRF5x52810
     PROPERTIES
        CHIP "nrf52810e"
        SOFTDEVICE "s112"
        FLOAT_ABI "soft"
     )
-nRF5CheckTargetProperties(nRF5x52810e)
-nRF5ConfigTargetByProperties(nRF5x52810e)
+nRF5CheckTargetProperties(nRF5x52810)
+nRF5ConfigTargetByProperties(nRF5x52810)
+# No startup sources or link script
 
 
 set(MY_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/src/drivers")
@@ -64,12 +66,12 @@ list(APPEND MY_SOURCE_LIST
 )
 
 target_sources(
-    nRF5x52810e
+    nRF5x52810
     PUBLIC
        "${MY_SOURCE_LIST}"
     )
     
-target_include_directories(nRF5x52810e
+target_include_directories(nRF5x52810
    PUBLIC
        "${CMAKE_CURRENT_LIST_DIR}"
        "${CMAKE_CURRENT_LIST_DIR}/src"
