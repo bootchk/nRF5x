@@ -17,14 +17,38 @@
 
 // Non-parameterized implementation: one channel, toggle, initially high
 class PinTask {
-public:
-	static void configureTaskOnPinToToggleInitiallyHigh( uint32_t pin );
-	static void enableTask();
+private:
+	// Not used
 	static void disableTaskAndForceToInitialState();
 
-	// Needed to hook to PPI
-	static uint32_t* getTaskRegisterAddress();
+public:
+	/*
+	 * Configure tasks for an out, sunk pin.
+	 *
+	 * Tasks are SunkOn and SunkOff.
+	 * Pin is a sink, initially high (not conducting)
+	 */
+	static void configureSunkPinTasks( uint32_t pin );
 
-	// Start the task which self provides
-	static void startTask();
+	/*
+	 * Usually only enabled once, and never disabled.
+	 */
+	static void enableTask();
+
+	/*
+	 * Needed to hook to PPI.
+	 * We are only using sunkOff w PPI
+	 */
+	static uint32_t* getSunkOffTaskRegisterAddress();
+
+	static void startSunkOffTask();
+	static void startSunkOnTask();
+
+	/*
+	 * !!! While GPIOTE used, GPIO.OUT does NOT show state of pin.
+	 * !!! Obscure:  GPIO.IN does show state of pin.
+	 */
+	// static bool pinState();
+
+
 };
