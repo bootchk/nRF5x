@@ -33,13 +33,7 @@
  * There is conflicting advice about the proper order.
  * The WFE, SEV, WFE order seems to be most often recommended/used.
  */
-void MCU::sleep() {
-
-
-
-#define USE_WFE 1
-#ifdef USE_WFE
-
+void MCU::sleepUntilEvent() {
 	// If no event is set, sleep until the next event, at which time the event register will be set.
 	// If event register is already set, clear it.
 	__WFE();
@@ -55,11 +49,11 @@ void MCU::sleep() {
 
 	// For more information on the WFE - SEV - WFE sequence, please refer to the following Devzone article:
 	// https://devzone.nordicsemi.com/index.php/how-do-you-put-the-nrf51822-chip-to-sleep#reply-1589
+}
 
-#else
+void MCU::sleepUntilInterrupt() {
 	// All events we are interested in have interrupts enabled
 	__WFI();
-#endif
 }
 
 
