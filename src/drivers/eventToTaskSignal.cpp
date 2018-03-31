@@ -21,14 +21,20 @@ void EventToTaskSignal::connect(uint32_t * eventAddress, uint32_t * taskAddress)
 	nrf_ppi_channel_enable(NRF_PPI_CHANNEL0);
 }
 
+
+
+/*
+ * NRF51 has no forks
+ */
 void EventToTaskSignal::connectOneShot(uint32_t * eventAddress, uint32_t * taskAddress) {
 
 	// connection user wants
 	connect(eventAddress, taskAddress);
 
 	// Fork channel to disable self's group
+	// another cast, bug in docs
 	nrf_ppi_fork_endpoint_setup(NRF_PPI_CHANNEL0,
-	                            nrf_ppi_task_address_get(NRF_PPI_TASK_CHG0_DIS));
+			(uint32_t) nrf_ppi_task_address_get(NRF_PPI_TASK_CHG0_DIS));
 
 	// channel 0 in group 0
 	nrf_ppi_channel_include_in_group(NRF_PPI_CHANNEL0, NRF_PPI_CHANNEL_GROUP0);
