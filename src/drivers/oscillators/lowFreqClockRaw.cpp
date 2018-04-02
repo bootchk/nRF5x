@@ -14,13 +14,13 @@ namespace {
 	// flag meaning only that start() was called
 	bool _isStarted = false;
 
-	Callback lfClockStartedCallback = nullptr;
-	Callback hfClockStartedCallback = nullptr;
+	VoidCallback lfClockStartedCallback = nullptr;
+	VoidCallback hfClockStartedCallback = nullptr;
 
 }
 
 
-void LowFreqClockRaw::registerCallbacks(Callback lfStarted, Callback hfStarted) {
+void LowFreqClockRaw::registerCallbacks(VoidCallback lfStarted, VoidCallback hfStarted) {
 	lfClockStartedCallback = lfStarted;
 	hfClockStartedCallback = hfStarted;
 }

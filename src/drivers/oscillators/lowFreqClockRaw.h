@@ -30,7 +30,7 @@
 // XXX methods const (no data members to write)
 
 
-typedef void (*Callback)();
+#include "../types.h"   // VoidCallback
 
 
 
@@ -40,7 +40,7 @@ public:
 	/*
 	 * Callbacks from ISR with interrupts disabled, should be short.
 	 */
-	static void registerCallbacks(Callback, Callback);
+	static void registerCallbacks(VoidCallback, VoidCallback);
 
 	/*
 	 * Called from IRQ Handler.

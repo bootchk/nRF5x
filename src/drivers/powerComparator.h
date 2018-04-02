@@ -1,5 +1,6 @@
 #pragma once
 
+#include "types.h"   // VoidCallback
 
 /*
  * Low-level driver for nrf5x family PowerFailureComparator (POFCON) device.
@@ -39,9 +40,6 @@ enum class PowerThreshold {
 };
 
 
-typedef void (*Callback)(void);
-
-
 class PowerComparator {
 public:
 
@@ -54,7 +52,7 @@ public:
 	/*
 	 * To isolate driver from higher layer concerns.
 	 */
-	static void registerBrownoutCallback(Callback);
+	static void registerBrownoutCallback(VoidCallback);
 
 	static void enable();
 	static void disable();

@@ -12,7 +12,7 @@
 namespace {
 
 
-Callback brownoutCallback = nullptr;
+VoidCallback brownoutCallback = nullptr;
 
 
 static void setThresholdMaskAndDisable(nrf_power_pof_thr_t thresholdMask) {
@@ -62,7 +62,7 @@ static void setThresholdMaskAndDisable(nrf_power_pof_thr_t thresholdMask) {
 
 
 
-void PowerComparator::registerBrownoutCallback(Callback callback) {
+void PowerComparator::registerBrownoutCallback(VoidCallback callback) {
 	brownoutCallback = callback;
 }
 
