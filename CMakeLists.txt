@@ -2,6 +2,15 @@ cmake_minimum_required (VERSION 2.6)
 
 project (nRF5x C CXX)
 
+# Brief
+# Drivers for devices on NRF5x family chips
+# Uses header only (in-lined) SDK files
+# No .c files for SDK are in the library.
+# Library does not depend on any other libraries.
+# A library for each family: NRF52 and NRF51.
+# Not a library for each chip (uses only device common across the family.)
+
+
 set(CMAKE_MODULE_PATH "/home/bootch/git/nRF5Cmake/")
 message(" Module path is ${CMAKE_MODULE_PATH}")
 
@@ -25,20 +34,31 @@ nRF5SetIncludePaths()
 # nRF5SetSDKSourcesBasic()
 
 
-# libraries
-# Each specific to a chip
-# (It might be possible to build one library that works with all nRF52x chips?)
+# Primary artifact is a library
+#
+# Library is specific to chip family 52xxx.
+# But is not specific to a chip.
+# But is not specific to SOFTDEVICE.
+# Assert that the used SDK code has no #ifdef's on chip or SOFTDEVICE
+# Assert that the code in the library does not use any devices that are not in every chip of the family.
+#
+# Some of the routines in the library are not SOFTDEVICE compatible,
+# so you must not blindly use them.
+# If you don't use them, the other routines are safe to use and link.
+#
+# We use chip nrf52832_xxaa as representative of the family.
 # Not exist separate libraries for 52810e (emulated) and 52810
-add_library(nRF5x52810 "")
 
-set_target_properties( nRF5x52810
+add_library(nRF5x52 "")
+
+set_target_properties( nRF5x52
     PROPERTIES
-       CHIP "nrf52810e"
-       SOFTDEVICE "s112"
+       CHIP "nrf52832_xxaa"
+       SOFTDEVICE "none"
        FLOAT_ABI "soft"
     )
-nRF5CheckTargetProperties(nRF5x52810)
-nRF5ConfigTargetByProperties(nRF5x52810)
+nRF5CheckTargetProperties(nRF5x52)
+nRF5ConfigTargetByProperties(nRF5x52)
 # No startup sources or link script
 
 
@@ -66,17 +86,18 @@ list(APPEND MY_SOURCE_LIST
 )
 
 target_sources(
-    nRF5x52810
+    nRF5x52
     PUBLIC
        "${MY_SOURCE_LIST}"
     )
     
-target_include_directories(nRF5x52810
+target_include_directories(nRF5x52
    PUBLIC
        "${CMAKE_CURRENT_LIST_DIR}"
        "${CMAKE_CURRENT_LIST_DIR}/src"
    )
-    
+
+# This library does not link depend on any other libraries
 
 
 
