@@ -33,30 +33,42 @@ bool Comparator::initCompareAndShutdown(ComparatorReferenceVolts refVolts) {
 	// Select internal reference voltage (VBG), from given enum value
 	nrf_comp_ref_set(convertRefVolts(refVolts));
 
-	// hardcoded analog pin 0
-	nrf_comp_input_select(NRF_COMP_INPUT_0);
+	// Not necessary since mode is SE
+	// Select external reference to any other pin not used by VIN-
+	// nrf_comp_ext_ref_set(1);
 
-	// !!! Thresholds must be set even though not using crossing events.
+	// hardcoded analog pin 1
+	nrf_comp_input_select(NRF_COMP_INPUT_1);
+
+
+	// !!! Thresholds need to be set even though not using crossing events.
 	nrf_comp_th_t thresholdConfig;
-	thresholdConfig.th_up = 0x30;	// 100% of reference voltage, 0x3F ==6-bits of 1's == decimal 63
-	thresholdConfig.th_down = 0x20;
+	thresholdConfig.th_up = 0x3F;	// 100% of reference voltage, 0x3F ==6-bits of 1's == decimal 63
+	thresholdConfig.th_down = 0x3F;
 	nrf_comp_th_set(thresholdConfig);
+
+	// enable short from ready to sample
+	nrf_comp_shorts_enable(1);
 
 	// config hysteresis
 	// docs say not needed in single-ended mode
-	// NRF_LPCOMP->HYST=1;
+	// NRF_COMP->HYST=1;
 
 	//start
 	nrf_comp_enable();
 	nrf_comp_task_trigger(NRF_COMP_TASK_START);
 	while(!nrf_comp_event_check(NRF_COMP_EVENT_READY));	// spins typically 50uSec
 
-	// must be clear so SAMPLE task can set it
-	nrf_comp_event_clear(NRF_COMP_EVENT_READY);
+	// must be clear so SAMPLE task can set it.
+	// But we are not using SAMPLE task
+	// nrf_comp_event_clear(NRF_COMP_EVENT_READY);
 
-	nrf_comp_task_trigger(NRF_COMP_TASK_SAMPLE);
+	//nrf_comp_task_trigger(NRF_COMP_TASK_SAMPLE);
 	// READY event is NOT set when sample is ready.
 	// See propagation delay for
+
+	// Possible delay for comparator to
+	// for (int i=0; i<20; i++) { asm ("nop"); }
 
 	unsigned int result = nrf_comp_result_get();
 
