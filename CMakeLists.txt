@@ -67,7 +67,7 @@ set(MY_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/src/drivers")
 list(APPEND MY_SOURCE_LIST
    ${MY_SOURCE_DIR}/clock/counter.cpp
    ${MY_SOURCE_DIR}/clock/compareRegister.cpp
-   ${MY_SOURCE_DIR}/nvic/nvic.cpp
+   ${MY_SOURCE_DIR}/nvic/nvicRaw.cpp
    ${MY_SOURCE_DIR}/oscillators/hfClock.cpp
    ${MY_SOURCE_DIR}/oscillators/lowFreqClockRaw.cpp
    ${MY_SOURCE_DIR}/radio/radio.cpp

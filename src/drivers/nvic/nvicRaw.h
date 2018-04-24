@@ -2,8 +2,8 @@
 #pragma once
 
 /*
- * Hides implementation.
- * Two implementations: SD compatible and not.
+ * SD incompatible NVIC driver.  Raw meaning: unprotected by Softdevice.
+ * See NRFDrivers::Interrupt for SD compatible version.
  *
  * NVIC nested vectored interrupt controller.
  * NVIC is not a device, but inside the mpu.
@@ -13,7 +13,7 @@
  *
  * !!! Nvic is the class, NVIC is a Nordic macro
  */
-class Nvic {
+class NvicRaw {
 public:
 	// pair of methods for each IRQ
 

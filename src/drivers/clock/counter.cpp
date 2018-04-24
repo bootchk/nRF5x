@@ -1,10 +1,9 @@
 
+#include <drivers/nvic/nvicRaw.h>
 #include "counter.h"
 
 // Implementation: using HAL because it accounts for Cortex M4 write buffer using compiler flag  __CORTEX_M == 0x04
 #include "nrf_rtc.h"	// HAL
-#include "../nvic/nvic.h"
-
 #include "../hwConfig.h"
 
 
@@ -71,7 +70,10 @@ void Counter::configureOverflowInterrupt(){
 	// Writes 1 to bit of INTENSET reg.  Does not affect other enabled interrupts.
 	nrf_rtc_int_enable(LFTimerRTC, NRF_RTC_INT_OVERFLOW_MASK);
 
-	Nvic::enableLFTimerIRQ();
+	/*
+	 * !!! We do not enable the IRQ, only configure the device.
+	 * Caller must do that (possibly compatible with Softdevice.)
+	 */
 
 	// Interrupt can come at any time.
 	// Usually, this is called shortly after starting Counter, so interrupt will come after period of Counter

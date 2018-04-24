@@ -30,7 +30,7 @@ bool Comparator::initCompareAndShutdown(ComparatorReferenceVolts refVolts) {
 	nrf_comp_speed_mode_set((nrf_comp_sp_mode_t) COMP_MODE_SP_High);	// Low
 
 
-	// Select internal reference voltage (VBG), from given enum value
+	// Select VIN+ as internal reference voltage (VBG), from given enum value
 	nrf_comp_ref_set(convertRefVolts(refVolts));
 
 	// Not necessary since mode is SE
@@ -40,13 +40,14 @@ bool Comparator::initCompareAndShutdown(ComparatorReferenceVolts refVolts) {
 	// hardcoded analog pin 1
 	nrf_comp_input_select(NRF_COMP_INPUT_1);
 
-
-	// !!! Thresholds need to be set even though not using crossing events.
+	// !!! Thresholds need to be set even though not using crossing events,
+	// because the comparator compares against VUP and VDOWN, not against the raw VIN+
 	nrf_comp_th_t thresholdConfig;
 	thresholdConfig.th_up = 0x3F;	// 100% of reference voltage, 0x3F ==6-bits of 1's == decimal 63
 	thresholdConfig.th_down = 0x3F;
 	nrf_comp_th_set(thresholdConfig);
 
+	// TODO is this necessary?
 	// enable short from ready to sample
 	nrf_comp_shorts_enable(1);
 
@@ -63,7 +64,7 @@ bool Comparator::initCompareAndShutdown(ComparatorReferenceVolts refVolts) {
 	// But we are not using SAMPLE task
 	// nrf_comp_event_clear(NRF_COMP_EVENT_READY);
 
-	//nrf_comp_task_trigger(NRF_COMP_TASK_SAMPLE);
+	// nrf_comp_task_trigger(NRF_COMP_TASK_SAMPLE);
 	// READY event is NOT set when sample is ready.
 	// See propagation delay for
 
@@ -77,9 +78,9 @@ bool Comparator::initCompareAndShutdown(ComparatorReferenceVolts refVolts) {
 	else              isAbove = true;
 
 
-	// We don't care about threshold crossing events
-
+	// One-shot: made one comparison, now disable.  We don't care about threshold crossing events.
 	nrf_comp_disable();
+
 	// assert READY event will soon be clear
 	return isAbove;
 }

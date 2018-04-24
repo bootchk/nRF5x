@@ -1,3 +1,4 @@
+#include <drivers/nvic/nvicRaw.h>
 #include <cassert>
 
 //#include <nrf.h>	// direct access to NRF_CLOCK
@@ -5,7 +6,6 @@
 
 #include "hfClock.h"
 
-#include "../nvic/nvic.h"
 
 // Driver: no calls to other modules, only to HAL
 

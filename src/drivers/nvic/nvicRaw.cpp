@@ -1,19 +1,7 @@
 
+#include <drivers/nvic/nvicRaw.h>
 #include <cassert>
 
-#include "nvic.h"
-
-
-/*
- * Two implementations:
- * - incompatible with SD, using NVIC_... API
- * - compatible with SD, using sd_nvic_... API  see libNRFDrivers/nvicCoordinated
- */
-
-// !!! Linker chooses the first implementation it sees, when you link multiple definitions?
-
-// only need CMSIS defs, and nrf.h seems to include them
-// Implementation uses macros defined in /components/toolchain/cmsis/include/ e.g. core_cm4.h
 #include "nrf.h"
 
 #include "../hwConfig.h"
@@ -24,24 +12,24 @@
 /*
  * Radio
  */
-void Nvic::enableRadioIRQ() {
+void NvicRaw::enableRadioIRQ() {
 	NVIC_ClearPendingIRQ(RADIO_IRQn);
 	NVIC_EnableIRQ(RADIO_IRQn);
 }
 
-void Nvic::disableRadioIRQ() {
+void NvicRaw::disableRadioIRQ() {
 	NVIC_ClearPendingIRQ(RADIO_IRQn);
 	NVIC_DisableIRQ(RADIO_IRQn);
 }
 
 #ifdef FUTURE
 not supported by HAL
-bool Nvic::isEnabledRadioIRQ() {
+bool NvicRaw::isEnabledRadioIRQ() {
 	return NVIC_GetEnableIRQ(RADIO_IRQn);
 }
 
 
-bool Nvic::isEnabledPowerClockIRQ(){
+bool NvicRaw::isEnabledPowerClockIRQ(){
 	return false;
 	// !!! Not correct: NVIC_GetActive(POWER_CLOCK_IRQn);
 }
@@ -50,7 +38,7 @@ bool Nvic::isEnabledPowerClockIRQ(){
 /*
  * RTCx
  */
-void Nvic::enableLFTimerIRQ() {
+void NvicRaw::enableLFTimerIRQ() {
 	NVIC_ClearPendingIRQ(LFTimerRTCIRQ);
 
 	/*
@@ -59,12 +47,12 @@ void Nvic::enableLFTimerIRQ() {
 	NVIC_SetPriority(LFTimerRTCIRQ, 7);
 	NVIC_EnableIRQ(LFTimerRTCIRQ);
 }
-void Nvic::disableLFTimerIRQ() {
+void NvicRaw::disableLFTimerIRQ() {
 	NVIC_ClearPendingIRQ(LFTimerRTCIRQ);
 	NVIC_DisableIRQ(LFTimerRTCIRQ);
 }
 
-void Nvic::pendLFTimerInterrupt() {
+void NvicRaw::pendLFTimerInterrupt() {
 	NVIC_SetPendingIRQ(LFTimerRTCIRQ);
 }
 
@@ -78,13 +66,13 @@ void Nvic::pendLFTimerInterrupt() {
  * If using SD, must disable interrupts before enabling SD.
  */
 
-void Nvic::enablePowerClockIRQ(){
+void NvicRaw::enablePowerClockIRQ(){
 	NVIC_ClearPendingIRQ(POWER_CLOCK_IRQn);
 	NVIC_EnableIRQ(POWER_CLOCK_IRQn);
 	//assert(isEnabledPowerClockIRQ());
 }
 
-void Nvic::disablePowerClockIRQ(){
+void NvicRaw::disablePowerClockIRQ(){
 	NVIC_ClearPendingIRQ(POWER_CLOCK_IRQn);
 	NVIC_DisableIRQ(POWER_CLOCK_IRQn);
 }
@@ -92,7 +80,7 @@ void Nvic::disablePowerClockIRQ(){
 
 
 
-void Nvic::softResetSystem(){
+void NvicRaw::softResetSystem(){
 	NVIC_SystemReset();
 }
 
