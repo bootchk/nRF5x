@@ -37,22 +37,22 @@ bool Comparator::initCompareAndShutdown(ComparatorReferenceVolts refVolts) {
 	// Select external reference to any other pin not used by VIN-
 	// nrf_comp_ext_ref_set(1);
 
-	// hardcoded analog pin 1
+	// hardcoded analog pin 1 AIN1
 	nrf_comp_input_select(NRF_COMP_INPUT_1);
 
 	// !!! Thresholds need to be set even though not using crossing events,
-	// because the comparator compares against VUP and VDOWN, not against the raw VIN+
+	// because the comparator compares VIN+ against VUP and VDOWN, not against the raw VREF
 	nrf_comp_th_t thresholdConfig;
 	thresholdConfig.th_up = 0x3F;	// 100% of reference voltage, 0x3F ==6-bits of 1's == decimal 63
 	thresholdConfig.th_down = 0x3F;
 	nrf_comp_th_set(thresholdConfig);
 
-	// TODO is this necessary?
+	// Not necessary: RESULT register is valid even without a SAMPLE task.
 	// enable short from ready to sample
 	nrf_comp_shorts_enable(1);
 
 	// config hysteresis
-	// docs say not needed in single-ended mode
+	// docs say HYST is ignored in single-ended mode
 	// NRF_COMP->HYST=1;
 
 	//start
@@ -77,6 +77,8 @@ bool Comparator::initCompareAndShutdown(ComparatorReferenceVolts refVolts) {
 	if (result == 0 ) isAbove = false;
 	else              isAbove = true;
 
+
+	// To save config, yet go low-power, could STOP task
 
 	// One-shot: made one comparison, now disable.  We don't care about threshold crossing events.
 	nrf_comp_disable();

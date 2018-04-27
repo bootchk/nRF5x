@@ -74,7 +74,8 @@ list(APPEND MY_SOURCE_LIST
    ${MY_SOURCE_DIR}/radio/radioAddress.cpp
    ${MY_SOURCE_DIR}/radio/radioConfigure.cpp
    ${MY_SOURCE_DIR}/radio/radioConfigureCRC.cpp
-   ${MY_SOURCE_DIR}/adc.cpp
+   ${MY_SOURCE_DIR}/adc/adc.cpp
+   ${MY_SOURCE_DIR}/adc/saadc.cpp
    ${MY_SOURCE_DIR}/eventToTaskSignal.cpp
    ${MY_SOURCE_DIR}/flashController.cpp
    ${MY_SOURCE_DIR}/gpioDriver.cpp
