@@ -94,7 +94,7 @@ void VccMonitor::init() {
 }
 
 
-unsigned int VccMonitor::measureVcc() {
+unsigned int VccMonitor::getVccProportionTo255() {
 	// saadc do DMA to stack address
 	nrf_saadc_value_t result;	// signed short 16-bit
 
@@ -106,5 +106,7 @@ unsigned int VccMonitor::measureVcc() {
 	while (0 == nrf_saadc_event_check(NRF_SAADC_EVENT_END) ) {}
 
 	nrf_saadc_disable();
-	return convert8BitResultToPercentageOf3_6V((unsigned int) result);	// return value off stack
+	return result;
+
+	// convert8BitResultToPercentageOf3_6V((unsigned int) result);	// return value off stack
 }

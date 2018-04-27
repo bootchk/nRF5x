@@ -7,5 +7,5 @@
 class VccMonitor {
 public:
 	static void init();
-	static unsigned int measureVcc();
+	static unsigned int getVccProportionTo255();
 };
