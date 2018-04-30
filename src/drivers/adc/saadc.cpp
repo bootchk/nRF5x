@@ -90,7 +90,14 @@ unsigned int convert8BitResultToPercentageOf3_6V(unsigned int result)  {
 void VccMonitor::init() {
 	configureSAADC();
 	configureSAADCChannel();
-
+	/*
+	 * ???
+	 * enable means: allow conversions to be started.
+	 * Will be low-power while not started.
+	 * Disable means: allow configuration to be done.
+	 * No need to disable to achieve low power.
+	 */
+	nrf_saadc_enable();
 }
 
 
@@ -98,14 +105,14 @@ unsigned int VccMonitor::getVccProportionTo255() {
 	// saadc do DMA to stack address
 	nrf_saadc_value_t result;	// signed short 16-bit
 
-	nrf_saadc_enable();
 	nrf_saadc_buffer_init(&result, 1);
 	nrf_saadc_task_trigger(NRF_SAADC_TASK_START);
 	nrf_saadc_task_trigger(NRF_SAADC_TASK_SAMPLE);
 	// blocking
 	while (0 == nrf_saadc_event_check(NRF_SAADC_EVENT_END) ) {}
 
-	nrf_saadc_disable();
+	// Stop so low-power.
+	nrf_saadc_task_trigger(NRF_SAADC_TASK_STOP);
 	return result;
 
 	// convert8BitResultToPercentageOf3_6V((unsigned int) result);	// return value off stack
