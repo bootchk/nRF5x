@@ -105,10 +105,16 @@ unsigned int VccMonitor::getVccProportionTo255() {
 	// saadc do DMA to stack address
 	nrf_saadc_value_t result;	// signed short 16-bit
 
+	// Clear event (still set from prior iteration)
+	nrf_saadc_event_clear(NRF_SAADC_EVENT_END);
 	nrf_saadc_buffer_init(&result, 1);
 	nrf_saadc_task_trigger(NRF_SAADC_TASK_START);
 	nrf_saadc_task_trigger(NRF_SAADC_TASK_SAMPLE);
-	// blocking
+
+	/*
+	 * Blocking.
+	 * Event means: "The ADC has filled up the result buffer"
+	 */
 	while (0 == nrf_saadc_event_check(NRF_SAADC_EVENT_END) ) {}
 
 	// Stop so low-power.
